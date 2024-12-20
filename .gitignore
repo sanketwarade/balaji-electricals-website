@@ -1,13 +1,15 @@
 # Node modules
-/node_modules/
 
-# Environment variables
-/.env
+
+
 
 # Log files
 *.log
 
 # OS files
-.DS_Store
+
 Thumbs.db
+node_modules/
+.env
+.DS_Store
 
