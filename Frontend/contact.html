@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Contact BALAJI ELECTRICALS for welding machines, automation solutions, and services.">
+    <title>Contact Us - BALAJI ELECTRICALS</title>
+    
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Styles -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #013a72, #0261c7);
+            color: #fff;
+        }
+    
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: #00264d;
+            color: #fff;
+            
+        }
+    
+        header .logo {
+            display: flex;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+    
+        header .logo img {
+            height: 50px;
+            margin-right: 10px;
+        }
+        nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 5px 10px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+nav a:hover {
+    color: #FFD700;
+}
+
+nav a.active {
+    color: WHITE;
+}
+    
+        
+           /* Hamburger Menu on the right */
+           .hamburger {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 20px;
+    right: -15px;
+    z-index: 1100;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.hamburger.active {
+    transform: rotate(90deg); /* Rotate the hamburger icon when active */
+}
+
+.hamburger i {
+    color: #fff;
+    font-size: 2rem;
+}
+/* Mobile menu */
+#navbar {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70%;
+    height: 100%;
+    background-color: #00264d;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    transition: right 0.3s ease;
+    z-index: 1000;
+    justify-content: flex-start; /* Align items at the top */
+    padding-top: 60px; /* Add space at the top to avoid overlapping with the header */
+}
+
+/* When the navbar is active, bring it into view */
+#navbar.active {
+    right: 0;
+}
+
+#navbar a {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    margin: 10px 0;
+}
+
+#navbar a:hover {
+    color: #FFD700;
+}
+
+/* Close button inside the menu */
+.close-btn {
+    align-self: flex-end;
+    font-size: 1.5rem;
+    color: #fff;
+    cursor: pointer;
+    
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+#navbar.active .close-btn {
+    opacity: 1; /* Fade in the close button when menu is active */
+    transform: translateX(-70px);  /* Move the close button slightly to the left */
+}
+
+ /* Media Queries for Mobile */
+@media (max-width: 768px) {
+    .hamburger {
+        display: block; /* Show hamburger menu only on small screens */
+    }
+
+    nav.desktop-nav {
+        display: none; /* Hide navigation links on mobile */
+    }
+}
+    
+        .container {
+            max-width: 700px;
+            margin: 50px auto;
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+            flex: 1;
+        }
+    
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
+    
+        p {
+            font-size: 1.1rem;
+            margin: 10px 0;
+        }
+    
+        .contact-info {
+            margin: 30px 0;
+        }
+    
+        .contact-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+        }
+    
+        .contact-item i {
+            font-size: 1.5rem;
+            margin-right: 15px;
+            color: #FFD700;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+    
+        .contact-item a {
+            color: #FFD700;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+    
+        .contact-item a:hover {
+            color: #ffeb3b;
+        }
+    
+        .map-container {
+            margin-top: 30px;
+        }
+    
+        .map {
+            width: 100%;
+            height: 300px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    
+        .form-container {
+            margin-top: 30px;
+            text-align: left;
+        }
+    
+        .form-container form {
+            display: flex;
+            flex-direction: column;
+        }
+    
+        .form-container label {
+            font-size: 1rem;
+            margin: 10px 0 5px;
+        }
+    
+        .form-container input, .form-container textarea {
+            padding: 10px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+    
+        .form-container button {
+            background-color: #FFD700;
+            color: #003366;
+            padding: 10px;
+            border: none;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+    
+        .form-container button:hover {
+            background-color: #ffeb3b;
+        }
+    
+        footer {
+            text-align: center;
+            background: #003366;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+    
+        /* Additional styles for the submission message */
+        .submission-message {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            display: none; /* Initially hidden */
+            text-align: center;
+        }
+    
+        /* Media Queries */
+        @media (max-width: 1024px) {
+            header .nav {
+                gap: 35px;
+                font-weight: bold;
+                color: white;
+                display: flex;
+            }
+    
+            h1 {
+                font-size: 2rem;
+                font-weight: bold;
+            }
+           
+    
+            .container {
+                margin: 40px 20px;
+                padding: 15px;
+            }
+    
+            .form-container form {
+                margin: 0 auto;
+                width: 90%;
+            }
+           
+    
+            footer {
+                font-size: 0.8rem;
+                padding: 20px;
+            }
+        }
+    
+        @media (max-width: 768px) {
+            header .logo {
+                font-size: 1.5rem;
+                flex-direction: column;
+                align-items: flex-start;
+                margin-right: -100px;
+            }
+    
+            header .nav {
+                flex-direction: column;
+                gap: 15px;
+                margin-top: 10px;
+            }
+    
+            .container {
+                width: 90%;
+                margin: 89px 20px;
+                padding: 20px;
+            }
+    
+            .map {
+                height: 250px;
+            }
+    
+            .contact-item i {
+                font-size: 1.2rem;
+            }
+    
+            .form-container label {
+                font-size: 0.9rem;
+            }
+    
+            .form-container input, .form-container textarea {
+                font-size: 0.9rem;
+            }
+            
+            footer {
+                font-size: 0.8rem;
+                padding: 10px;
+            }
+        }
+    
+        @media (max-width: 480px) {
+            header{
+                width: 110%;
+            }
+            header .logo {
+                font-size: 1.5rem;
+                flex-direction: row;
+                align-items: center;
+                
+                margin-right: 100px;
+            }
+    
+            header .nav {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .hamburger {
+                order: 2; /* Keep the hamburger menu to the right */
+                margin-left: auto; /* Push it to the far end */
+            }
+    
+            .container {
+                margin: 30px 30px;
+                padding: 10px;
+            }
+    
+            .map {
+                height: 200px;
+            }
+           
+            .contact-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+    
+            .contact-item i {
+                font-size: 1.2rem;
+                margin-bottom: 5px;
+            }
+    
+            .form-container input, .form-container textarea {
+                font-size: 0.9rem;
+            }
+    
+            footer {
+                font-size: 0.7rem;
+                padding: 10px;
+                width: 108%;
+            }
+        }
+    </style>
+    
+  
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <img src="images/BALAJI ELECTRICALS LOGO.jpg" alt="BALAJI ELECTRICALS Logo">
+            BALAJI ELECTRICALS
+        </div>
+        <!-- Hamburger Menu (hidden by default on desktop) -->
+    <div class="hamburger" onclick="openMenu()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <nav class="desktop-nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="index.html">Product & Solutions</a>
+        <a href="contact.html">Contact Us</a>
+    </nav>
+
+    <!-- Mobile Navigation Menu -->
+    <nav id="navbar">
+        <div class="close-btn" onclick="closeMenu()">
+            <i class="fas fa-times"></i>
+        </div>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="index.html">Product & Solutions</a>
+        <a href="contact.html">Contact Us</a>
+        <a href="gallery.html">Gallery</a>
+    </nav>
+    </header>
+
+    <div class="container" id="contact">
+        <h1>Contact Us</h1>
+        <p>We’d love to hear from you! Reach out through the following channels:</p>
+
+        <div class="contact-info">
+            <div class="contact-item">
+                <i class="fas fa-envelope"></i>
+                <a href="mailto:balaji.elect09@gmail.com">balaji.elect09@gmail.com</a>
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-phone"></i>
+                <a href="tel:+918888834724">+91 8888834724</a> / <a href="tel:+919028888638">+91 9028888638</a>
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <p>BALAJI ELECTRICALS, Swapnil Industrial Estate, Bhosari, 411026</p>
+            </div>
+        </div>
+
+        <div class="map-container">
+            <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d120983.2525326901!2d73.69894354335936!3d18.631361099999996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2c72b817f7815%3A0x12810d175a8e001c!2sBalaji%20Electricals!5e0!3m2!1sen!2sin!4v1732036321041!5m2!1sen!2sin" 
+                frameborder="0" 
+                style="border:0; width: 100%;" 
+                class="map" 
+                allowfullscreen>
+            </iframe>
+        </div>
+
+        <div class="form-container">
+            <h2>Enquiry Form</h2>
+            <form id="Enquiryform">
+            <form>
+                <label for="name">Full Name*</label>
+                <input type="text" id="name" name="name" placeholder="Your Full Name" required>
+                
+                <label for="email">Email Address*</label>
+                <input type="email" id="email" name="email" placeholder="Your Email Address" required>
+                
+                <label for="phone">Contact Number*</label>
+                <input type="tel" id="phone" name="phone" placeholder="Your Contact Number" required>
+                
+                <label for="subject">Subject</label>
+                <textarea id="subject" name="subject" placeholder="Enquiry Subject" rows="4"></textarea>
+
+                <button type="submit">Submit</button>
+            </form>
+            <div id="submissionMessage" class="submission-message">
+               Thank you for your enquiry! We will get back to you soon.
+            </div>
+        </div>
+    </div>
+        
+
+    <footer>
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; align-items: flex-start; padding: 20px; gap: 40px;">
+            <!-- Business Info -->
+            <div style="flex: 1; min-width: 300px; text-align: left;">
+                <h3 style="margin: 0; font-size: 1.2rem;">BALAJI ELECTRICALS</h3>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Head Office:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    Morwadi, Pimpri, Pune 411018
+                </p>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Manufacturing Plant:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    Swapnil Industries, Bhosari MIDC, Pimpri-Chinchwad 411026
+                </p>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/gmail (1).png" alt="Email Icon" style="width: 16px; margin-right: 5px;"> Email:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    <a href="mailto:balaji.elect09@gmail.com" style="color: white; text-decoration: none;">balaji.elect09@gmail.com</a>
+                </p>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/mobile.png" alt="Phone Icon" style="width: 16px; margin-right: 5px;"> Mobile:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    <a href="tel:+91 8888834724" style="color: white; text-decoration: none;">+91 8888834724</a>
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    <a href="tel:+91 9028888638" style="color: white; text-decoration: none;">+91 9028888638</a>
+                </p>
+            </div>
+    
+            <!-- Services Offered -->
+            <div style="flex: 1; min-width: 300px; text-align: left; margin-right: 40px;">
+                <h3 style="margin: 0; font-size: 1.2rem;">Our Services</h3>
+                <ul style="list-style: none; padding: 0; margin: 10px 0;">
+                    <li>- Sales and Services of Welding Machines</li>
+                    <li>- Control Panels and Automation</li>
+                    <li>- Manufacturing Welding SPM and Rotary Positioners</li>
+                    <li>- Industry-specific Automation Solutions</li>
+                </ul>
+            </div>
+    
+            <!-- Quick Links -->
+            <div style="flex: 1; min-width: 300px; text-align: left;">
+                <h3 style="margin: 0; font-size: 1.2rem;">Quick Links</h3>
+                <ul style="list-style: none; padding: 0; margin: 10px 0;">
+                    <li><a href="index.html" style="color: white; text-decoration: none;">Home</a></li>
+                    <li><a href="about.html" style="color: white; text-decoration: none;">About Us</a></li>
+                    <li><a href="contact.html" style="color: white; text-decoration: none;">Contact Us</a></li>
+                    <li><a href="index.html"  style="color: white; text-decoration: none;">Products & Solutions</a></li>
+                    <li><a href="gallery.html"  style="color: white; text-decoration: none;">Gallery</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- Social Media Links -->
+    <div style="text-align: left; flex: 1; min-width: 300px;">
+        <h3 style="margin: 0; font-size: 1.2rem;">Follow Us On</h3>
+        <div style="margin: 10px 0; display: flex; gap: 20px; align-items: center;">
+            <a href="https://www.linkedin.com/company/balajielectricals/" target="_blank" style="text-decoration: none;">
+                <i class="fab fa-linkedin" style="font-size: 2rem; color: #eef075;"></i> <!-- LinkedIn Blue -->
+            </a>
+           
+
+        </div>
+    </div>
+    
+          <!-- Horizontal Line -->
+          <hr style="border: none; border-top: 1px solid white; margin: 20px 0;">
+          <p style="text-align: center; margin-top: 20px;">&copy; 2024 BALAJI ELECTRICALS | 
+            <a href="terms.html" style="color: white; text-decoration: none;">Terms of Use</a> | 
+            <a href="privacy.html" style="color: white; text-decoration: none;">Privacy Policy</a>
+        </p>
+        
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#Enquiryform').submit(function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+
+            // Collect and validate form data
+
+            let name = $('#name').val().trim();
+             let email = $('#email').val().trim();
+            let phone = $('#phone').val().trim();
+            let subject = $('#subject').val().trim();
+
+            // Validation flags
+            let isValid = true;
+                let errorMessage = '';
+    
+                // Validate Name (Non-empty)
+                if (name.trim() === '') {
+                    isValid = false;
+                    errorMessage += 'Name is required.\n';
+                }
+    
+                // Validate Email (Valid email format)
+                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+                if (!emailPattern.test(email)) {
+                    isValid = false;
+                    errorMessage += 'Please enter a valid email address.\n';
+                }
+    
+                // Validate Mobile Number (Exactly 10 digits)
+                const phonePattern = /^\d{10}$/;
+                if (!phonePattern.test(phone)) {
+                    isValid = false;
+                    errorMessage += 'Mobile number must be exactly 10 digits.\n';
+                }
+
+                if (subject.trim().length < 10) {
+            isValid = false;
+            errorMessage += 'subject must be at least 10 characters long.\n';
+        }
+                // If validation failed, display errors
+                if (!isValid) {
+                    alert(errorMessage);  // Show error message
+                    return;  // Stop form submission
+                }
+                const formData = {
+            formType: 'enquiry',
+            name: name,
+            email: email,
+            phone: phone,
+            subject: subject,
+        };
+
+            // AJAX request
+            $.ajax({
+                url: 'http://localhost:3000/submit-Enquiryform', // Backend API URL
+                type: 'POST',
+                data: JSON.stringify(formData),
+                contentType: 'application/json',
+                success: function(response) {
+                    // Show the success message and reset the form
+                    $('#submissionMessage').show().text('Thank you for your enquiry! We will get back to you soon.');
+                    $('#Enquiryform')[0].reset();
+                },
+                error: function(error) {
+                console.error('Error details:', error);
+                alert('There is an error while submitting the form, please try again later.');
+                $('#Enquiryform')[0].reset();
+                }
+            });
+        });
+    });
+    function openMenu() {
+        document.getElementById('navbar').classList.add('active');
+        document.querySelector('.hamburger').style.display = 'none';  // Hide hamburger when menu opens
+        document.querySelector('.close-btn').style.opacity = '1';  // Show close button
+    }
+    
+    function closeMenu() {
+        document.getElementById('navbar').classList.remove('active');
+        document.querySelector('.hamburger').style.display = 'block';  // Show hamburger when menu closes
+        document.querySelector('.close-btn').style.opacity = '0';  // Hide close button
+    }
+</script>
+</body>
+</html>

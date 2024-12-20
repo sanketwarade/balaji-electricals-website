@@ -1,0 +1,733 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BALAJI ELECTRICALS specializes in welding machine sales, automation, and control panels. Your trusted partner for innovative solutions.">
+    <meta name="author" content="BALAJI ELECTRICALS">
+    <meta name="keywords" content="BALAJI ELECTRICALS,balaji electricals,mig welding,welding machine supplier pune,welding machines, automation, control panels, SPM welding machines, rotary positioners">
+    <meta name="robots" content="index, follow">
+    <title>BALAJI ELECTRICALS - Home</title>
+    
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Roboto:wght@300;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+
+    <style>
+       /* Reset */
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+}
+
+/* Header */
+header {
+    background-color: #003366;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+header .logo-container {
+    display: flex;
+    align-items: center;
+}
+
+header .logo-container img {
+    height: 50px;
+    margin-right: 10px;
+}
+
+header h1 {
+    font-size: 1.3rem;
+    margin: 0;
+    font-weight: bold;
+}
+
+nav {
+                display: flex;
+                gap: 20px;
+                margin-left: auto; /* Align navigation to the right */
+            }
+    
+            /* Desktop Navigation Links */
+            .desktop-nav a {
+                color: white;
+                font-weight: bold;
+                text-decoration: none;
+                padding: 10px 15px;
+                transition: color 0.3s ease, background-color 0.3s ease;
+            }
+             /* Loader Container */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        /* Rotating Loader */
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #3949ab;
+            border-top: 5px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Message Styling */
+        .loader-message {
+            font-size: 1rem;
+            color: #3949ab;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* Hide loader by default on larger screens */
+        @media (min-width: 769px) {
+            .loader-container {
+                display: none;
+            }
+        }
+             
+
+        /* Hamburger Menu on the right */
+        .hamburger {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 25px;
+    right: 10px;
+    z-index: 1100;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.hamburger.active {
+    transform: rotate(90deg); /* Rotate the hamburger icon when active */
+}
+
+.hamburger i {
+    color: #fff;
+    font-size: 2rem;
+}
+/* Mobile menu */
+#navbar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 70%;
+    height: 100%;
+    background-color: #00264d;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    transition: left 0.3s ease;
+    z-index: 1000;
+    justify-content: flex-start; /* Align items at the top */
+    padding-top: 60px; /* Add space at the top to avoid overlapping with the header */
+}
+
+/* When the navbar is active, bring it into view */
+#navbar.active {
+    left: 0;
+}
+
+#navbar a {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    margin: 10px 0;
+}
+
+#navbar a:hover {
+    color: #FFD700;
+}
+
+/* Close button inside the menu */
+.close-btn {
+    align-self: flex-end;
+    font-size: 1.5rem;
+    color: #fff;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+#navbar.active .close-btn {
+    opacity: 1; /* Fade in the close button when menu is active */
+}
+ /* Media Queries for Mobile */
+@media (max-width: 768px) {
+    .hamburger {
+        display: block; /* Show hamburger menu only on small screens */
+    }
+
+    nav.desktop-nav {
+        display: none; /* Hide navigation links on mobile */
+    }
+}
+
+
+/* Header for Smaller Screens */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    nav ul {
+        justify-content: flex-start;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    nav ul li a {
+        font-size: 0.9rem;
+        font-weight: bold;
+        
+    }
+}
+
+/* Hero Section */
+.hero {
+    position: relative;
+    height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    background: linear-gradient(135deg, #81b7ec 0%, #75abdd 50%, #f3e596 100%);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    color: #fff9f9;
+    text-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
+}
+
+.hero p {
+    font-size: 1.5rem;
+    color: rgb(253, 253, 253);
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* Curtain Effect for Hero Section */
+.curtain {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background: #003366;
+    z-index: 10;
+    transition: transform 2s ease-out;
+}
+
+.curtain-left {
+    left: 0;
+    transform: translateX(0);
+}
+
+.curtain-right {
+    right: 0;
+    transform: translateX(0);
+}
+
+.hero.open .curtain-left {
+    transform: translateX(-100%);
+}
+
+.hero.open .curtain-right {
+    transform: translateX(100%);
+}
+
+/* Hero Content Visibility */
+.hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: white;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 1s ease-out 2s;
+}
+
+.hero.open .hero-content {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Product Section */
+#products {
+    background: whitesmoke;
+    color: #003366;
+}
+
+section h2 {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+/* Responsive Product Section */
+.product-cards {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.product-card {
+    background: rgb(254, 255, 255);
+    color: #003366;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    text-align: center;
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+}
+
+.product-card img {
+    height: 80px;
+    margin-bottom: 15px;
+}
+
+.product-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.product-card p {
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+.product-card a {
+    text-decoration: none;
+    color: #021f5f;
+    font-weight: bold;
+}
+
+.product-card a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .product-card {
+        width: 100%;
+    }
+
+    .product-card img {
+        height: 50px;
+    }
+
+    section h2 {
+        font-size: 2rem;
+    }
+}
+
+/* Our Clients Section */
+.our-clients {
+    color: #003366;
+    padding: 20px 20px;
+    text-align: center;
+    background-color: rgb(244, 248, 209);
+    overflow-x: auto;  /* Allow horizontal scrolling */
+}
+
+.clients-logos {
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: no-wrap;
+    animation: scroll-logos 20s linear infinite;
+    gap: 50px;
+    overflow-x: auto;
+    white-space: nowrap; /* Ensure logos stay in a single row */
+    padding-bottom: 10px; /* Add some padding for better appearance */
+}
+
+.client-logo img {
+    height: 80px;
+    transition: transform 0.3s ease;
+    width: auto;
+    object-fit: contain;
+}
+
+.client-logo img:hover {
+    transform: scale(1.1);
+}
+
+@keyframes scroll-logos {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* Pause/Resume for Clients Logos */
+.clients-logos.paused {
+    animation-play-state: paused;
+}
+
+@media (max-width: 768px) {
+    .clients-logos {
+        flex-direction: row;
+        justify-content: flex-start;
+        animation:none;
+        overflow-x: auto;
+        gap: 20px; /* Adjust the gap between logos */
+        flex-wrap: nowrap;
+    }
+
+    .client-logo img {
+        height: 60px;
+        
+    }
+    our-clients {
+        padding: 20px 10px; /* Adjust padding on smaller screens */
+    }
+}
+
+/* Footer */
+footer {
+    background: #003366;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+footer a {
+    color: white;
+    text-decoration: none;
+}
+
+
+/* Footer Responsive Layout */
+@media (max-width: 768px) {
+    footer div {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    footer div h3 {
+        font-size: 1.2rem;
+    }
+
+    footer div p, footer div ul {
+        font-size: 0.9rem;
+    }
+
+    footer hr {
+        width: 100%;
+    }
+}
+
+/* Large Screens (Desktops) */
+@media (min-width: 1024px) {
+    .product-card {
+        width: 300px;
+    }
+
+    .hero h1 {
+        font-size: 4rem;
+    }
+
+    .hero p {
+        font-size: 2rem;
+    }
+
+    footer div {
+        flex-direction: row;
+    }
+}
+
+       
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo-container">
+            <img src="images/BALAJI ELECTRICALS LOGO.jpg" alt="BALAJI ELECTRICALS Logo">
+            <h1>BALAJI ELECTRICALS</h1>
+        </div>
+        <!-- Hamburger Menu (hidden by default on desktop) -->
+    <div class="hamburger" onclick="openMenu()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <nav class="desktop-nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="index.html">Product & Solutions</a>
+        <a href="contact.html">Contact Us</a>
+    </nav>
+
+    <!-- Mobile Navigation Menu -->
+    <nav id="navbar">
+        <div class="close-btn" onclick="closeMenu()">
+            <i class="fas fa-times"></i>
+        </div>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="index.html">Product & Solutions</a>
+        <a href="contact.html">Contact Us</a>
+        <a href="gallery.html">Gallery</a>
+
+    </nav>
+    </header>
+     <!-- Loader -->
+     <div class="loader-container" id="loader">
+        <div class="loader"></div>
+        <p class="loader-message">For a better experience, switch to Desktop Mode</p>
+    </div>
+
+   
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <!-- Curtain Elements -->
+    <div class="curtain curtain-left"></div>
+    <div class="curtain curtain-right"></div>
+        <div>
+            <h1>BALAJI ELECTRICALS</h1>
+            <p>Innovating Welding Machines and Automation Solutions Since 2017</p>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products"  style="background: white; color: #003366;">
+        <h2>Products & Solutions</h2>
+        <div class="product-cards">
+            <div class="product-card">
+                <img src="images/welding-machine.png" alt="Welding Machines">
+                <h3>Welding Machines</h3>
+                <p>Advanced welding machines tailored for your needs.</p>
+                <a href="welding-machines.html">Learn More</a>
+            </div>
+            <div class="product-card">
+                <img src="images/efficiency.png" alt="Automation Solutions">
+                <h3>Automation Solutions</h3>
+                <p>Streamline your processes with cutting-edge automation.</p>
+                <a href="automation-solutions.html">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Clients Section -->
+    <section id="our-clients" class="our-clients">
+        <h2>Our Clients</h2>
+        <div class="clients-logos">
+            <div class="client-logo">
+                <img src="images/PRAJ_INDUSTRIES_LOGO.jpg" alt="Client 1">
+            </div>
+            <div class="client-logo">
+                <img src="images/KAP_LOGO.png" alt="Client 2">
+            </div>
+            <div class="client-logo">
+                <img src="images/DELEVAL_FLOW_CONTROLS.png" alt="Client 3">
+            </div>
+            <div class="client-logo">
+                <img src="images/DALI & SAMIIR ENGINEERING LOGO.webp" alt="Client 4">
+            </div>
+            <div class="client logo">
+                <img src="images/WINDALS_PRECISION_LOGO.png" alt="Client 5">
+            </div>
+            <div class="client logo">
+                <img src="images/MOGRA ENGINEERING LOGO.jpg" alt="Client 6">
+            </div>
+        </div>
+    </section>
+    <!-- Footer -->
+<footer>
+    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; align-items: flex-start; padding: 20px; gap: 40px;">
+        <!-- Business Info -->
+        <div style="flex: 1; min-width: 300px; text-align: left;">
+            <h3 style="margin: 0; font-size: 1.2rem;">BALAJI ELECTRICALS</h3>
+            <p style="margin: 10px 0; font-weight: bold;">
+                <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Head Office:
+            </p>
+            <p style="margin: 0; margin-left: 20px;">
+                Morwadi, Pimpri, Pune 411018
+            </p>
+            <p style="margin: 10px 0; font-weight: bold;">
+                <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Manufacturing Plant:
+            </p>
+            <p style="margin: 0; margin-left: 20px;">
+                Swapnil Industries, Bhosari MIDC, Pimpri-Chinchwad 411026
+            </p>
+            <p style="margin: 10px 0; font-weight: bold;">
+                <img src="images/gmail (1).png" alt="Email Icon" style="width: 16px; margin-right: 5px;"> Email:
+            </p>
+            <p style="margin: 0; margin-left: 20px;">
+                <a href="mailto:balaji.elect09@gmail.com" style="color: white; text-decoration: none;">balaji.elect09@gmail.com</a>
+            </p>
+            <p style="margin: 10px 0; font-weight: bold;">
+                <img src="images/mobile.png" alt="Phone Icon" style="width: 16px; margin-right: 5px;"> Mobile:
+            </p>
+            <p style="margin: 0; margin-left: 20px;">
+                <a href="tel:+918888834724" style="color: white; text-decoration: none;">+91 8888834724</a>
+            </p>
+            <p style="margin: 0; margin-left: 20px;">
+                <a href="tel:+919028888638" style="color: white; text-decoration: none;">+91 9028888638</a>
+            </p>
+        </div>
+
+        <!-- Services Offered -->
+        <div style="flex: 1; min-width: 300px; text-align: left; margin-right: 40px;">
+            <h3 style="margin: 0; font-size: 1.2rem;">Our Services</h3>
+            <ul style="list-style: none; padding: 0; margin: 10px 0;">
+                <li>- Sales and Services of Welding Machines</li>
+                <li>- Control Panels and Automation</li>
+                <li>- Manufacturing Welding SPM and Rotary Positioners</li>
+                <li>- Industry-specific Automation Solutions</li>
+            </ul>
+        </div>
+
+        <!-- Quick Links -->
+        <div style="flex: 1; min-width: 300px; text-align: left;">
+            <h3 style="margin: 0; font-size: 1.2rem;">Quick Links</h3>
+            <ul style="list-style: none; padding: 0; margin: 10px 0;">
+                <li><a href="index.html" style="color: white; text-decoration: none;">Home</a></li>
+                <li><a href="about.html" style="color: white; text-decoration: none;">About Us</a></li>
+                <li><a href="contact.html" style="color: white; text-decoration: none;">Contact Us</a></li>
+                <li><a href="index.html"  style="color: white; text-decoration: none;">Products & Solutions</a></li>
+                <li><a href="gallery.html"  style="color: white; text-decoration: none;">Gallery</a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- Social Media Links -->
+    <div style="text-align: left; flex: 1; min-width: 300px;">
+        <h3 style="margin: 0; font-size: 1.2rem;">Follow Us On</h3>
+        <div style="margin: 10px 0; display: flex; gap: 20px; align-items: center;">
+            <a href="https://www.linkedin.com/company/balajielectricals/" target="_blank" style="text-decoration: none;">
+                <i class="fab fa-linkedin" style="font-size: 2rem; color: #eef075;"></i> <!-- LinkedIn Blue -->
+            </a>
+           
+
+        </div>
+    </div>
+
+      <!-- Horizontal Line -->
+      <hr style="border: none; border-top: 1px solid white; margin: 20px 0;">
+      
+    <p style="text-align: center; margin-top: 20px;">&copy; 2024 BALAJI ELECTRICALS | <a href="#" style="color: white; text-decoration: none;">Terms of Use</a> | <a href="#" style="color: white; text-decoration: none;">Privacy Policy</a></p>
+</footer>
+
+
+<!-- Live Chat Script -->
+<script>
+     // Display loader only on smaller screens
+     window.addEventListener('load', function() {
+            const loader = document.getElementById('loader');
+            const screenWidth = window.innerWidth;
+
+            if (screenWidth <= 768) {
+                // Show loader for 3 seconds
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    document.querySelector('h1').style.display = 'block'; // Show main content
+                }, 500);
+            } else {
+                // Directly hide loader on larger screens
+                loader.style.display = 'none';
+                document.querySelector('h1').style.display = 'block'; // Show main content
+            }
+        });
+
+     // Hide Loader after Page Load
+     window.addEventListener('load', function() {
+            document.querySelector('.loader').style.display = 'display';
+        });
+
+        // Show Mobile Alert for Small Screens
+        function checkScreenSize() {
+            const mobileAlert = document.getElementById('mobileAlert');
+            if (window.innerWidth <= 768) {
+                mobileAlert.style.display = 'block';
+            } else {
+                mobileAlert.style.display = 'none';
+            }
+        }
+
+        // Check screen size on load and resize
+        window.addEventListener('load', checkScreenSize);
+        window.addEventListener('resize', checkScreenSize);
+    document.addEventListener("DOMContentLoaded", () => {
+        const hero = document.querySelector('.hero');
+        // Delay to simulate a smooth curtain effect
+        setTimeout(() => {
+            hero.classList.add('open'); // Add 'open' class to trigger animation
+        }, 500); // Delay before curtains start opening
+    });
+    function openMenu() {
+    const navbar = document.getElementById('navbar');
+    const hamburger = document.querySelector('.hamburger');
+    navbar.style.left= '0'; // Slide menu in from the left
+    navbar.classList.add('active'); // Add active class
+    hamburger.classList.add('active'); // Add active class to the hamburger icon
+    hamburger.style.display = 'none'; // Hide the hamburger menu
+}
+
+function closeMenu() {
+    const navbar = document.getElementById('navbar');
+    const hamburger = document.querySelector('.hamburger');
+    navbar.style.left = '-100%'; // Hide menu to the left
+    navbar.classList.remove('active'); // Remove active class
+    hamburger.classList.remove('active'); // Remove active class from the hamburger icon
+    setTimeout(() => {
+    hamburger.style.display = 'block'; // Show the hamburger menu again
+}, 500); // Delay to match the transition duration
+}
+
+    
+
+     
+</script>
+
+</body>
+</html>

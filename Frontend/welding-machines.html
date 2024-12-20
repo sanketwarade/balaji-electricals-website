@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welding Machines & Services</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+        <!-- Font Awesome for Icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <style>
+            body {
+                font-family: 'Poppins', Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background: #f3f4f6;
+                color: #333;
+                overflow-x: hidden; /* Prevent horizontal scrolling */
+            }
+    
+            /* Header styles */
+            header {
+                background-color: #00264d;
+                padding: 20px 30px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                flex-wrap: wrap;
+            }
+    
+            .logo {
+                display: flex;
+                align-items: center;
+                flex: 1 1 50%;
+                margin-left: -20px; /* Shift the logo slightly to the left */
+            }
+    
+            .logo img {
+                height: 50px;
+                margin-right: 12px;
+            }
+    
+            .logo span {
+                font-size: 1.8rem;
+                font-weight: bold;
+                color: #fcfcfb;
+            }
+    
+            nav {
+                display: flex;
+                gap: 20px;
+                margin-left: auto; /* Align navigation to the right */
+            }
+    
+            /* Desktop Navigation Links */
+            .desktop-nav a {
+                color: white;
+                font-weight: bold;
+                text-decoration: none;
+                padding: 10px 15px;
+                transition: color 0.3s ease, background-color 0.3s ease;
+            }
+    
+            /* Hover effect for desktop navigation */
+            .desktop-nav a:hover {
+                color: #FFD700;
+                background-color: rgba(255, 255, 255, 0.1);
+                border-radius: 5px;
+            }
+    
+            /* Hamburger Menu on the right */
+            .hamburger {
+                display: none; /* Hidden by default */
+                position: absolute;
+                top: 25px;
+                right: 10px;
+                z-index: 1100;
+                cursor: pointer;
+                transition: transform 0.3s ease-in-out;
+            }
+    
+            .hamburger.active {
+                transform: rotate(90deg); /* Rotate the hamburger icon when active */
+            }
+    
+            .hamburger i {
+                color: #fff;
+                font-size: 2rem;
+            }
+    
+            /* Mobile menu */
+            #navbar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 70%;
+                height: 100%;
+                background-color: #00264d;
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                transition: left 0.3s ease;
+                z-index: 1000;
+                justify-content: flex-start;
+                padding-top: 60px;
+            }
+    
+            #navbar.active {
+                left: 0;
+            }
+    
+            #navbar a {
+                color: #fff;
+                font-size: 1rem;
+                font-weight: bold;
+                text-decoration: none;
+                margin: 10px 0;
+            }
+    
+            #navbar a:hover {
+                color: #FFD700;
+            }
+    
+            /* Close button inside the menu */
+            .close-btn {
+                align-self: flex-end;
+                font-size: 1.5rem;
+                color: #fff;
+                cursor: pointer;
+                opacity: 0;
+                transition: opacity 0.3s ease-in-out;
+            }
+    
+            #navbar.active .close-btn {
+                opacity: 1;
+            }
+    
+            /* Section styles */
+            section {
+                padding: 40px 20px;
+                margin: 20px;
+                background: #fff;
+                border-radius: 12px;
+                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            }
+    
+            section h2 {
+                text-align: center;
+                font-size: 2rem;
+                color: #0056b3;
+                margin-bottom: 20px;
+            }
+    
+            .products {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 20px;
+            }
+    
+            .product-card {
+                background: #f9fafb;
+                padding: 20px;
+                border-radius: 12px;
+                text-align: center;
+                width: 250px;
+                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+    
+            .product-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            }
+    
+            .product-card i {
+                font-size: 3rem;
+                color: #FFD700;
+                margin-bottom: 10px;
+            }
+    
+            .product-card a {
+                display: block;
+                color: #0056b3;
+                text-decoration: none;
+                font-weight: bold;
+                margin-top: 10px;
+                transition: color 0.3s ease;
+            }
+    
+            .product-card a:hover {
+                color: #003366;
+            }
+    
+            /* Footer */
+            footer {
+                background: #003366;
+                color: white;
+                padding: 20px;
+                text-align: center;
+            }
+    
+            footer a {
+                color: white;
+                text-decoration: none;
+            }
+    
+            /* Get Quote Button */
+            .get-quote {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background-color: #FFD700;
+                color: #003366;
+                padding: 15px 20px;
+                font-weight: bold;
+                text-decoration: none;
+                border-radius: 50px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                transition: background-color 0.3s ease;
+            }
+    
+            .get-quote:hover {
+                background-color: #ffeb3b;
+            }
+    
+            /* Media Queries for Responsiveness */
+            @media (max-width: 1080px) {
+                .product-card {
+                    width: 220px;
+                }
+                
+            }
+    
+            @media (max-width: 768px) {
+                .hamburger {
+                    display: block; /* Show hamburger menu only on small screens */
+                }
+    
+                nav.desktop-nav {
+                    display: none; /* Hide navigation links on mobile */
+                }
+    
+                section h2 {
+                    font-size: 1.7rem;
+                }
+    
+                .product-card {
+                    width: 200px;
+                }
+    
+                footer {
+                    font-size: 0.9rem;
+                }
+    
+                .get-quote {
+                    font-size: 0.9rem;
+                    padding: 12px 15px;
+                }
+    
+                .logo {
+                    flex: 1 1 100%;
+                    text-align: center;
+                    margin-bottom: 10px;
+                }
+    
+                nav {
+                    flex: 1 1 100%;
+                    justify-content: center;
+                    gap: 10px;
+                }
+    
+                section h2 {
+                    font-size: 1.5rem;
+                }
+    
+                footer {
+                    font-size: 0.9rem;
+                }
+            }
+    
+            @media (max-width: 480px) {
+                header {
+                    padding: 15px;
+                    flex-direction: column;
+                    text-align: center;
+                }
+    
+                nav {
+                    margin-top: 10px;
+                    gap: 15px;
+                }
+    
+                .product-card {
+                    width: 180px;
+                }
+    
+                section h2 {
+                    font-size: 1.3rem;
+                }
+    
+                footer {
+                    font-size: 0.8rem;
+                }
+    
+                .get-quote {
+                    font-size: 0.8rem;
+                    padding: 10px 12px;
+                }
+            }
+    
+            /* Mobile Layout for Header */
+            @media (max-width: 768px) {
+                .logo {
+                    flex: 1 1 100%; /* Take full width */
+                    display: flex; /* Use flexbox for logo and name alignment */
+                    justify-content: flex-start; /* Center the content horizontally */
+                    align-items: center; /* Align items vertically */
+                    text-align: left;
+                    margin-bottom: 10px;
+                }
+    
+                .logo img {
+                    height: 40px; /* Adjust logo size for mobile */
+                    margin-right: 8px; /* Adjust space between logo and business name */
+                }
+    
+                .logo span {
+                    font-size: 1.4rem; /* Adjust the font size for mobile */
+                    font-weight: bold;
+                    color: #fcfcfb;
+                }
+    
+                nav.desktop-nav {
+                    display: none; /* Hide desktop navigation on mobile */
+                }
+    
+                nav {
+                    flex: 1 1 100%;
+                    justify-content: center;
+                    gap: 10px;
+                }
+    
+                section h2 {
+                    font-size: 1.5rem;
+                }
+    
+                .product-card {
+                    width: 200px;
+                }
+    
+                footer {
+                    font-size: 0.9rem;
+                }
+    
+                .get-quote {
+                    font-size: 0.9rem;
+                    padding: 12px 15px;
+                }
+            }
+    
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <img src="images/BALAJI ELECTRICALS LOGO.jpg" alt="BALAJI ELECTRICALS Logo">
+            <span>BALAJI ELECTRICALS</span>
+            <!-- Hamburger Menu (hidden by default on desktop) -->
+    <div class="hamburger" onclick="openMenu()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <nav class="desktop-nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="index.html">Product & Solutions</a>
+        <a href="contact.html">Contact Us</a>
+    </nav>
+
+    <!-- Mobile Navigation Menu -->
+    <nav id="navbar">
+        <div class="close-btn" onclick="closeMenu()">
+            <i class="fas fa-times"></i>
+        </div>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="index.html">Product & Solutions</a>
+        <a href="contact.html">Contact Us</a>
+    </nav>
+      
+    </header>
+
+    <!-- Main Section -->
+    <section>
+        <h2>Our Elite Welding Machines</h2>
+        <div class="products">
+            <div class="product-card">
+                <i class="fas fa-tools"></i>
+                <p>MIG Welding Machines</p>
+                <a href="mig-welding.html">Learn More</a>
+            </div>
+            <div class="product-card">
+                <i class="fas fa-wrench"></i>
+                <p>TIG Welding Machines</p>
+                <a href="tig-welding.html">Learn More</a>
+            </div>
+            <div class="product-card">
+                <i class="fas fa-cogs"></i>
+                <p>SPM Welding Machines</p>
+                <a href="spm-welding.html">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Our Services</h2>
+        <p style="text-align:center; max-width: 600px; margin: 0 auto;">
+            We offer services related to all types of welding machines, including repairs, maintenance, and expert solutions. We also provide sales of welding machine spare parts to ensure your operations run smoothly.
+        </p>
+    </section>
+    
+    <!-- Get Quote Button -->
+    <a href="get-quote.html" class="get-quote">Get Quote</a>
+    
+    <!-- Updated Main Section -->
+    <section>
+        <h2>Request a Custom Solution</h2>
+        <p style="text-align:center; max-width: 600px; margin: 0 auto;">
+            At BALAJI ELECTRICALS, we understand that every project has unique requirements. Whether you're in need of specialized welding equipment, custom-built systems, or tailored automation solutions, our team is here to design and deliver the perfect solution for your needs. Let us work together to create a solution that enhances your production efficiency and quality.
+            Share your requirements, and our engineers will craft a solution that meets your specifications with precision and reliability.
+        </p>
+
+        <div style="text-align:center; margin-top: 20px;">
+            <a href="custom-solution.html" 
+               style="background-color: #0056b3; color: white; padding: 10px 20px; border-radius: 50px; 
+               text-decoration: none; font-weight: bold; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); transition: background-color 0.3s ease;">
+               Request Now
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; align-items: flex-start; padding: 20px; gap: 40px;">
+            <!-- Business Info -->
+            <div style="flex: 1; min-width: 300px; text-align: left;">
+                <h3 style="margin: 0; font-size: 1.2rem;">BALAJI ELECTRICALS</h3>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Head Office:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    Morwadi, Pimpri, Pune 411018
+                </p>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Manufacturing Plant:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    Swapnil Industries, Bhosari MIDC, Pimpri-Chinchwad 411026
+                </p>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/gmail (1).png" alt="Email Icon" style="width: 16px; margin-right: 5px;"> Email:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    <a href="mailto:balaji.elect09@gmail.com" style="color: white; text-decoration: none;">balaji.elect09@gmail.com</a>
+                </p>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/mobile.png" alt="Phone Icon" style="width: 16px; margin-right: 5px;"> Mobile:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    <a href="tel:+918888834724" style="color: white; text-decoration: none;">+91 8888834724</a>
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    <a href="tel:+919028888638" style="color: white; text-decoration: none;">+91 9028888638</a>
+                </p>
+            </div>
+
+            <!-- Services Offered -->
+            <div style="flex: 1; min-width: 300px; text-align: left; margin-right: 40px;">
+                <h3 style="margin: 0; font-size: 1.2rem;">Our Services</h3>
+                <ul style="list-style: none; padding: 0; margin: 10px 0;">
+                    <li>- Sales and Services of Welding Machines</li>
+                    <li>- Control Panels and Automation</li>
+                    <li>- Manufacturing Welding SPM and Rotary Positioners</li>
+                    <li>- Industry-specific Automation Solutions</li>
+                </ul>
+            </div>
+
+            <!-- Quick Links -->
+            <div style="flex: 1; min-width: 300px; text-align: left;">
+                <h3 style="margin: 0; font-size: 1.2rem;">Quick Links</h3>
+                <ul style="list-style: none; padding: 0; margin: 10px 0;">
+                    <li><a href="index.html" style="color: white; text-decoration: none;">Home</a></li>
+                    <li><a href="about.html" style="color: white; text-decoration: none;">About Us</a></li>
+                    <li><a href="contact.html" style="color: white; text-decoration: none;">Contact Us</a></li>
+                    <li><a href="index.html" style="color: white; text-decoration: none;">Products & Solutions</a></li>
+                    <li><a href="gallery.html" style="color: white; text-decoration: none;">Gallery</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- Social Media Links -->
+    <div style="text-align: left; flex: 1; min-width: 300px;">
+        <h3 style="margin: 0; font-size: 1.2rem;">Follow Us On</h3>
+        <div style="margin: 10px 0; display: flex; gap: 20px; align-items: center;">
+            <a href="https://www.linkedin.com/company/balajielectricals/" target="_blank" style="text-decoration: none;">
+                <i class="fab fa-linkedin" style="font-size: 2rem; color: #eef075;"></i> <!-- LinkedIn Blue -->
+            </a>
+            <a href="https://www.facebook.com" target="_blank" style="text-decoration: none;">
+                <i class="fab fa-facebook" style="font-size: 2rem; color: #e1f77f;"></i> <!-- Facebook Blue -->
+            </a>
+
+        </div>
+    </div>
+
+        <!-- Horizontal Line -->
+        <hr style="border: none; border-top: 1px solid white; margin: 20px 0;">
+        
+        <p style="text-align: center; margin-top: 20px;">&copy; 2024 BALAJI ELECTRICALS | 
+          <a href="terms.html" style="color: white; text-decoration: none;">Terms of Use</a> | 
+          <a href="privacy.html" style="color: white; text-decoration: none;">Privacy Policy</a>
+      </p>
+    </footer>
+    <script>
+        function openMenu() {
+    const navbar = document.getElementById('navbar');
+    const hamburger = document.querySelector('.hamburger');
+    navbar.style.right = '0'; // Slide menu in from the left
+    navbar.classList.add('active'); // Add active class
+    hamburger.classList.add('active'); // Add active class to the hamburger icon
+    hamburger.style.display = 'none'; // Hide the hamburger menu
+}
+
+function closeMenu() {
+    const navbar = document.getElementById('navbar');
+    const hamburger = document.querySelector('.hamburger');
+    navbar.style.right = '100%'; // Hide menu to the left
+    navbar.classList.remove('active'); // Remove active class
+    hamburger.classList.remove('active'); // Remove active class from the hamburger icon
+    setTimeout(() => {
+    hamburger.style.display = 'block'; // Show the hamburger menu again
+}, 500); // Delay to match the transition duration
+}
+
+    </script>
+    
+</body>
+</html>

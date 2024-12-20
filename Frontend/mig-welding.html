@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIG Welding Machines</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Reset styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            position: sticky;
+            top: 0;
+            background: #003366;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Logo and Business Name */
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .logo img {
+            height: 50px;
+            margin-right: 10px;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Navigation Menu */
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        nav a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        /* Hamburger Menu on the right */
+        .hamburger {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 15px;
+    right: 10px;
+    z-index: 1100;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.hamburger.active {
+    transform: rotate(90deg); /* Rotate the hamburger icon when active */
+}
+
+.hamburger i {
+    color: #fff;
+    font-size: 2rem;
+}
+/* Mobile menu */
+#navbar {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70%;
+    height: 100%;
+    background-color: #00264d;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    transition: right 0.3s ease;
+    z-index: 1000;
+    justify-content: flex-start; /* Align items at the top */
+    padding-top: 60px; /* Add space at the top to avoid overlapping with the header */
+}
+
+/* When the navbar is active, bring it into view */
+#navbar.active {
+    right: 0;
+}
+
+#navbar a {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    margin: 10px 0;
+}
+
+#navbar a:hover {
+    color: #FFD700;
+}
+
+/* Close button inside the menu */
+.close-btn {
+    align-self: flex-end;
+    font-size: 1.5rem;
+    color: #fff;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+#navbar.active .close-btn {
+    opacity: 1; /* Fade in the close button when menu is active */
+}
+
+ /* Media Queries for Mobile */
+@media (max-width: 768px) {
+    .hamburger {
+        display: block; /* Show hamburger menu only on small screens */
+    }
+
+    nav.desktop-nav {
+        display: none; /* Hide navigation links on mobile */
+    }
+}
+
+        /* Banner Section with Gradient */
+        .banner {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #1e90ff, #003366); /* Modern gradient */
+            color: white;
+            margin-top: 0; /* Reduced margin to close the gap */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+
+        .banner h2 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .banner p {
+            font-size: 1.2rem;
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+
+        /* Features Section */
+        section {
+            padding: 20px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .features, .highlight {
+            text-align: center;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 0;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            background: rgba(209, 233, 255, 0.9); /* Light blue background */
+            
+            border-radius: 0; /* Removed rounded borders */
+        }  
+        .features {
+            background: rgba(209, 233, 255, 0.9);
+            color: #003366;
+            margin-top: 0;
+        }
+
+        .highlight {
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Our MIG Welding Machines Section */
+        .our-mig-welding-machines {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            padding: 40px 20px;
+        }
+
+        .our-mig-welding-machines h2 {
+            width: 100%;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #003366;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .machine-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            width: 280px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .machine-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .machine-card h3 {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #003366;
+        }
+
+        .machine-card p {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .machine-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+         /* Footer */
+         footer {
+            background: #003366;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: none;
+        }
+        
+    /* Existing styles remain the same */
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        nav {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        nav a {
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .banner h2 {
+            font-size: 2rem;
+        }
+
+        .banner p {
+            font-size: 1rem;
+        }
+
+        .our-mig-welding-machines {
+            padding: 20px 10px;
+            gap: 20px;
+        }
+
+        .machine-card {
+            width: 45%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        header {
+            flex-direction: row;
+            
+            text-align: center;
+        }
+
+        .logo {
+            justify-content: flex-start;
+            
+        }
+
+        .logo h1 {
+            font-size: 1.2rem;
+        }
+
+        nav {
+            width: 100%;
+            text-align: center;
+            gap: 10px;
+        }
+
+        nav a {
+            display: inline-block;
+            width: 100%;
+            padding: 10px 0;
+        }
+
+        .banner h2 {
+            font-size: 1.8rem;
+        }
+
+        .banner p {
+            font-size: 0.9rem;
+        }
+
+        .our-mig-welding-machines {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .machine-card {
+            width: 80%;
+        }
+
+        footer {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        footer div {
+            margin-bottom: 20px;
+            flex-direction: column;
+        align-items: flex-start; /* Left-align all footer sections on small screens */
+            
+        }
+
+    }
+
+    @media (max-width: 480px) {
+        header {
+            padding: 10px;
+        }
+
+        .logo img {
+            height: 40px;
+        }
+
+        .banner {
+            padding: 20px 10px;
+        }
+
+        .banner h2 {
+            font-size: 1.5rem;
+        }
+
+        .banner p {
+            font-size: 0.8rem;
+        }
+
+        .features,
+        .highlight {
+            padding: 10px;
+        }
+
+        .our-mig-welding-machines {
+            gap: 15px;
+        }
+
+        .machine-card {
+            width: 100%;
+            padding: 10px;
+        }
+
+        footer {
+            padding: 10px;
+        }
+
+        footer h3 {
+            font-size: 1rem;
+        }
+
+        footer p {
+            font-size: 0.9rem;
+        }
+        @media (max-width: 768px) {
+    .our-mig-welding-machines h2 {
+        font-size: 1.6rem; /* Decreased font size for mobile screens */
+    }
+
+    .our-mig-welding-machines p,
+    .our-mig-welding-machines .machine-card p {
+        font-size: 0.9rem; /* Smaller descriptions on mobile */
+    }
+
+    .our-mig-welding-machines .machine-card h3 {
+        font-size: 1.2rem; /* Smaller titles on mobile */
+    }
+}
+/* Footer Section - Media Queries for Mobile */
+@media (max-width: 768px) {
+    footer div {
+        flex-direction: column;
+        align-items: flex-start; /* Left-align all footer sections on small screens */
+    }
+
+    /* Left-align the content inside the sections */
+    footer .quick-links, footer .services-offered {
+        text-align: left; /* Ensure the text is left-aligned */
+        margin-left: 20px; /* Optional: Add some padding for better spacing */
+    }
+
+    footer .quick-links ul, footer .services-offered ul {
+        padding-left: 20px; /* Optional: Add padding for better indentation */
+    }
+
+    /* Optionally, reduce font sizes for mobile screens */
+    footer h3 {
+        font-size: 1.2rem; /* Adjust heading font size */
+    }
+
+    footer ul li {
+        font-size: 0.9rem; /* Adjust list item font size */
+    }
+}
+
+
+    }
+</style>
+
+
+       
+   
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <img src="images/BALAJI ELECTRICALS LOGO.jpg" alt="BALAJI ELECTRICALS Logo">
+            <h1>BALAJI ELECTRICALS</h1>
+        </div>
+         <!-- Hamburger Menu (hidden by default on desktop) -->
+    <div class="hamburger" onclick="openMenu()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <nav class="desktop-nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="index.html">Product & Solutions</a>
+        <a href="contact.html">Contact Us</a>
+    </nav>
+
+    <!-- Mobile Navigation Menu -->
+    <nav id="navbar">
+        <div class="close-btn" onclick="closeMenu()">
+            <i class="fas fa-times"></i>
+        </div>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="index.html">Product & Solutions</a>
+        <a href="contact.html">Contact Us</a>
+        <a href="gallery.html">Gallery</a>
+    </nav>
+    </header>
+
+    <!-- Banner -->
+    <div class="banner">
+        <h2>MIG Welding Machines</h2>
+        <p>Reliable, Innovative, and Built to Last</p>
+    </div>
+
+    <!-- Features Section -->
+    <section class="features" >
+        <h2>Why Choose Our MIG Welding Machines?</h2>
+        <p>✔ High Efficiency and Precision</p>
+        <p>✔ Advanced Technology for Better Performance</p>
+        <p>✔ Durable and Cost-Effective Solutions</p>
+    </section>
+
+    <!-- Our MIG Welding Machines Section -->
+    <section class="our-mig-welding-machines">
+        <h2>Our MIG Welding Machines</h2>
+        <div class="machine-card">
+            <h3>MIG 200A</h3>
+<p>An excellent choice for beginners and light-duty MIG welding tasks, combining ease of use with reliable performance.</p>
+</div>
+<div class="machine-card">
+    <h3>MIG 250A</h3>
+    <p>Designed for medium-scale projects, delivering superior efficiency and consistent results.</p>
+</div>
+<div class="machine-card">
+    <h3>MIG 300A</h3>
+    <p>A versatile option for medium-scale applications, offering enhanced performance and reliability.</p>
+</div>
+<div class="machine-card">
+    <h3>MIG 400A</h3>
+    <p>A robust and high-performance machine, tailored for the demands of heavy-duty welding operations.</p>
+</div>
+
+                
+    </section>
+
+    <!-- Footer -->
+<footer>
+    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; align-items: flex-start; padding: 20px; gap: 40px;">
+        <!-- Business Info -->
+        <div style="flex: 1; min-width: 300px; text-align: left;">
+            <h3 style="margin: 0; font-size: 1.2rem;">BALAJI ELECTRICALS</h3>
+            <p style="margin: 10px 0; font-weight: bold;">
+                <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Head Office:
+            </p>
+            <p style="margin: 0; margin-left: 20px;">
+                Morwadi, Pimpri, Pune 411018
+            </p>
+            <p style="margin: 10px 0; font-weight: bold;">
+                <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Manufacturing Plant:
+            </p>
+            <p style="margin: 0; margin-left: 20px;">
+                Swapnil Industries, Bhosari MIDC, Pimpri-Chinchwad 411026
+            </p>
+            <p style="margin: 10px 0; font-weight: bold;">
+                <img src="images/gmail (1).png" alt="Email Icon" style="width: 16px; margin-right: 5px;"> Email:
+            </p>
+            <p style="margin: 0; margin-left: 20px;">
+                <a href="mailto:balaji.elect09@gmail.com" style="color: white; text-decoration: none;">balaji.elect09@gmail.com</a>
+            </p>
+            <p style="margin: 10px 0; font-weight: bold;">
+                <img src="images/mobile.png" alt="Phone Icon" style="width: 16px; margin-right: 5px;"> Mobile:
+            </p>
+            <p style="margin: 0; margin-left: 20px;">
+                <a href="tel:+918888834724" style="color: white; text-decoration: none;">+91 8888834724</a>
+            </p>
+            <p style="margin: 0; margin-left: 20px;">
+                <a href="tel:+919028888638" style="color: white; text-decoration: none;">+91 9028888638</a>
+            </p>
+        </div>
+
+        <!-- Services Offered -->
+        <div style="flex: 1; min-width: 300px; text-align: left; margin-right: 40px;">
+            <h3 style="margin: 0; font-size: 1.2rem;">Our Services</h3>
+            <ul style="list-style: none; padding: 0; margin: 0px 0;">
+                <li>- Sales and Services of Welding Machines</li>
+                <li>- Control Panels and Automation</li>
+                <li>- Manufacturing Welding SPM and Rotary Positioners</li>
+                <li>- Industry-specific Automation Solutions</li>
+            </ul>
+        </div>
+
+        <!-- Quick Links -->
+        <div style="flex: 1; min-width: 300px; text-align: left;">
+            <h3 style="margin: 0; font-size: 1.2rem;">Quick Links</h3>
+            <ul style="list-style: none; padding: 0; margin: 10px 0;">
+                <li><a href="index.html" style="color: white; text-decoration: none;">Home</a></li>
+                <li><a href="about.html" style="color: white; text-decoration: none;">About Us</a></li>
+                <li><a href="contact.html" style="color: white; text-decoration: none;">Contact Us</a></li>
+                <li><a href="index.html" style="color: white; text-decoration: none;">Products & Solutions</a></li>
+                <li><a href="gallery.html"  style="color: white; text-decoration: none;">Gallery</a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- Social Media Links -->
+    <div style="text-align: left; flex: 1; min-width: 300px;">
+        <h3 style="margin: 0; font-size: 1.2rem;">Follow Us On</h3>
+        <div style="margin: 10px 0; display: flex; gap: 20px; align-items: center;">
+            <a href="https://www.linkedin.com/company/balajielectricals/" target="_blank" style="text-decoration: none;">
+                <i class="fab fa-linkedin" style="font-size: 2rem; color: #eef075;"></i> <!-- LinkedIn Blue -->
+            </a>
+            
+
+        </div>
+    </div>
+
+      <!-- Horizontal Line -->
+      <hr style="border: none; border-top: 1px solid white; margin: 20px 0;">
+      
+      <p style="text-align: center; margin-top: 20px;">&copy; 2024 BALAJI ELECTRICALS | 
+        <a href="terms.html" style="color: white; text-decoration: none;">Terms of Use</a> | 
+        <a href="privacy.html" style="color: white; text-decoration: none;">Privacy Policy</a>
+    </p>
+</footer>
+<script>
+    function openMenu() {
+    document.getElementById('navbar').classList.add('active');
+    document.querySelector('.hamburger').style.display = 'none';  // Hide hamburger when menu opens
+    document.querySelector('.close-btn').style.opacity = '1';  // Show close button
+}
+
+function closeMenu() {
+    document.getElementById('navbar').classList.remove('active');
+    document.querySelector('.hamburger').style.display = 'block';  // Show hamburger when menu closes
+    document.querySelector('.close-btn').style.opacity = '0';  // Hide close button
+}
+</script>
+
+</body>
+</html>

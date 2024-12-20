@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="About BALAJI ELECTRICALS">
+    <meta name="description" content="BALAJI ELECTRICALS, Pune specializes in innovative welding machines, automation solutions, control panels, and custom welding SPMs. Providing expert sales, services, and industrial automation to meet diverse requirements since 2019.">
+    <title>About Us - BALAJI ELECTRICALS</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Embedded Styles -->
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(180deg, #f5f7fa, #c3cfe2);
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+
+        header {
+            background: linear-gradient(90deg, #1a237e, #3949ab);
+            color: #fff;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        header .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        header img {
+            width: 80px;
+            margin-right: 20px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin: 0;
+            font-weight: 600;
+        }
+        nav {
+    display: flex;
+    gap: 20px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 5px 10px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+nav a:hover {
+    color: #FFD700;
+}
+
+nav a.active {
+    color: WHITE;
+}
+
+        
+        /* Hamburger Menu on the right */
+.hamburger {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 20px;
+    right: -50px;
+    z-index: 1100;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.hamburger.active {
+    transform: rotate(90deg); /* Rotate the hamburger icon when active */
+}
+
+.hamburger i {
+    color: #fff;
+    font-size: 2rem;
+}
+/* Mobile menu */
+#navbar {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70%;
+    height: 100%;
+    background-color: #00264d;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    transition: right 0.3s ease;
+    z-index: 1000;
+    justify-content: flex-start; /* Align items at the top */
+    padding-top: 60px; /* Add space at the top to avoid overlapping with the header */
+}
+
+/* When the navbar is active, bring it into view */
+#navbar.active {
+    right: 0;
+}
+
+#navbar a {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    margin: 10px 0;
+}
+
+#navbar a:hover {
+    color: #FFD700;
+}
+
+/* Close button inside the menu */
+.close-btn {
+    align-self: flex-end;
+    font-size: 1.5rem;
+    color: #fff;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+#navbar.active .close-btn {
+    opacity: 1; /* Fade in the close button when menu is active */
+    transform: translateX(-40px);  /* Move the close button slightly to the left */
+}
+
+ /* Media Queries for Mobile */
+@media (max-width: 768px) {
+    .hamburger {
+        display: block; /* Show hamburger menu only on small screens */
+    }
+
+    nav.desktop-nav {
+        display: none; /* Hide navigation links on mobile */
+    }
+}
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #81d4fa, #0288d1);
+            height: 50vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            position: relative;   
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #ffeb3b;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .hero button:hover {
+            transform: scale(1.1);
+        }
+
+        /* Overview Section */
+        .overview {
+            padding: 40px 20px;
+            background-color: #fff;
+            text-align: center;
+        }
+
+        .overview h2 {
+            font-size: 2.5rem;
+            color: #3949ab;
+            margin-bottom: 20px;
+        }
+
+        .overview p {
+            font-size: 1.2rem;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .overview p:last-of-type {
+            font-size: 1.2rem;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        /* Our Business Portfolio Section */
+        .portfolio {
+            padding: 40px 20px;
+            background: #e8f5e9;
+            text-align: center;
+        }
+
+        .portfolio h2 {
+            font-size: 2.5rem;
+            color: #1b5e20;
+            margin-bottom: 20px;
+        }
+
+        .portfolio p {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .portfolio .card {
+           
+            display: inline-block;
+            width: 20%;
+            margin: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .portfolio .card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #3949ab;
+        }
+
+        .portfolio .card h4 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .portfolio .card p {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        /* Vision, Mission, Values Section */
+        
+
+        .vmv-section {
+            position: relative;
+            width: 100%;
+            height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .vmv-content {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 80%;
+            max-width: 1200px;
+            color: #fff;
+            text-align: left;
+            padding: 20px;
+            z-index: 2;
+        }
+            
+        .vmv-content h2 {
+            font-size: 3rem;
+            margin: 0 0 20px 0;
+        }
+
+        .vmv-content p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .vmv-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center center;
+            filter: brightness(0.6);
+            background-repeat: no-repeat; /* Prevents tiling */
+            z-index: 0;
+        }
+
+        .navigation {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+        }
+
+        .navigation button {
+           
+           
+            border: none;
+            padding: 2px 5px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            z-index: 2; /* Ensures buttons are on top of the background */
+            position: relative;
+        }
+        .navigation button i {
+            font-size: 1.5rem; /* Adjust icon size for better visibility */
+        }
+        .navigation button:nth-child(1) { /* Left arrow */
+            left: 20px;
+        }
+
+
+        .navigation button:nth-child(2) { /* Right arrow */
+            right: 20px;
+        }
+
+        .navigation button:hover {
+            background-color: #3949ab;
+        }
+
+        .tabs {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 3; /* Ensures tabs appear on top of the background */
+        }
+
+        .tabs button {
+            background-color: #3949ab;
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .tabs button.active {
+            background-color: #ffeb3b;
+            color: #333;
+        }
+    
+        
+
+
+
+        /* Engaging Text Section */
+        .engaging-text {
+            padding: 20px;
+    background: linear-gradient(145deg, #ff7e5f, #feb47b, #86a8e7, #4facfe); /* Vibrant gradient blend */
+    background-size: cover; /* Ensures smooth color coverage */
+    text-align: center;
+    color: #ffffff; /* Contrasting text for readability */
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-radius: 10px; /* Adds a subtle rounded edge */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Enhances depth with a shadow */
+}
+        /* Footer */
+        footer {
+            background: #003366;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: none;
+        }
+        @media (max-width: 1200px) {
+        header h1 {
+            font-size: 1.5rem;
+        }
+        nav ul li {
+            margin: 0 10px;
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+        }
+        .portfolio .card {
+            width: 45%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        header {
+            flex-direction: column;
+            align-items: flex-start;
+            width: 125%;
+        }
+        nav ul {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        nav ul li {
+            margin: 10px 0;
+        }
+        .hero {
+            height: auto;
+            padding: 20px;
+            width: 135%;
+            margin:0;
+        }
+        .hero h1 {
+            font-size: 2rem;
+        }
+        .overview{
+            width: 135%;
+        }
+        .portfolio{
+            text-align: center;
+            align-items: center;
+        }
+        .portfolio h2{
+           
+            right: 20px;
+        }
+        .portfolio .card {
+            width: 120%;
+        }
+        .vmv-section{
+            width: 110%;
+        }
+        .tabs {
+            flex-wrap: wrap;
+        }
+    }
+
+    @media (max-width: 480px) {
+        header img {
+            width: 50px;
+        }
+        header h1 {
+            font-size: 1.2rem;
+        }
+        .hamburger {
+        order: 2; /* Keep the hamburger menu to the right */
+        margin-left: auto; /* Push it to the far end */
+    }
+        .hero h1 {
+            font-size: 1.8rem;
+        }
+        .hero p {
+            font-size: 1rem;
+        }
+        .portfolio{
+            text-align: center;
+        }
+        .portfolio .card {
+            width: 125%;
+            margin: 20px 20px;
+            margin-right: 50px;
+        }
+        .vmv-section{
+            width: 154%;
+        }
+        .engaging-text{
+            width: 140%;
+        }
+        footer {
+            flex-direction: column;
+            gap: 20px;
+            width: 130%;
+        }
+    }
+         
+        
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/BALAJI ELECTRICALS LOGO.jpg" alt="Logo">
+            <h1>BALAJI ELECTRICALS</h1>
+        </div>
+        <!-- Hamburger Menu (hidden by default on desktop) -->
+    <div class="hamburger" onclick="openMenu()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <nav class="desktop-nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="index.html">Product & Solutions</a>
+        <a href="contact.html">Contact Us</a>
+    </nav>
+     <!-- Mobile Navigation Menu -->
+     <nav id="navbar">
+        <div class="close-btn" onclick="closeMenu()">
+            <i class="fas fa-times"></i>
+        </div>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="index.html">Product & Solutions</a>
+        <a href="contact.html">Contact Us</a>
+        <a href="gallery.html">Gallery</a>
+    </nav>
+    </header>
+    
+    <section class="hero" style="background: linear-gradient(135deg, #003366, #6699cc); color: #ffeb3b;">
+        <h1>Innovative Welding & Automation Solutions</h1>
+        <p>Empowering industries with advanced technology</p>
+    </section>
+    
+    <section class="overview">
+        <h2>Overview</h2>
+        <p>Founded in 2017S, BALAJI ELECTRICALS specializes in the manufacture and service of welding machines, SPMs, and automation solutions tailored to meet customer requirements. We focus on providing high-quality products designed to enhance industrial processes. With our expertise, we deliver cutting-edge solutions for welding and automation, ensuring safety, precision, and efficiency. Our team of experts is committed to delivering innovative and reliable solutions to clients across various industries, helping them stay competitive and efficient.</p> 
+    </section>
+
+    <section class="portfolio">
+        <h2>Our Offerings</h2>
+        <div class="card">
+            <i class="fas fa-plug"></i```html
+            <i class="fas fa-plug"></i>
+            <h4>Welding Machines Sales & Services</h4>
+            <p>Providing expert sales and service for all types of welding machines to meet diverse industrial needs.</p>
+        </div>
+        <div class="card">
+            <i class="fas fa-cogs"></i>
+            <h4>Welding SPM's</h4>
+            <p>Manufacturing and servicing customized welding special purpose machines (SPMs) for specific applications.</p>
+        </div>
+        <div class="card">
+            <i class="fas fa-robot"></i>
+            <h4>Automation Solutions</h4>
+            <p>Delivering cutting-edge automation solutions to streamline and optimize industrial processes.</p>
+        </div>
+        <div class="card">
+            <i class="fas fa-plug"></i>
+            <h4>Control Panels</h4>
+            <p>Designing and installing robust control panels to enhance machinery performance and safety.</p>
+        </div>
+    </section>
+    <section class="vmv-section">
+        <div class="vmv-background" id="background"></div>
+        <div class="vmv-content" id="content">
+            <h2>Mission</h2>
+            <ul>
+                <li>Delivering excellence in welding equipment and customer service.</li>
+                <li>Ensuring the highest standards of quality and reliability.</li>
+                <li>Empowering industries with innovative solutions.</li>
+            </ul>
+        </div>
+        <div class="tabs">
+            <button onclick="setSlide(0)" class="active">Mission</button>
+            <button onclick="setSlide(1)">Vision</button>
+        </div>
+        <div class="navigation">
+            <button onclick="changeSlide(-1)"><i class="fas fa-arrow-left"></i></button>
+            <button onclick="changeSlide(1)"><i class="fas fa-arrow-right"></i></button>
+        </div>
+    </section>
+     
+    
+    </section>
+    
+
+    <section class="engaging-text">
+        <p>Join us in revolutionizing the welding industry with state-of-the-art technology and unmatched customer service!</p>
+    </section>
+
+    <!-- Footer -->
+<footer>
+    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; align-items: flex-start; padding: 20px; gap: 40px;">
+        <!-- Business Info -->
+        <div style="flex: 1; min-width: 300px; text-align: left;">
+            <h3 style="margin: 0; font-size: 1.2rem;">BALAJI ELECTRICALS</h3>
+            <p style="margin: 10px 0; font-weight: bold;">
+                <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Head Office:
+            </p>
+            <p style="margin: 0; margin-left: 20px;">
+                Morwadi, Pimpri, Pune 411018
+            </p>
+            <p style="margin: 10px 0; font-weight: bold;">
+                <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Manufacturing Plant:
+            </p>
+            <p style="margin: 0; margin-left: 20px;">
+                Swapnil Industries, Bhosari MIDC, Pimpri-Chinchwad 411026
+            </p>
+            <p style="margin: 10px 0; font-weight: bold;">
+                <img src="images/gmail (1).png" alt="Email Icon" style="width: 16px; margin-right: 5px;"> Email:
+            </p>
+            <p style="margin: 0; margin-left: 20px;">
+                <a href="mailto:balaji.elect09@gmail.com" style="color: white; text-decoration: none;">balaji.elect09@gmail.com</a>
+            </p>
+            <p style="margin: 10px 0; font-weight: bold;">
+                <img src="images/mobile.png" alt="Phone Icon" style="width: 16px; margin-right: 5px;"> Mobile:
+            </p>
+            <p style="margin: 0; margin-left: 20px;">
+                <a href="tel:+91 88888834724" style="color: white; text-decoration: none;">+91 8888834724</a>
+            </p>
+            <p style="margin: 0; margin-left: 20px;">
+                <a href="tel:+91 9028888638" style="color: white; text-decoration: none;">+91 90288888638</a>
+            </p>
+        </div>
+
+        <!-- Services Offered -->
+        <div style="flex: 1; min-width: 300px; text-align: left; margin-right: 40px;">
+            <h3 style="margin: 0; font-size: 1.2rem;">Our Services</h3>
+            <ul style="list-style: none; padding: 0; margin: 10px 0;">
+                <li>- Sales and Services of Welding Machines</li>
+                <li>- Control Panels and Automation</li>
+                <li>- Manufacturing Welding SPM and Rotary Positioners</li>
+                <li>- Industry-specific Automation Solutions</li>
+            </ul>
+        </div>
+
+        <!-- Quick Links -->
+        <div style="flex: 1; min-width: 300px; text-align: left;">
+            <h3 style="margin: 0; font-size: 1.2rem;">Quick Links</h3>
+            <ul style="list-style: none; padding: 0; margin: 10px 0;">
+                <li><a href="index.html" style="color: white; text-decoration: none;">Home</a></li>
+                <li><a href="about.html" style="color: white; text-decoration: none;">About Us</a></li>
+                <li><a href="contact.html" style="color: white; text-decoration: none;">Contact Us</a></li>
+                <li><a href="index.html"  style="color: white; text-decoration: none;">Products & Solutions</a></li>
+                <li><a href="gallery.html"  style="color: white; text-decoration: none;">Gallery</a></li>
+                
+            </ul>
+        </div>
+    </div>
+    <!-- Social Media Links -->
+    <div style="text-align: left; flex: 1; min-width: 300px;">
+        <h3 style="margin: 0; font-size: 1.2rem;">Follow Us On</h3>
+        <div style="margin: 10px 0; display: flex; gap: 20px; align-items: center;">
+            <a href="https://www.linkedin.com/company/balajielectricals/" target="_blank" style="text-decoration: none;">
+                <i class="fab fa-linkedin" style="font-size: 2rem; color: #eef075;"></i> <!-- LinkedIn Blue -->
+            </a>
+           
+
+        </div>
+    </div>
+
+      <!-- Horizontal Line -->
+      <hr style="border: none; border-top: 1px solid white; margin: 20px 0;">
+      
+    <p style="text-align: center; margin-top: 20px;">&copy; 2024 BALAJI ELECTRICALS | 
+        <a href="terms.html" style="color: white; text-decoration: none;">Terms of Use</a> | 
+        <a href="privacy.html" style="color: white; text-decoration: none;">Privacy Policy</a>
+    </p>
+</footer>
+
+
+
+    <script>
+        const slides = [
+    {
+        title: "Mission",
+        points: [
+            "Delivering excellence in welding equipment and customer service.",
+            "Ensuring the highest standards of quality and reliability.",
+            "Empowering industries with innovative solutions.",
+        ],
+        background: "url('images/MISSION 03.jpg')",
+    },
+    {
+        title: "Vision",
+        points: [
+            "Becoming the leading provider of innovative welding solutions worldwide.",
+            "Enabling industries to achieve greater productivity and efficiency.",
+            "Pioneering advancements in automation and industrial processes.",
+        ],
+        background: "url('images/VISION 03.jpg')",
+    },
+];
+
+let currentSlide = 0;
+
+function updateSlide() {
+    const content = document.getElementById("content");
+    const background = document.getElementById("background");
+
+    // Update title and points
+    content.querySelector("h2").textContent = slides[currentSlide].title;
+    content.querySelector("ul").innerHTML = slides[currentSlide].points
+        .map((point) => `<li>${point}</li>`)
+        .join("");
+
+    // Update background
+    background.style.backgroundImage = slides[currentSlide].background;
+    background.style.backgroundSize = "cover";
+    background.style.backgroundPosition = "center";
+
+    // Update tabs
+    document.querySelectorAll(".tabs button").forEach((btn, idx) => {
+        btn.classList.toggle("active", idx === currentSlide);
+    });
+}
+
+function changeSlide(direction) {
+    currentSlide = (currentSlide + direction + slides.length) % slides.length;
+    updateSlide();
+}
+
+function setSlide(index) {
+    currentSlide = index;
+    updateSlide();
+}
+
+window.onload = updateSlide;
+        document.addEventListener("DOMContentLoaded"), () => {
+            const loadingScreen = document.getElementById("loading-screen");
+            const mainContent = document.getElementById("main-content");
+
+        }
+        function openMenu() {
+        document.getElementById('navbar').classList.add('active');
+        document.querySelector('.hamburger').style.display = 'none';  // Hide hamburger when menu opens
+        document.querySelector('.close-btn').style.opacity = '1';  // Show close button
+    }
+    
+    function closeMenu() {
+        document.getElementById('navbar').classList.remove('active');
+        document.querySelector('.hamburger').style.display = 'block';  // Show hamburger when menu closes
+        document.querySelector('.close-btn').style.opacity = '0';  // Hide close button
+    }
+        
+    </script>
+</body>
+</html>
+        

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - BALAJI ELECTRICALS</title>
+     <!-- Google Fonts -->
+     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+     <!-- Font Awesome for Icons -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+     <style>
+          /* General Body Styling */
+          body {
+            font-family: 'Poppins', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-color: #f4f7fc;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #003366;
+            color: white;
+            padding: 10px 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 5px 10px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #FFD700;
+        }
+
+        nav a.active {
+            color: white;
+            border-bottom: 2px solid #FFD700;
+        }
+        /* Hamburger Menu on the right */
+        .hamburger {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 15px;
+    right: 10px;
+    z-index: 1100;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.hamburger.active {
+    transform: rotate(90deg); /* Rotate the hamburger icon when active */
+}
+
+.hamburger i {
+    color: #fff;
+    font-size: 2rem;
+}
+/* Mobile menu */
+#navbar {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70%;
+    height: 100%;
+    background-color: #00264d;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    transition: right 0.3s ease;
+    z-index: 1000;
+    justify-content: flex-start; /* Align items at the top */
+    padding-top: 60px; /* Add space at the top to avoid overlapping with the header */
+}
+
+/* When the navbar is active, bring it into view */
+#navbar.active {
+    right: 0;
+}
+
+#navbar a {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    margin: 10px 0;
+}
+
+#navbar a:hover {
+    color: #FFD700;
+}
+
+/* Close button inside the menu */
+.close-btn {
+    align-self: flex-end;
+    font-size: 1.5rem;
+    color: #fff;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+#navbar.active .close-btn {
+    opacity: 1; /* Fade in the close button when menu is active */
+}
+
+ /* Media Queries for Mobile */
+@media (max-width: 768px) {
+    .hamburger {
+        display: block; /* Show hamburger menu only on small screens */
+    }
+
+    nav.desktop-nav {
+        display: none; /* Hide navigation links on mobile */
+    }
+}
+
+        /* Gallery Section */
+        .gallery {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .gallery h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #003366;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 0 10px;
+        }
+
+        .gallery-item {
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .gallery-item p {
+            margin: 10px 0;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        footer {
+            background: #003366;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Highlight Style */
+        .highlight {
+            color: white;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        .highlight:hover {
+            text-decoration: none;
+            color: #e1eaf3;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .logo h1 {
+                font-size: 1.2rem;
+            }
+
+            .gallery h2 {
+                font-size: 1.5rem;
+            }
+
+            footer {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .logo{
+                margin-left: -90px;
+                justify-content: flex-start;
+            }
+            .logo image{
+               margin-left: -90px;
+            }
+            .logo h1{
+                font-size: 1.4rem;
+            }
+
+            .gallery h2 {
+                font-size: 1.2rem;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+
+            footer {
+                font-size: 0.9rem;
+            }
+        }
+     </style>
+   
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <img src="images/BALAJI ELECTRICALS LOGO.jpg" alt="Logo">
+            <h1>BALAJI ELECTRICALS</h1>
+        </div>
+        <!-- Hamburger Menu (hidden by default on desktop) -->
+    <div class="hamburger" onclick="openMenu()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <nav class="desktop-nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="index.html">Product & Solutions</a>
+        <a href="contact.html">Contact Us</a>
+    </nav>
+
+    <!-- Mobile Navigation Menu -->
+    <nav id="navbar">
+        <div class="close-btn" onclick="closeMenu()">
+            <i class="fas fa-times"></i>
+        </div>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="index.html">Product & Solutions</a>
+        <a href="contact.html">Contact Us</a>
+        <a href="gallery.html">Gallery</a>
+    </nav>
+    </header>
+
+    <!-- Gallery Section -->
+    <section class="gallery">
+        <h2>Our Gallery</h2>
+        <div class="gallery-grid">
+            <!-- Photo cards -->
+            <div class="gallery-item">
+                <img src="imageS/MIG 300.jpg" alt="MIG WELDING 300A">
+                <p>MIG Welding Machine 300A</p>
+            </div>
+            <div class="gallery-item">
+                <img src="images/TIG WATER COOLED.jpg" alt="Tig Welding Water Cooled">
+                <p>TIG Welding Machine With Water Cooled System </p>
+            </div>
+            <div class="gallery-item">
+                <img src="images/tig 400 machine.jpg" alt="TIG Welding Machine 400A">
+                <p>TIG Welding Machine 400A</p>
+            </div>
+            <div class="gallery-item">
+                <img src="images/CONTROL PANEL 01.jpg" alt="PLC Control Panel">
+                <p>PLC Control Panel</p>
+            </div>
+            <div class="gallery-item">
+                <img src="images/CONTROL PANEL 02.jpg" alt="Control panel body">
+                <p>Control panel</p>
+            </div>
+            <div class="gallery-item">
+                <img src="images/CONTROL PANEL 04.jpg" alt="Control panel with HMI">
+                <p>PLC Control Panel With HMI</p>
+            </div>
+            <div class="gallery-item">
+                <img src="images/CONTROL PANEL 03.jpg" alt="Control Panel">
+                <p>Control Panel </p>
+            </div>
+            <!-- Add more items as needed -->
+        </div>
+    </section>
+    <footer>
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; align-items: flex-start; padding: 20px; gap: 40px;">
+            <!-- Business Info -->
+            <div style="flex: 1; min-width: 300px; text-align: left;">
+                <h3 style="margin: 0; font-size: 1.2rem;">BALAJI ELECTRICALS</h3>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Head Office:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    Morwadi, Pimpri, Pune 411018
+                </p>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Manufacturing Plant:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    Swapnil Industries, Bhosari MIDC, Pimpri-Chinchwad 411026
+                </p>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/gmail (1).png" alt="Email Icon" style="width: 16px; margin-right: 5px;"> Email:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    <a href="mailto:balaji.elect09@gmail.com" style="color: white; text-decoration: none;">balaji.elect09@gmail.com</a>
+                </p>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/mobile.png" alt="Phone Icon" style="width: 16px; margin-right: 5px;"> Mobile:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    <a href="tel:+91 8888834724" style="color: white; text-decoration: none;">+91 8888834724</a>
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    <a href="tel:+91 9028888638" style="color: white; text-decoration: none;">+91 9028888638</a>
+                </p>
+            </div>
+    
+            <!-- Services Offered -->
+            <div style="flex: 1; min-width: 300px; text-align: left; margin-right: 40px;">
+                <h3 style="margin: 0; font-size: 1.2rem;">Our Services</h3>
+                <ul style="list-style: none; padding: 0; margin: 10px 0;">
+                    <li>- Sales and Services of Welding Machines</li>
+                    <li>- Control Panels and Automation</li>
+                    <li>- Manufacturing Welding SPM and Rotary Positioners</li>
+                    <li>- Industry-specific Automation Solutions</li>
+                </ul>
+            </div>
+    
+            <!-- Quick Links -->
+            <div style="flex: 1; min-width: 300px; text-align: left;">
+                <h3 style="margin: 0; font-size: 1.2rem;">Quick Links</h3>
+                <ul style="list-style: none; padding: 0; margin: 10px 0;">
+                    <li><a href="index.html" style="color: white; text-decoration: none;">Home</a></li>
+                    <li><a href="about.html" style="color: white; text-decoration: none;">About Us</a></li>
+                    <li><a href="contact.html" style="color: white; text-decoration: none;">Contact Us</a></li>
+                    <li><a href="index.html" style="color: white; text-decoration: none;">Products & Solutions</a></li>
+                    <li><a href="gallery.html"  style="color: white; text-decoration: none;">Gallery</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- Social Media Links -->
+    <div style="text-align: left; flex: 1; min-width: 300px;">
+        <h3 style="margin: 0; font-size: 1.2rem;">Follow Us On</h3>
+        <div style="margin: 10px 0; display: flex; gap: 20px; align-items: center;">
+            <a href="https://www.linkedin.com/company/balajielectricals/" target="_blank" style="text-decoration: none;">
+                <i class="fab fa-linkedin" style="font-size: 2rem; color: #eef075;"></i> <!-- LinkedIn Blue -->
+            </a>
+            
+
+        </div>
+    </div>
+    
+          <!-- Horizontal Line -->
+          <hr style="border: none; border-top: 1px solid white; margin: 20px 0;">
+          
+        <p style="text-align: center; margin-top: 20px;">&copy; 2024 BALAJI ELECTRICALS | <a href="#" style="color: white; text-decoration: none;">Terms of Use</a> | <a href="#" style="color: white; text-decoration: none;">Privacy Policy</a></p>
+    </footer>
+    <script>
+        function openMenu() {
+        document.getElementById('navbar').classList.add('active');
+        document.querySelector('.hamburger').style.display = 'none';  // Hide hamburger when menu opens
+        document.querySelector('.close-btn').style.opacity = '1';  // Show close button
+    }
+    
+    function closeMenu() {
+        document.getElementById('navbar').classList.remove('active');
+        document.querySelector('.hamburger').style.display = 'block';  // Show hamburger when menu closes
+        document.querySelector('.close-btn').style.opacity = '0';  // Hide close button
+    }
+    
+    
+    
+    </script>
+</body>
+</html>

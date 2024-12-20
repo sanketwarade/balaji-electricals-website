@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLC Control Panels</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* General Styles */
+body {
+    font-family: 'Poppins', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    background-color: #f4f7fc;
+    overflow-x: hidden;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #003366;
+    color: white;
+    padding: 10px 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.logo h1 {
+    font-size: 1.5rem;
+    margin: 0;
+    font-weight: 600;
+}
+
+nav {
+    display: flex;
+    gap: 20px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 5px 10px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+nav a:hover {
+    color: #FFD700;
+}
+
+nav a.active {
+    color: WHITE;
+}
+/* Hamburger Menu on the right */
+.hamburger {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 20px;
+    right: 10px;
+    z-index: 1100;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.hamburger.active {
+    transform: rotate(90deg); /* Rotate the hamburger icon when active */
+}
+
+.hamburger i {
+    color: #fff;
+    font-size: 2rem;
+}
+/* Mobile menu */
+#navbar {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70%;
+    height: 100%;
+    background-color: #00264d;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    transition: right 0.3s ease;
+    z-index: 1000;
+    justify-content: flex-start; /* Align items at the top */
+    padding-top: 60px; /* Add space at the top to avoid overlapping with the header */
+}
+
+/* When the navbar is active, bring it into view */
+#navbar.active {
+    right: 0;
+}
+
+#navbar a {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    margin: 10px 0;
+}
+
+#navbar a:hover {
+    color: #FFD700;
+}
+
+/* Close button inside the menu */
+.close-btn {
+    align-self: flex-end;
+    font-size: 1.5rem;
+    color: #fff;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+#navbar.active .close-btn {
+    opacity: 1; /* Fade in the close button when menu is active */
+}
+
+ /* Media Queries for Mobile */
+@media (max-width: 768px) {
+    .hamburger {
+        display: block; /* Show hamburger menu only on small screens */
+    }
+
+    nav.desktop-nav {
+        display: none; /* Hide navigation links on mobile */
+    }
+}
+
+section {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+section h2 {
+    font-size: 2.5rem;
+    color: #003366;
+    margin-bottom: 20px;
+    position: relative;
+    display: inline-block;
+}
+
+.control-panel-details {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+}
+
+.control-panel-details div {
+    max-width: 300px;
+    text-align: left;
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.control-panel-details div:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.control-panel-details div img {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.control-panel-details div img:hover {
+    transform: scale(1.05);
+}
+
+.about-section {
+    background-color: #ffffff;
+    padding: 40px 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    margin: 30px auto;
+}
+
+footer {
+    background-color: #00264d;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9rem;
+    margin-top: 20px;
+}
+
+footer p {
+    margin: 0;
+}
+
+.get-quote {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #FFD700;
+    color: #003366;
+    padding: 15px 20px;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 50px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.get-quote:hover {
+    background-color: #ffeb3b;
+}
+
+/* Media Queries for responsiveness */
+
+/* For Tablets and below (1024px) */
+@media (max-width: 1024px) {
+    header {
+        flex-direction: column;
+        padding: 10px;
+        text-align: center;
+    }
+
+    nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .control-panel-details {
+        gap: 20px;
+    }
+
+    .control-panel-details div {
+        max-width: 90%;
+    }
+
+    section h2 {
+        font-size: 2rem;
+    }
+
+    footer {
+        font-size: 0.8rem;
+    }
+
+    footer div {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .get-quote {
+        right: 10px;
+        bottom: 10px;
+        padding: 12px 18px;
+    }
+}
+
+/* For Mobile (768px) */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .logo h1 {
+        font-size: 1.3rem;
+    }
+
+    nav {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .hamburger {
+        order: 2; /* Keep the hamburger menu to the right */
+        margin-left: auto; /* Push it to the far end */
+    }
+    
+
+    .control-panel-details {
+        gap: 15px;
+    }
+
+    .control-panel-details div {
+        max-width: 100%;
+        text-align: center;
+    }
+
+    .control-panel-details div img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    section h2 {
+        font-size: 1.8rem;
+    }
+
+    footer {
+        font-size: 0.75rem;
+    }
+
+    .get-quote {
+        right: 5px;
+        bottom: 5px;
+        padding: 10px 15px;
+    }
+}
+
+/* For Small Mobile (480px) */
+@media (max-width: 480px) {
+    header {
+        padding: 10px;
+    }
+    .logo{
+        margin-right: 120px;
+    }
+
+    .logo h1 {
+        font-size: 1.4rem;
+        margin-right: -30px;
+        
+    }
+
+    nav {
+        flex-direction: row;
+        gap: 5px;
+    }
+
+    .control-panel-details {
+        gap: 10px;
+    }
+
+    .control-panel-details div {
+        max-width: 100%;
+        text-align: center;
+    }
+
+    section h2 {
+        font-size: 1.5rem;
+    }
+
+    footer {
+        font-size: 0.65rem;
+    }
+
+    .get-quote {
+        right: 5px;
+        bottom: 5px;
+        padding: 8px 12px;
+    }
+}   
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="images/BALAJI ELECTRICALS LOGO.jpg" alt="Logo">
+            <h1>BALAJI ELECTRICALS</h1>
+        </div>
+         <!-- Hamburger Menu (hidden by default on desktop) -->
+    <div class="hamburger" onclick="openMenu()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <nav class="desktop-nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="index.html">Product & Solutions</a>
+        <a href="contact.html">Contact Us</a>
+    </nav>
+     <!-- Mobile Navigation Menu -->
+     <nav id="navbar">
+        <div class="close-btn" onclick="closeMenu()">
+            <i class="fas fa-times"></i>
+        </div>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="index.html">Product & Solutions</a>
+        <a href="contact.html">Contact Us</a>
+        <a href="gallery.html">Gallery</a>
+    </nav>
+    </header>
+
+    <section>
+        <h2>Explore Our PLC Control Panels</h2>
+        <div class="control-panel-details">
+            <div>
+                <img src="images/CONTROL PANEL 01.jpg" alt="Control Panel 1">
+                <p><strong>Control Panel 1:</strong> High-precision control for industrial applications.</p>
+            </div>
+            <div>
+                <img src="images/CONTROL PANEL 03.jpg" alt="Control Panel 2">
+                <p><strong>Control Panel 2:</strong> Designed for energy efficiency and optimal performance.</p>
+            </div>
+            <div>
+                <img src="images/CONTROL PANEL 02.jpg" alt="Control Panel 3">
+                <p><strong>Control Panel 3:</strong> Compact design with powerful capabilities.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="about-section">
+        <h2>About Our PLC Control Panels</h2>
+        <p>Our PLC control panels are designed with precision and innovation, meeting the highest standards of safety and efficiency. Tailored for industrial applications, they offer unparalleled reliability and functionality to ensure your operations run smoothly.</p>
+    </section>
+
+    <!-- Get Quote Button -->
+    <a href="get-quote.html" class="get-quote">Get Quote</a>
+
+    
+    <footer>
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; align-items: flex-start; padding: 20px; gap: 40px;">
+            <!-- Business Info -->
+            <div style="flex: 1; min-width: 300px; text-align: left;">
+                <h3 style="margin: 0; font-size: 1.2rem;">BALAJI ELECTRICALS</h3>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Head Office:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    Morwadi, Pimpri, Pune 411018
+                </p>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Manufacturing Plant:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    Swapnil Industries, Bhosari MIDC, Pimpri-Chinchwad 411026
+                </p>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/gmail (1).png" alt="Email Icon" style="width: 16px; margin-right: 5px;"> Email:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    <a href="mailto:balaji.elect09@gmail.com" style="color: white; text-decoration: none;">balaji.elect09@gmail.com</a>
+                </p>
+                <p style="margin: 10px 0; font-weight: bold;">
+                    <img src="images/mobile.png" alt="Phone Icon" style="width: 16px; margin-right: 5px;"> Mobile:
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    <a href="tel:+918888834724" style="color: white; text-decoration: none;">+91 8888834724</a>
+                </p>
+                <p style="margin: 0; margin-left: 20px;">
+                    <a href="tel:+919028888638" style="color: white; text-decoration: none;">+91 9028888638</a>
+                </p>
+            </div>
+    
+            <!-- Services Offered -->
+            <div style="flex: 1; min-width: 300px; text-align: left; margin-right: 40px;">
+                <h3 style="margin: 0; font-size: 1.2rem;">Our Services</h3>
+                <ul style="list-style: none; padding: 0; margin: 10px 0;">
+                    <li>- Sales and Services of Welding Machines</li>
+                    <li>- Control Panels and Automation</li>
+                    <li>- Manufacturing Welding SPM and Rotary Positioners</li>
+                    <li>- Industry-specific Automation Solutions</li>
+                </ul>
+            </div>
+    
+            <!-- Quick Links -->
+            <div style="flex: 1; min-width: 300px; text-align: left;">
+                <h3 style="margin: 0; font-size: 1.2rem;">Quick Links</h3>
+                <ul style="list-style: none; padding: 0; margin: 10px 0;">
+                    <li><a href="index.html" style="color: white; text-decoration: none;">Home</a></li>
+                    <li><a href="about.html" style="color: white; text-decoration: none;">About Us</a></li>
+                    <li><a href="contact.html" style="color: white; text-decoration: none;">Contact Us</a></li>
+                    <li><a href="index.html"  style="color: white; text-decoration: none;">Products & Solutions</a></li>
+                    <li><a href="gallery.html"  style="color: white; text-decoration: none;">Gallery</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- Social Media Links -->
+    <div style="text-align: left; flex: 1; min-width: 300px;">
+        <h3 style="margin: 0; font-size: 1.2rem;">Follow Us On</h3>
+        <div style="margin: 10px 0; display: flex; gap: 20px; align-items: center;">
+            <a href="https://www.linkedin.com/company/balajielectricals/" target="_blank" style="text-decoration: none;">
+                <i class="fab fa-linkedin" style="font-size: 2rem; color: #eef075;"></i> <!-- LinkedIn Blue -->
+            </a>
+            
+        </div>
+    </div>
+    
+          <!-- Horizontal Line -->
+          <hr style="border: none; border-top: 1px solid white; margin: 20px 0;">
+          <p style="text-align: center; margin-top: 20px;">&copy; 2024 BALAJI ELECTRICALS | 
+            <a href="terms.html" style="color: white; text-decoration: none;">Terms of Use</a> | 
+            <a href="privacy.html" style="color: white; text-decoration: none;">Privacy Policy</a>
+        </p>
+    </footer>
+    <script>
+         function openMenu() {
+        document.getElementById('navbar').classList.add('active');
+        document.querySelector('.hamburger').style.display = 'none';  // Hide hamburger when menu opens
+        document.querySelector('.close-btn').style.opacity = '1';  // Show close button
+    }
+    
+    function closeMenu() {
+        document.getElementById('navbar').classList.remove('active');
+        document.querySelector('.hamburger').style.display = 'block';  // Show hamburger when menu closes
+        document.querySelector('.close-btn').style.opacity = '0';  // Hide close button
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+cd C:\Users\Admin\Desktop\BALAJI ELECTRICALS\Backend
+pm2 start server.js --name "balaji-electricals"
