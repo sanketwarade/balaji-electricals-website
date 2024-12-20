@@ -443,6 +443,22 @@ footer a {
     color: white;
     text-decoration: none;
 }
+.social-links {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start; /* Align left */
+        margin-top: 20px;
+    }
+
+    .social-links a {
+        margin-right: 10px; /* Space between icons if more than one */
+    }
+
+    /* Optional: Adjust the size of the LinkedIn icon for mobile */
+    .social-links img {
+        width: 30px;
+        height: 30px;
+    }
 
 
 /* Footer Responsive Layout */
@@ -462,6 +478,22 @@ footer a {
 
     footer hr {
         width: 100%;
+    }
+    .social-links {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start; /* Align left */
+        margin-top: 20px;
+    }
+
+    .social-links a {
+        margin-right: 10px; /* Space between icons if more than one */
+    }
+
+    /* Optional: Adjust the size of the LinkedIn icon for mobile */
+    .social-links img {
+        width: 30px;
+        height: 30px;
     }
 }
 
@@ -641,12 +673,14 @@ footer a {
         </div>
     </div>
     <!-- Social Media Links -->
+    <div class="social-links">
     <div style="text-align: left; flex: 1; min-width: 300px;">
         <h3 style="margin: 0; font-size: 1.2rem;">Follow Us On</h3>
         <div style="margin: 10px 0; display: flex; gap: 20px; align-items: center;">
             <a href="https://www.linkedin.com/company/balajielectricals/" target="_blank" style="text-decoration: none;">
                 <i class="fab fa-linkedin" style="font-size: 2rem; color: #eef075;"></i> <!-- LinkedIn Blue -->
             </a>
+        </div>
            
 
         </div>
@@ -671,7 +705,7 @@ footer a {
                 setTimeout(() => {
                     loader.style.display = 'none';
                     document.querySelector('h1').style.display = 'block'; // Show main content
-                }, 500);
+                }, 1500);
             } else {
                 // Directly hide loader on larger screens
                 loader.style.display = 'none';
