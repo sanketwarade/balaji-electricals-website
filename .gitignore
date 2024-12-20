@@ -1,3 +1,13 @@
-.env
-/Backend/node_modules/
-/frontend/node_modules/
+# Node modules
+/node_modules/
+
+# Environment variables
+/.env
+
+# Log files
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
