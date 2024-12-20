@@ -11,7 +11,7 @@ require('dotenv').config();
 
 
 const app = express();
-const port = 3000;
+
 
 // Define the rate limit rule
 const limiter = rateLimit({
@@ -346,10 +346,11 @@ app.post('/submit-Enquiryform', [
       });
     });
   });
-// Start server
+// Start seerver
 
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
+  console.log(`Server running on port ${port}`);
 });
 
 
