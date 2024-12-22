@@ -657,6 +657,32 @@ nav a.active {
         document.querySelector('.hamburger').style.display = 'block';  // Show hamburger when menu closes
         document.querySelector('.close-btn').style.opacity = '0';  // Hide close button
     }
+    // Select the button element within the form container
+const button = document.querySelector('.form-container button');
+
+// Add the 'active' effect on button press (mousedown/touchstart)
+button.addEventListener('mousedown', () => {
+    button.style.backgroundColor = '#45a049'; // Darker green when active
+    button.style.transform = 'scale(0.98)'; // Slightly shrink the button
+});
+
+// Remove the 'active' effect when the button is released (mouseup/touchend)
+button.addEventListener('mouseup', () => {
+    button.style.backgroundColor = ''; // Reset to original color
+    button.style.transform = ''; // Reset scale effect
+});
+
+// Handle the 'focus' effect when the button is clicked or navigated to
+button.addEventListener('focus', () => {
+    button.style.outline = 'none'; // Remove default focus outline
+    button.style.boxShadow = '0 0 0 3px rgba(76, 175, 80, 0.5)'; // Glowing effect
+});
+
+// Remove the 'focus' effect when the button loses focus
+button.addEventListener('blur', () => {
+    button.style.boxShadow = ''; // Reset the glow effect
+});
+
 </script>
 </body>
 </html>
