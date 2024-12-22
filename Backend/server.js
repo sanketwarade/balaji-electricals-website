@@ -26,7 +26,7 @@ app.use(limiter);
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin:  'http://127.0.0.1:5500', // Replace with your actual frontend domain
+  origin:  'https://darling-conkies-1620b9.netlify.app/', // Replace with your actual frontend domain
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
