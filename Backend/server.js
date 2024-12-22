@@ -27,7 +27,7 @@ app.use(limiter);
 app.use(helmet());
 app.use(cors({
   origin:  'https://darling-conkies-1620b9.netlify.app/' // Replace with your actual frontend domain
-  methods: 'GET', POST',
+  methods: 'GET, POST',
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(bodyParser.json());
