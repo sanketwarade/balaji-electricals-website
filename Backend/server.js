@@ -30,6 +30,10 @@ app.use(cors({
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+// Your other routes
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
