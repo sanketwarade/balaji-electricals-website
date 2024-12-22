@@ -686,6 +686,19 @@ button.addEventListener('focus', () => {
 button.addEventListener('blur', () => {
     button.style.boxShadow = ''; // Reset the glow effect
 });
+    
+    // Add click and touchstart event listeners for submit button
+    document.getElementById("submit-button").addEventListener("click", function(event) {
+        event.preventDefault();
+        // Trigger form submission logic here
+        $('#Enquiryform').submit();
+    });
+
+    document.getElementById("submit-button").addEventListener("touchstart", function(event) {
+        event.preventDefault();
+        // Trigger form submission logic here
+        $('#Enquiryform').submit();
+    });
 
 </script>
 </body>
