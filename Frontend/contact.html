@@ -665,13 +665,13 @@ nav a.active {
 const button = document.querySelector('.form-container button');
 
 // Add the 'active' effect on button press (mousedown/touchstart)
-button.addEventListener('mousedown', () => {
+button.addEventListener('touchstart', () => {
     button.style.backgroundColor = '#45a049'; // Darker green when active
     button.style.transform = 'scale(0.98)'; // Slightly shrink the button
 });
 
 // Remove the 'active' effect when the button is released (mouseup/touchend)
-button.addEventListener('mouseup', () => {
+button.addEventListener('touchend', () => {
     button.style.backgroundColor = ''; // Reset to original color
     button.style.transform = ''; // Reset scale effect
 });
