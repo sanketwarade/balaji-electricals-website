@@ -246,6 +246,16 @@ nav a.active {
         .form-container button:hover {
             background-color: #ffeb3b;
         }
+        .form-container button:active {
+    background-color: #45a049; /* Slightly darker green */
+    transform: scale(0.98); /* Slightly scale down the button to give a pressed effect */
+}
+
+/* Styling when the button is focused (e.g., after being clicked or tapped) */
+.form-containebutton:focus {
+    outline: none; /* Removes the default outline */
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.5); /* Adds a glowing effect around the button */
+}
     
         footer {
             text-align: center;
