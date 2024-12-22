@@ -1,15 +1,1 @@
-# Database Credentials
-DB_HOST=junction.proxy.rlwy.net
-DB_USER=root
-DB_PASSWORD=ocMXfpUTKNulwsdYYBoVJajoCkSWSzFS
-DB_NAME=railway
-DB_PORT=52600
 
-# Email Credentials
-
-
-SENDGRID_API_KEY=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
-SENDGRID_SENDER_EMAIL=balajielectricals.salesservices@gmail.com
-ADMIN_EMAIL=balajielectricals.information@gmail.com
-# Port
-PORT=3000
