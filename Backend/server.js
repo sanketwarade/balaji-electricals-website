@@ -1,7 +1,7 @@
 const express = require('express');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const bodyParser = require('body-parser');
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');  // Import SendGrid
 const cors = require('cors');
 const validator = require('validator');
 const { body, validationResult } = require('express-validator');
@@ -11,7 +11,7 @@ require('dotenv').config();
 
 
 const app = express();
-const port = 3000;
+
 
 // Define the rate limit rule
 const limiter = rateLimit({
@@ -40,6 +40,7 @@ const db = mysql.createConnection({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  port: process.env.DB_PORT
 });
 
 db.connect(err => {
@@ -51,17 +52,7 @@ db.connect(err => {
 });
 
 // Email Setup using environment variables
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-    service: 'gmail',
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
-      admin:process.env.GMAIL_ADMIN
-    }
-});
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // API to handle form submissions
 app.post('/submit-solutionform', [
@@ -106,40 +97,41 @@ app.post('/submit-solutionform', [
         }
 
         // Send email to user and admin
-        const userMailOptions = {
-            from: process.env.GMAIL_USER,
+        const userMail = {
+            from: process.env.SENDGRID_SENDER_EMAIL,  // Must be verified on SendGrid
             to: email, // Corrected to use formData.email
             subject: 'Custom Solution Request Received',
             text: `Hello ${name},\n\nThank you for requesting a custom solution.\nWe will get back to you shortly.`
         };
 
-        const adminMailOptions = {
-            from: process.env.GMAIL_USER,
-            to: process.env.GMAIL_ADMIN,
+        const adminMail = {
+            from: process.env.SENDGRID_SENDER_EMAIL,
+            to: process.env.ADMIN_EMAIL,  // Admin email from .env
             subject: 'New custom solution Request',
             text: `New Custom Solution request received:\n\nName: ${name}\nDescription: ${description}\nPhone: ${phone}\nEmail: ${email}\nMachine Type: ${machineType || 'N/A'}`
         };
+          // Send emails
+          sgMail
+          .send(userMail)
+          .then(() => {
+              console.log('Confirmation email sent to user');
+          })
+          .catch((error) => {
+              console.error('Error sending email to user:', error);
+          });
 
-        transporter.sendMail(userMailOptions, (err, info) => {
-            if (err) {
-                console.error('Error sending email to user:', err);
-                return res.status(500).json({ message: 'Error sending confirmation email' });
-            }
-            console.log('Confirmation email sent: ' + info.response);
-        });
-
-        transporter.sendMail(adminMailOptions, (err, info) => {
-            if (err) {
-                console.error('Error sending email to admin:', err);
-                return res.status(500).json({ message: 'Error sending admin email' });
-            }
-            console.log('Admin email sent: ' + info.response);
-        });
-
+      sgMail
+          .send(adminMail)
+          .then(() => {
+              console.log('Notification email sent to admin');
+          })
+          .catch((error) => {
+              console.error('Error sending email to admin:', error);
+          });
         res.status(200).send({ success: true, message: 'Form submitted successfully!' });
     });
 });
-// Start server
+
 
 
 // POST endpoint to handle form submission
@@ -210,40 +202,41 @@ app.post('/submit-quoteForm', [
         }
 
         // Send email to user (confirmation)
-        const userMailOptions = {
-            from: process.env.GMAIL_USER,
+        const userMail = {
+            from:process.env.SENDGRID_SENDER_EMAIL,  // Must be verified on SendGrid
             to: email,
             subject: 'Quote Request Received',
             text: `Hello ${name},\n\nThank you for requesting a quote. Here are the details we received:\n\nMachines/Parts: ${machines.join(', ')}\nMessage: ${message}\n\nWe will get back to you shortly.`
         };
 
         // Send email to admin (quote details)
-        const adminMailOptions = {
-            from: process.env.GMAIL_USER,
-            to: process.env.GMAIL_ADMIN,  // Admin email address
+        const adminMail = {
+            from: process.env.SENDGRID_SENDER_EMAIL,
+            to: process.env.ADMIN_EMAIL,  // Admin email address
             subject: 'New Quote Request',
             text: `New quote request received:\n\nName: ${name}\nCompany: ${company}\nContact: ${contact}\nEmail: ${email}\nMachines/Parts: ${machines.join(', ')}\nMessage: ${message}`
         };
 
-        // Send confirmation email to user
-        transporter.sendMail(userMailOptions, (err, info) => {
-            if (err) {
-                console.error('Error sending email to user:', err);
-                return res.status(500).json({ message: 'Error sending confirmation email' });
-            }
-
-            console.log('Confirmation email sent: ' + info.response);
+        // Send emails
+        sgMail
+        .send(userMail)
+        .then(() => {
+            console.log('Confirmation email sent to user');
+        })
+        .catch((error) => {
+            console.error('Error sending email to user:', error);
         });
 
-        // Send email to admin
-        transporter.sendMail(adminMailOptions, (err, info) => {
-            if (err) {
-                console.error('Error sending email to admin:', err);
-                return res.status(500).json({ message: 'Error sending admin email' });
-            }
-
-            console.log('Admin email sent: ' + info.response);
+    sgMail
+        .send(adminMail)
+        .then(() => {
+            console.log('Notification email sent to admin');
+        })
+        .catch((error) => {
+            console.error('Error sending email to admin:', error);
         });
+
+        
 
         // Send success response
         res.status(200).json({ message: 'Quote request submitted successfully' });
@@ -313,43 +306,54 @@ app.post('/submit-Enquiryform', [
       }
   
       // Send confirmation email to the user
-      const userMailOptions = {
-        from: process.env.GMAIL_USER,
+      const userMail = {
+        from: process.env.SENDGRID_SENDER_EMAIL,  // Must be verified on SendGrid
         to: email,
         subject: 'Thank you for your enquiry!',
         text: `Dear ${name},\n\nThank you for reaching out to BALAJI ELECTRICALS. We will get back to you soon.\n\nBest regards,\nBALAJI ELECTRICALS`
       };
   
-      transporter.sendMail(userMailOptions, (error, info) => {
-        if (error) {
-          console.error('Error sending user email:', error);
-          return res.status(500).send('Error sending email to user');
-        }
-        console.log('User email sent:', info.response);
-      });
   
       // Send notification email to admin
-      const adminMailOptions = {
-        from: process.env.GMAIL_USER,
-        to: process.env.GMAIL_ADMIN,
+      const adminMail = {
+        from: process.env.SENDGRID_SENDER_EMAIL,
+        to: process.env.ADMIN_EMAIL,
         subject: 'New Enquiry Received',
         text: `New enquiry from ${name}.\n\nDetails:\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nSubject: ${subject}`
       };
+
+      // Send emails
+      sgMail
+      .send(userMail)
+      .then(() => {
+          console.log('Confirmation email sent to user');
+      })
+      .catch((error) => {
+          console.error('Error sending email to user:', error);
+      });
+
+  sgMail
+      .send(adminMail)
+      .then(() => {
+          console.log('Notification email sent to admin');
+      })
+      .catch((error) => {
+          console.error('Error sending email to admin:', error);
+      });
   
-      transporter.sendMail(adminMailOptions, (error, info) => {
-        if (error) {
-          console.error('Error sending admin email:', error);
-          return res.status(500).send('Error sending email to admin');
-        }
-        console.log('Admin email sent:', info.response);
+      
         res.status(200).send('Enquiry submitted successfully');
       });
     });
-  });
-// Start server
+  
+// Start seerver
 
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
+  console.log(`Server running on port ${port}`);
 });
+
+
+
 
 
