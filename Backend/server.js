@@ -58,6 +58,7 @@ pool.getConnection((err, connection) => {
 
 module.exports = pool;  // Export pool directly
 
+
 // Email Setup using environment variables
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -97,7 +98,7 @@ app.post('/submit-solutionform', [
         machineType, 
         description
     ];
-    db.query(query, values, (err, result) => {
+    pool.query(query, values, (err, result) => {
         if (err) {
             console.error('Error inserting data:', err);
             return res.status(500).send({ success: false, message: 'Error saving data.' });
@@ -202,7 +203,7 @@ app.post('/submit-quoteForm', [
     
     
 
-    db.query(query, values, (err, result) => {
+    pool.query(query, values, (err, result) => {
         if (err) {
             console.error('Error inserting data into database:', err);
             return res.status(500).json({ message: 'Error saving data to database' });
@@ -306,7 +307,7 @@ app.post('/submit-Enquiryform', [
         phone, 
         subject
     ];
-    db.query(query, [name, email, phone, subject], (err, result) => {
+    pool.query(query, [name, email, phone, subject], (err, result) => {
       if (err) {
         console.error('Error inserting data:', err);
         return res.status(500).send('Error saving data');
