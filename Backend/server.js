@@ -26,7 +26,7 @@ app.use(limiter);
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin:  'https://balajielectricals.netlify.app/', // Replace with your actual frontend domain
+  origin:  'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
