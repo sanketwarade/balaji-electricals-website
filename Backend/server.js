@@ -56,7 +56,7 @@ pool.getConnection((err, connection) => {
   }
 });
 
-module.exports = pool.promise();
+module.exports = pool;  // Export pool directly
 
 // Email Setup using environment variables
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
