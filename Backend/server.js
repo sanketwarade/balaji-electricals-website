@@ -61,6 +61,7 @@ module.exports = pool;  // Export pool directly
 
 // Email Setup using environment variables
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // API to handle form submissions
 app.post('/submit-solutionform', [
