@@ -522,15 +522,23 @@
         $.ajax({
             url: 'https://balaji-electricals-website-production.up.railway.app/get-csrf-token',  // Backend route to fetch CSRF token
             type: 'GET',
+            xhrFields: {
+            withCredentials: true  // Ensure cookies are sent
+            },
             dataType: 'json',
             success: function (data) {
+                if (data.csrfToken) {
                 $('#csrfToken').val(data.csrfToken);  // Set token value to hidden input
-            },
-            error: function (xhr, status, error) {
-                console.error('Error fetching CSRF token:', error);
+            } else {
+                console.error('CSRF token is missing');
             }
-        });
+        },
+        error: function (xhr, status, error) {
+            console.error('Error fetching CSRF token:', error);
+        }
+    });
 
+                
         // Fetch CSRF token from a meta tag or from the cookie
 
         
