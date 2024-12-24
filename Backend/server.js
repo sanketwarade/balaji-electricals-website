@@ -43,25 +43,43 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser()); // Parse cookies
 
 // CSRF Middleware (Token Generation & Storage)
+app.use(cookieParser());
 app.use((req, res, next) => {
   if (!req.cookies.csrfSecret) {
     const secret = tokens.secretSync();
     res.cookie('csrfSecret', secret, {
       httpOnly: true,
-      secure: req.secure || req.headers['x-forwarded-proto'] === 'https', // Ensure this is true when using HTTPS
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
     });
   }
-
-  const secret = req.cookies.csrfSecret;
-  if (secret) {
-    req.csrfToken = tokens.create(secret);
-    res.locals.csrfToken = req.csrfToken;
-  } else {
-    return res.status(500).send({ success: false, message: 'CSRF Secret is missing' });
-  }
-
+  req.csrfToken = tokens.create(req.cookies.csrfSecret);
+  res.locals.csrfToken = req.csrfToken;
   next();
 });
+// CSRF Token Route - Add this route right here
+app.get('https://balaji-electricals-website-production.up.railway.app/get-csrf-token', (req, res) => {
+  try {
+    if (!req.cookies.csrfSecret) {
+      const secret = tokens.secretSync();
+      res.cookie('csrfSecret', secret, {
+        httpOnly: true,
+        secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+      });
+    }
+
+    const secret = req.cookies.csrfSecret;
+    if (secret) {
+      const csrfToken = tokens.create(secret);
+      return res.status(200).send({ csrfToken });
+    }
+
+    return res.status(500).send({ success: false, message: 'CSRF Secret is missing' });
+  } catch (err) {
+    console.error('Error generating CSRF token:', err);
+    return res.status(500).send({ success: false, message: 'Internal Server Error' });
+  }
+});
+
 
 
 // MySQL Database Connection
