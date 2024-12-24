@@ -594,7 +594,11 @@
                     type: 'POST',
                     data: JSON.stringify(formData),
                     contentType: 'application/json',
+<<<<<<< HEAD
                     timeout: 10000,  // 10-second timeout for the request
+=======
+                     timeout: 10000,  // 10-second timeout for the request
+>>>>>>> f5c43dc2d6689bc524d8506dfad053e8863265d7
 
                     success: function(response) {
                     alert('Form submitted successfully!');  // Show success message
@@ -602,7 +606,11 @@
                     $('#successMessage').fadeIn();  // Optionally show a success message
                 },
 
+<<<<<<< HEAD
                 error: function(xhr, status, error) {
+=======
+               error: function(xhr, status, error) {
+>>>>>>> f5c43dc2d6689bc524d8506dfad053e8863265d7
                     // Handle timeout error
                     if (status === 'timeout') {
                         alert('Request timed out. Please check your internet connection.');
@@ -618,6 +626,12 @@
             });
         });
     });
+<<<<<<< HEAD
+=======
+                   
+
+                    
+>>>>>>> f5c43dc2d6689bc524d8506dfad053e8863265d7
         function openMenu() {
         document.getElementById('navbar').classList.add('active');
         document.querySelector('.hamburger').style.display = 'none';  // Hide hamburger when menu opens

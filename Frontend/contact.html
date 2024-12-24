@@ -247,8 +247,12 @@ nav a.active {
         .form-container button:hover {
             background-color: #ffeb3b;
         }
+<<<<<<< HEAD
         /* Styling when the button is pressed (active state) */
 .form-container button:active {
+=======
+        .form-container button:active {
+>>>>>>> f5c43dc2d6689bc524d8506dfad053e8863265d7
     background-color: #45a049; /* Slightly darker green */
     transform: scale(0.98); /* Slightly scale down the button to give a pressed effect */
 }
@@ -258,11 +262,18 @@ nav a.active {
     outline: none; /* Removes the default outline */
     box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.5); /* Adds a glowing effect around the button */
 }
+<<<<<<< HEAD
 #submit-button {
     display: inline-block;  /* Ensure button is visible and clickable */
     pointer-events: auto;   /* Allow interaction with button */
 }
 
+=======
+        #submit-button {
+    display: inline-block;  /* Ensure button is visible and clickable */
+    pointer-events: auto;   /* Allow interaction with button */
+}
+>>>>>>> f5c43dc2d6689bc524d8506dfad053e8863265d7
     
         footer {
             text-align: center;
@@ -491,7 +502,11 @@ nav a.active {
                 <label for="subject">Subject</label>
                 <textarea id="subject" name="subject" placeholder="Enquiry Subject" rows="4"></textarea>
 
+<<<<<<< HEAD
                 <button id="submit-button" type="submit">Submit</button>
+=======
+               <button id="submit-button" type="submit">Submit</button>
+>>>>>>> f5c43dc2d6689bc524d8506dfad053e8863265d7
 
             </form>
             <div id="submissionMessage" class="submission-message">
@@ -666,6 +681,7 @@ nav a.active {
             });
         });
     });
+               
     function openMenu() {
         document.getElementById('navbar').classList.add('active');
         document.querySelector('.hamburger').style.display = 'none';  // Hide hamburger when menu opens
@@ -702,7 +718,11 @@ button.addEventListener('focus', () => {
 button.addEventListener('blur', () => {
     button.style.boxShadow = ''; // Reset the glow effect
 });
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> f5c43dc2d6689bc524d8506dfad053e8863265d7
     // Add click and touchstart event listeners for submit button
     document.getElementById("submit-button").addEventListener("click", function(event) {
         event.preventDefault();
