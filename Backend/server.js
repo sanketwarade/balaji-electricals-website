@@ -32,9 +32,9 @@ app.set('trust proxy', 1); // Trust the first proxy
 app.use(helmet());
 app.use(cors({
   origin:  'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
-  methods: ['GET', 'POST',  'OPTIONS'],
-  credentials: true, // Allow cookies
-  allowedHeaders: ['Content-Type', 'Authorization','csrfsecret']
+  methods: ['GET', 'POST'],
+  
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(bodyParser.json());
 app.use(express.json());
