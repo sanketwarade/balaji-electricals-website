@@ -68,7 +68,7 @@ app.post('/submit-solutionform', [
     body('name').trim().escape(),
     body('email').isEmail().normalizeEmail(),
     body('phone').isLength({ min: 10, max: 10 }).isNumeric().trim(),
-    body('description').optional().escape(),
+    body('description').trim().escape().isLength({ min: 10, max: 100 }),
     body('machine-type').optional().escape(),
 ], (req, res) => {
     console.log('Form Data:', req.body);
@@ -84,6 +84,7 @@ app.post('/submit-solutionform', [
     if (!machineType) {
         return res.status(400).send({ success: false, message: 'Machine Type is required' });
     }
+    
 
     const query = `
         INSERT INTO custom_solutions 
@@ -148,7 +149,7 @@ app.post('/submit-quoteForm', [
   body('name').trim().escape().isLength({ min: 2, max: 50 }),
   body('email').isEmail().normalizeEmail(),
   body('contact').isMobilePhone('en-IN'),
-  body('message').trim().escape().isLength({ min: 10, max: 200 }),
+  body('message').trim().escape().isLength({ min: 10, max: 100 }),
 ],
   (req, res) => {
     const { name, company, contact, email, machines, message } = req.body;
@@ -178,8 +179,8 @@ app.post('/submit-quoteForm', [
   }
 
   // **Validate Subject**
-  if (!message || message.trim().length < 10 || message.trim().length > 200) {
-    errors.push('message must be between 10 and 200 characters.');
+  if (!message || message.trim().length < 10 || message.trim().length > 100) {
+    errors.push('message must be between 10 and 100 characters.');
   }
 
   // If there are validation errors, return them
@@ -257,7 +258,7 @@ app.post('/submit-Enquiryform', [
   body('name').trim().escape().isLength({ min: 2, max: 50 }),
   body('email').isEmail().normalizeEmail(),
   body('phone').isMobilePhone('en-IN'),
-  body('subject').trim().escape().isLength({ min: 10, max: 200 }),
+  body('subject').trim().escape().isLength({ min: 10, max: 100 }),
 ],
   (req, res) => {
     const { name, email, phone, subject } = req.body;
@@ -283,8 +284,8 @@ app.post('/submit-Enquiryform', [
   }
 
   // **Validate Subject**
-  if (!subject || subject.trim().length < 10 || subject.trim().length > 200) {
-    errors.push('Subject must be between 10 and 200 characters.');
+  if (!subject || subject.trim().length < 10 || subject.trim().length > 100) {
+    errors.push('Subject must be between 10 and 100 characters.');
   }
 
   // If there are validation errors, return them
