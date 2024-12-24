@@ -7,10 +7,13 @@ const validator = require('validator');
 const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet'); // New: Secure HTTP headers
+const csrf = require('csrf');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 
 const app = express();
+const tokens = new csrf();
 
 
 // Define the rate limit rule
@@ -32,7 +35,24 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 app.use(express.json());
+                         
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser()); // Parse cookies
+
+// 2. CSRF Middleware (Token Generation & Storage)
+app.use((req, res, next) => {
+  if (!req.cookies.csrfSecret) {
+      const secret = tokens.secretSync();
+      res.cookie('csrfSecret', secret, { 
+          httpOnly: true, 
+          secure: req.secure || req.headers['x-forwarded-proto'] === 'https'  // Set secure if request is HTTPS
+      });
+  }
+  req.csrfToken = tokens.create(req.cookies.csrfSecret);
+  res.locals.csrfToken = req.csrfToken;
+  next();
+});
+
 
 // MySQL Database Connection
 const pool = mysql.createPool({
@@ -72,6 +92,12 @@ app.post('/submit-solutionform', [
     body('machine-type').optional().escape(),
 ], (req, res) => {
     console.log('Form Data:', req.body);
+
+    // CSRF Token Validation
+  const csrfToken = req.headers['csrfsecret']; // Get CSRF token from request header
+  if (!csrfToken || csrfToken !== req.csrfToken) {
+    return res.status(403).send({ success: false, message: 'Invalid CSRF token' });
+  }
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
