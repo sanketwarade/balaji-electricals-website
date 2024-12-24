@@ -8,12 +8,13 @@ const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet'); // New: Secure HTTP headers
 const csrf = require('csrf');
+const tokens = new csrf();
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 
 const app = express();
-const tokens = new csrf();
+
 
 
 // Define the rate limit rule
@@ -58,20 +59,25 @@ app.use((req, res, next) => {
   res.locals.csrfToken = req.csrfToken;
   next();
 });
+// CSRF Token Route
 app.get('/get-csrf-token', (req, res) => {
   try {
-    // Check if csrfSecret exists in cookies, if not, generate and set it
+    // Ensure the csrfSecret is set in the cookies
     if (!req.cookies.csrfSecret) {
-      const secret = tokens.secretSync();
+      const secret = tokens.secretSync();  // Generate a new secret
       res.cookie('csrfSecret', secret, {
         httpOnly: true,
-        secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+        secure: req.secure || req.headers['x-forwarded-proto'] === 'https',  // Only send cookies over HTTPS
+        sameSite: 'None', // Required for cross-origin requests
       });
     }
 
+    // Retrieve the csrfSecret from cookies
     const secret = req.cookies.csrfSecret;
+
+    // If the secret exists, create a CSRF token
     if (secret) {
-      const csrfToken = tokens.create(secret);
+      const csrfToken = tokens.create(secret);  // Generate CSRF token using the secret
       return res.status(200).send({ csrfToken });
     }
 
@@ -81,7 +87,6 @@ app.get('/get-csrf-token', (req, res) => {
     return res.status(500).send({ success: false, message: 'Internal Server Error' });
   }
 });
-
 
 
 // MySQL Database Connection
