@@ -356,6 +356,7 @@
     footer p {
         font-size: 0.8rem;
     }
+    
 }
 
 
@@ -397,7 +398,8 @@
 
     <section>
         <h2>Enter Your Details</h2>
-        <form id="quoteForm">
+        <form id="quoteForm" action="/submit-quoteForm" method="POST">
+            <input type="hidden" id="csrfToken" name="csrfToken" value="">
             <fieldset>
                 
             <label for="name">Name:</label>
@@ -516,23 +518,47 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Fetch CSRF token when the page loads
+        $.ajax({
+            url: 'https://balaji-electricals-website-production.up.railway.app/get-csrf-token',  // Backend route to fetch CSRF token
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                $('#csrfToken').val(data.csrfToken);  // Set token value to hidden input
+            },
+            error: function (xhr, status, error) {
+                console.error('Error fetching CSRF token:', error);
+            }
+        });
+
+        // Fetch CSRF token from a meta tag or from the cookie
+
+        
             $('#quoteForm').submit(function(event) {
                 event.preventDefault();  // Prevent form from reloading
             
     
                 // Get form field values
+                 // Prepare form data
+               
                 const name = $('#name').val();
                 const email = $('#email').val();
                 const contact = $('#contact').val();
                 const company = $('#company').val();
                 const machines = $('#machines').val();
                 const message = $('#message').val();
+                
+             
+            
             
                 
     
                 // Validation flags
                 let isValid = true;
                 let errorMessage = '';
+                // Reset error classes and messages
+        $('.form-group input, .form-group select, .form-group textarea').removeClass('error');
+        $('.error-message').remove();
     
                 // Validate Name (Non-empty)
                 if (name.trim() === '') {
@@ -594,12 +620,17 @@
                     type: 'POST',
                     data: JSON.stringify(formData),
                     contentType: 'application/json',
+                    headers: {
+                   'csrfSecret': csrfToken  // Add CSRF token in the headers
+                    },
                     timeout: 10000,  // 10-second timeout for the request
 
                     success: function(response) {
                     alert('Form submitted successfully!');  // Show success message
                     $('#quoteForm')[0].reset();  // Reset the form fields
+                    $('#csrfToken').val('');  // Reset CSRF token field
                     $('#successMessage').fadeIn();  // Optionally show a success message
+                    $('#errorMessage').fadeOut();  // Clear any previous error messages
                 },
 
                 error: function(xhr, status, error) {
