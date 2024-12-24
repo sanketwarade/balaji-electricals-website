@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Contact BALAJI ELECTRICALS for welding machines, automation solutions, and services.">
     <title>Contact Us - BALAJI ELECTRICALS</title>
+    <script src="js/common.js"></script>
     
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -68,7 +69,7 @@ nav a.active {
     display: none; /* Hidden by default */
     position: absolute;
     top: 20px;
-    right: -35px;
+    right: -15px;
     z-index: 1100;
     cursor: pointer;
     transition: transform 0.3s ease-in-out;
@@ -86,7 +87,7 @@ nav a.active {
 #navbar {
     position: fixed;
     top: 0;
-    right: -110%;
+    right: -100%;
     width: 70%;
     height: 100%;
     background-color: #00264d;
@@ -237,7 +238,7 @@ nav a.active {
             padding: 10px;
             border: none;
             font-size: 1rem;
-            font-weight: bold;
+            font-weight: bold; 
             cursor: pointer;
             border-radius: 8px;
             transition: background-color 0.3s ease;
@@ -246,6 +247,22 @@ nav a.active {
         .form-container button:hover {
             background-color: #ffeb3b;
         }
+        /* Styling when the button is pressed (active state) */
+.form-container button:active {
+    background-color: #45a049; /* Slightly darker green */
+    transform: scale(0.98); /* Slightly scale down the button to give a pressed effect */
+}
+
+/* Styling when the button is focused (e.g., after being clicked or tapped) */
+.form-container button:focus {
+    outline: none; /* Removes the default outline */
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.5); /* Adds a glowing effect around the button */
+}
+#submit-button {
+    display: inline-block;  /* Ensure button is visible and clickable */
+    pointer-events: auto;   /* Allow interaction with button */
+}
+
     
         footer {
             text-align: center;
@@ -389,7 +406,7 @@ nav a.active {
             footer {
                 font-size: 0.7rem;
                 padding: 10px;
-                width: 120%;
+                width: 108%;
             }
         }
     </style>
@@ -461,7 +478,7 @@ nav a.active {
         <div class="form-container">
             <h2>Enquiry Form</h2>
             <form id="Enquiryform">
-            <form>
+          
                 <label for="name">Full Name*</label>
                 <input type="text" id="name" name="name" placeholder="Your Full Name" required>
                 
@@ -474,7 +491,8 @@ nav a.active {
                 <label for="subject">Subject</label>
                 <textarea id="subject" name="subject" placeholder="Enquiry Subject" rows="4"></textarea>
 
-                <button type="submit">Submit</button>
+                <button id="submit-button" type="submit">Submit</button>
+
             </form>
             <div id="submissionMessage" class="submission-message">
                Thank you for your enquiry! We will get back to you soon.
@@ -623,15 +641,27 @@ nav a.active {
                 type: 'POST',
                 data: JSON.stringify(formData),
                 contentType: 'application/json',
+                timeout: 10000,  // 10-second timeout for the request
+
+
                 success: function(response) {
-                    // Show the success message and reset the form
-                    $('#submissionMessage').show().text('Thank you for your enquiry! We will get back to you soon.');
-                    $('#Enquiryform')[0].reset();
+                    alert('Thank you for your enquiry! We will get back to you soon.');  // Show success message
+                    $('#Enquiryform')[0].reset();  // Reset the form fields
+                    $('#successMessage').fadeIn();  // Optionally show a success message
                 },
-                error: function(error) {
-                console.error('Error details:', error);
-                alert('There is an error while submitting the form, please try again later.');
-                $('#Enquiryform')[0].reset();
+
+                error: function(xhr, status, error) {
+                    // Handle timeout error
+                    if (status === 'timeout') {
+                        alert('Request timed out. Please check your internet connection.');
+                    } else {
+                        // Log error details to console
+                        console.error('Error details:', error);
+                        console.log('Full Response:', xhr.responseText);  // Log entire server response
+
+                        // Show detailed error message
+                        $('#errorMessage').text(xhr.responseText || 'There was an error while submitting the form. Please try again later.').fadeIn();
+                    }
                 }
             });
         });
@@ -647,6 +677,45 @@ nav a.active {
         document.querySelector('.hamburger').style.display = 'block';  // Show hamburger when menu closes
         document.querySelector('.close-btn').style.opacity = '0';  // Hide close button
     }
+    // Select the button element within the form container
+const button = document.querySelector('.form-container button');
+
+// Add the 'active' effect on button press (mousedown/touchstart)
+button.addEventListener('touchstart', () => {
+    button.style.backgroundColor = '#45a049'; // Darker green when active
+    button.style.transform = 'scale(0.98)'; // Slightly shrink the button
+});
+
+// Remove the 'active' effect when the button is released (mouseup/touchend)
+button.addEventListener('touchend', () => {
+    button.style.backgroundColor = ''; // Reset to original color
+    button.style.transform = ''; // Reset scale effect
+});
+
+// Handle the 'focus' effect when the button is clicked or navigated to
+button.addEventListener('focus', () => {
+    button.style.outline = 'none'; // Remove default focus outline
+    button.style.boxShadow = '0 0 0 3px rgba(76, 175, 80, 0.5)'; // Glowing effect
+});
+
+// Remove the 'focus' effect when the button loses focus
+button.addEventListener('blur', () => {
+    button.style.boxShadow = ''; // Reset the glow effect
+});
+
+    // Add click and touchstart event listeners for submit button
+    document.getElementById("submit-button").addEventListener("click", function(event) {
+        event.preventDefault();
+        // Trigger form submission logic here
+        $('#Enquiryform').submit();
+    });
+
+    document.getElementById("submit-button").addEventListener("touchstart", function(event) {
+        event.preventDefault();
+        // Trigger form submission logic here
+        $('#Enquiryform').submit();
+    });
+
 </script>
 </body>
 </html>

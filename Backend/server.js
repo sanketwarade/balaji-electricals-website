@@ -26,7 +26,7 @@ app.use(limiter);
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin:  'https://darling-conkies-1620b9.netlify.app', // Replace with your actual frontend domain
+  origin:  'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -35,23 +35,32 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // MySQL Database Connection
-const db = mysql.createConnection({
+const pool = mysql.createPool({
   host: process.env.DB_HOST, // From environment variables
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT
+  port: process.env.DB_PORT,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-db.connect(err => {
-    if (err) {
-        console.error('Database connection error: ', err);
-        process.exit(1); // Exit if unable to connect
-    }
-    console.log('Connected to MySQL database');
+// Test connection on startup
+pool.getConnection((err, connection) => {
+  if (err) {
+    console.error('Database Connection Failed:', err);
+  } else {
+    console.log('Connected to Database');
+    connection.release();
+  }
 });
+
+module.exports = pool;  // Export pool directly
+
 
 // Email Setup using environment variables
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // API to handle form submissions
@@ -90,7 +99,7 @@ app.post('/submit-solutionform', [
         machineType, 
         description
     ];
-    db.query(query, values, (err, result) => {
+    pool.query(query, values, (err, result) => {
         if (err) {
             console.error('Error inserting data:', err);
             return res.status(500).send({ success: false, message: 'Error saving data.' });
@@ -195,7 +204,7 @@ app.post('/submit-quoteForm', [
     
     
 
-    db.query(query, values, (err, result) => {
+    pool.query(query, values, (err, result) => {
         if (err) {
             console.error('Error inserting data into database:', err);
             return res.status(500).json({ message: 'Error saving data to database' });
@@ -299,7 +308,7 @@ app.post('/submit-Enquiryform', [
         phone, 
         subject
     ];
-    db.query(query, [name, email, phone, subject], (err, result) => {
+    pool.query(query, [name, email, phone, subject], (err, result) => {
       if (err) {
         console.error('Error inserting data:', err);
         return res.status(500).send('Error saving data');
