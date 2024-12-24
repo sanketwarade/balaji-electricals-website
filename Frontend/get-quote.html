@@ -593,22 +593,25 @@
                     type: 'POST',
                     data: JSON.stringify(formData),
                     contentType: 'application/json',
-                   
+                     timeout: 10000,  // 10-second timeout for the request
 
                     success: function(response) {
                     alert('Form submitted successfully!');  // Show success message
                     $('#quoteForm')[0].reset();  // Reset the form fields
                     $('#successMessage').fadeIn();  // Optionally show a success message
-                    },
-   
-                    error: function(error) {
+                },
 
-                        console.error('Error details:', error); // Log error details
-                        $('#errorMessage').text('There was an error while submitting the form, please try again later.').fadeIn();
-                    },
-                });
+                error: function(xhr, status, error) {
+                    console.error('Error details:', error);  // Log the error details to the console
+                    console.log('Full Response:', xhr.responseText);  // Log entire server response
+                    $('#errorMessage').text(xhr.responseText || 'There was an error while submitting the form. Please try again later.').fadeIn();
+                }
             });
         });
+    });
+                   
+
+                    
         function openMenu() {
         document.getElementById('navbar').classList.add('active');
         document.querySelector('.hamburger').style.display = 'none';  // Hide hamburger when menu opens
