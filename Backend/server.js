@@ -34,6 +34,7 @@ app.use(helmet());
 app.use(cors({
   origin:  'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
   methods: ['GET', 'POST'],
+  credentials: true, // Allow cookies
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(bodyParser.json());
@@ -49,6 +50,7 @@ app.use((req, res, next) => {
     const secret = tokens.secretSync();
     res.cookie('csrfSecret', secret, {
       httpOnly: true,
+      sameSite: 'None', // Required for cross-origin requests
       secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
     });
   }
