@@ -61,7 +61,7 @@ app.use((req, res, next) => {
 });
 // CSRF Token Route
 app.get('/get-csrf-token', (req, res) => {
-  console.log('Request Headers:', req.headers);
+  
   try {
     if (!req.cookies.csrfSecret) {
       console.log('No csrfSecret cookie found. Creating new one...');
@@ -125,7 +125,7 @@ app.post('/submit-solutionform', [
     body('description').trim().escape().isLength({ min: 10, max: 100 }),
     body('machine-type').optional().escape(),
 ], (req, res) => {
-  console.log('Request Headers:', req.headers);
+
     console.log('Form Data:', req.body);
 
     
@@ -209,7 +209,7 @@ app.post('/submit-quoteForm', [
   body('message').trim().escape().isLength({ min: 10, max: 100 }),
 ],
   (req, res) => {
-    console.log('Request Headers:', req.headers);
+    
     const { name, company, contact, email, machines, message } = req.body;
     // Log received data for debugging
     console.log('Received Data:', req.body);  // Log received data on backend
@@ -325,7 +325,7 @@ app.post('/submit-Enquiryform', [
   body('subject').trim().escape().isLength({ min: 10, max: 100 }),
 ],
   (req, res) => {
-    console.log('Request Headers:', req.headers);
+    
     const { name, email, phone, subject } = req.body;
     console.log('Request received:', req.body);
 
