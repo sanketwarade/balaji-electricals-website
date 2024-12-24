@@ -56,9 +56,9 @@ app.use((req, res, next) => {
   res.locals.csrfToken = req.csrfToken;
   next();
 });
-// CSRF Token Route - Add this route right here
-app.get('https://balaji-electricals-website-production.up.railway.app/get-csrf-token', (req, res) => {
+app.get('/get-csrf-token', (req, res) => {
   try {
+    // Check if csrfSecret exists in cookies, if not, generate and set it
     if (!req.cookies.csrfSecret) {
       const secret = tokens.secretSync();
       res.cookie('csrfSecret', secret, {
