@@ -26,6 +26,9 @@ const limiter = rateLimit({
 // Apply to all routes
 app.use(limiter);
 
+app.set('trust proxy', 1); // Trust the first proxy
+
+
 // Middleware
 app.use(helmet());
 app.use(cors({
@@ -39,17 +42,24 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser()); // Parse cookies
 
-// 2. CSRF Middleware (Token Generation & Storage)
+// CSRF Middleware (Token Generation & Storage)
 app.use((req, res, next) => {
   if (!req.cookies.csrfSecret) {
-      const secret = tokens.secretSync();
-      res.cookie('csrfSecret', secret, { 
-          httpOnly: true, 
-          secure: req.secure || req.headers['x-forwarded-proto'] === 'https'  // Set secure if request is HTTPS
-      });
+    const secret = tokens.secretSync();
+    res.cookie('csrfSecret', secret, {
+      httpOnly: true,
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https', // Ensure this is true when using HTTPS
+    });
   }
-  req.csrfToken = tokens.create(req.cookies.csrfSecret);
-  res.locals.csrfToken = req.csrfToken;
+
+  const secret = req.cookies.csrfSecret;
+  if (secret) {
+    req.csrfToken = tokens.create(secret);
+    res.locals.csrfToken = req.csrfToken;
+  } else {
+    return res.status(500).send({ success: false, message: 'CSRF Secret is missing' });
+  }
+
   next();
 });
 
@@ -94,7 +104,7 @@ app.post('/submit-solutionform', [
     console.log('Form Data:', req.body);
 
     // CSRF Token Validation
-  const csrfToken = req.headers['csrfsecret']; // Get CSRF token from request header
+  const csrfToken = req.headers['csrfsecret'];
   if (!csrfToken || csrfToken !== req.csrfToken) {
     return res.status(403).send({ success: false, message: 'Invalid CSRF token' });
   }
