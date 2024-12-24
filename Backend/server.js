@@ -7,9 +7,7 @@ const validator = require('validator');
 const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet'); // New: Secure HTTP headers
-const csrf = require('csrf');
-const tokens = new csrf();
-const cookieParser = require('cookie-parser');
+
 require('dotenv').config();
 
 
@@ -42,50 +40,6 @@ app.use(bodyParser.json());
 app.use(express.json());
                          
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser()); // Parse cookies
-
-// CSRF Middleware (Token Generation & Storage)
-app.use(cookieParser());
-app.use((req, res, next) => {
-  if (!req.cookies.csrfSecret) {
-    const secret = tokens.secretSync();
-    res.cookie('csrfSecret', secret, {
-      httpOnly: true,
-      sameSite: 'None', // Required for cross-origin requests
-      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
-    });
-  }
-  req.csrfToken = tokens.create(req.cookies.csrfSecret);
-  res.locals.csrfToken = req.csrfToken;
-  next();
-});
-// CSRF Token Route
-app.get('/get-csrf-token', (req, res) => {
-  
-  try {
-    if (!req.cookies.csrfSecret) {
-      console.log('No csrfSecret cookie found. Creating new one...');
-      const secret = tokens.secretSync();
-      res.cookie('csrfSecret', secret, {
-        httpOnly: true,
-        secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
-        sameSite: 'None', // Can be 'Strict', 'Lax', or 'None'
-      });
-    }
-
-    const secret = req.cookies.csrfSecret;
-    if (secret) {
-      const csrfToken = tokens.create(secret);
-      console.log('CSRF Token created:', csrfToken);
-      return res.status(200).send({ csrfToken });
-    }
-
-    return res.status(500).send({ success: false, message: 'CSRF Secret is missing' });
-  } catch (err) {
-    console.error('Error generating CSRF token:', err);
-    return res.status(500).send({ success: false, message: 'Internal Server Error' });
-  }
-});
 
 
 // MySQL Database Connection
@@ -214,11 +168,7 @@ app.post('/submit-quoteForm', [
     // Log received data for debugging
     console.log('Received Data:', req.body);  // Log received data on backend
 
-    // CSRF Token Validation
-  const csrfToken = req.headers['csrfsecret'];
-  if (!csrfToken || csrfToken !== req.csrfToken) {
-    return res.status(403).send({ success: false, message: 'Invalid CSRF token' });
-  }
+    
      // Ensure company is not undefined or null
      const companyValue = company || '';  // Default to empty string if company is undefined or empty
 
