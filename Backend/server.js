@@ -34,9 +34,9 @@ app.set('trust proxy', 1); // Trust the first proxy
 app.use(helmet());
 app.use(cors({
   origin:  'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST',  'OPTIONS'],
   credentials: true, // Allow cookies
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization','csrfsecret']
 }));
 app.use(bodyParser.json());
 app.use(express.json());
@@ -62,22 +62,20 @@ app.use((req, res, next) => {
 // CSRF Token Route
 app.get('/get-csrf-token', (req, res) => {
   try {
-    // Ensure the csrfSecret is set in the cookies
     if (!req.cookies.csrfSecret) {
-      const secret = tokens.secretSync();  // Generate a new secret
+      console.log('No csrfSecret cookie found. Creating new one...');
+      const secret = tokens.secretSync();
       res.cookie('csrfSecret', secret, {
         httpOnly: true,
-        secure: req.secure || req.headers['x-forwarded-proto'] === 'https',  // Only send cookies over HTTPS
-        sameSite: 'None', // Required for cross-origin requests
+        secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+        sameSite: 'Strict', // Can be 'Strict', 'Lax', or 'None'
       });
     }
 
-    // Retrieve the csrfSecret from cookies
     const secret = req.cookies.csrfSecret;
-
-    // If the secret exists, create a CSRF token
     if (secret) {
-      const csrfToken = tokens.create(secret);  // Generate CSRF token using the secret
+      const csrfToken = tokens.create(secret);
+      console.log('CSRF Token created:', csrfToken);
       return res.status(200).send({ csrfToken });
     }
 
