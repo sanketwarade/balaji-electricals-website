@@ -68,7 +68,7 @@ app.get('/get-csrf-token', (req, res) => {
       res.cookie('csrfSecret', secret, {
         httpOnly: true,
         secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
-        sameSite: 'Strict', // Can be 'Strict', 'Lax', or 'None'
+        sameSite: 'None', // Can be 'Strict', 'Lax', or 'None'
       });
     }
 
