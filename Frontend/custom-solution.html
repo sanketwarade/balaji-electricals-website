@@ -550,19 +550,23 @@
                 type: 'POST',
                 data: JSON.stringify(formData),
                 contentType: 'application/json',
-                success: function(response) {
-                    alert('Form submitted successfully!');
-                    $('#solutionForm')[0].reset();
-                    $('#successMessage').show();  // Show success message
+                timeout: 10000,  // 10-second timeout for the request
+
+                    success: function(response) {
+                    alert('Form submitted successfully!');  // Show success message
+                    $('#solutionForm')[0].reset();  // Reset the form fields
+                    $('#successMessage').fadeIn();  // Optionally show a success message
                 },
-                error: function(error) {
-                    console.error('Error details:', error);
-                    alert('There is an error while submitting the form, please try again later.');
-                    $('#solutionForm')[0].reset();
+
+                error: function(xhr, status, error) {
+                    console.error('Error details:', error);  // Log the error details to the console
+                    console.log('Full Response:', xhr.responseText);  // Log entire server response
+                    $('#errorMessage').text(xhr.responseText || 'There was an error while submitting the form. Please try again later.').fadeIn();
                 }
             });
         });
     });
+                
     function openMenu() {
         document.getElementById('navbar').classList.add('active');
         document.querySelector('.hamburger').style.display = 'none';  // Hide hamburger when menu opens
