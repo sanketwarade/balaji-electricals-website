@@ -499,135 +499,89 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
+      $(document).ready(function() {
     // Fetch CSRF token when the page loads
-    $.ajax({
-        url: 'https://balaji-electricals-website-production.up.railway.app/get-csrf-token',  
-        type: 'GET',
-        xhrFields: { withCredentials: true },  // Ensure cookies are sent
-        dataType: 'json',
-        success: function (data) {
-            if (data.csrfToken) {
-                $('#csrfToken').val(data.csrfToken);  // Set token to hidden input
-            } else {
-                console.error('CSRF token is missing');
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error('Error fetching CSRF token:', error);
-        }
-    });
+    fetchCsrfToken();
 
-    // Form submission handling
     $('#solutionForm').submit(function(event) {
-        event.preventDefault();  // Prevent form from reloading
+        event.preventDefault();
 
-        const name = $('#name').val();
-        const email = $('#email').val();
-        const phone = $('#phone').val();
-        const machineType = $('#machine-type').val();
-        const description = $('#description').val();
-
-        let isValid = true;
-        let errorMessage = '';
-
-        // Validation checks
-        if (name.trim() === '') {
-            isValid = false;
-            errorMessage += 'Name is required.\n';
-        }
-
-        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-        if (!emailPattern.test(email)) {
-            isValid = false;
-            errorMessage += 'Please enter a valid email address.\n';
-        }
-
-        const phonePattern = /^\d{10}$/;
-        if (!phonePattern.test(phone)) {
-            isValid = false;
-            errorMessage += 'Mobile number must be exactly 10 digits.\n';
-        }
-
-        if (description.trim().length < 10) {
-            isValid = false;
-            errorMessage += 'Description must be at least 10 characters long.\n';
-        }
-
-        if (!isValid) {
-            alert(errorMessage);
-            return;
-        }
-
-        const formData = {
-            formType: 'Custom Solution',
-            name: name,
-            email: email,
-            phone: phone,
-            'machine-type': machineType,
-            description: description,
-        };
-
-        // Disable button and show spinner during submission
+        // Disable submit button and show loading spinner
         $('#submitButton').prop('disabled', true);
         $('#loadingSpinner').show();
 
-        // AJAX POST request to submit form
+        // Fetch CSRF token before submitting the form
+        fetchCsrfToken(function() {
+            submitForm();
+        });
+    });
+
+    // Function to fetch CSRF token
+    function fetchCsrfToken(callback) {
         $.ajax({
-            url: 'https://balaji-electricals-website-production.up.railway.app/submit-solutionform',  
-            type: 'POST',
-            data: JSON.stringify(formData),
-            contentType: 'application/json',
-            headers: {
-                'X-CSRF-Token': $('#csrfToken').val()  // Attach CSRF token
-            },
-            timeout: 10000,  // 10-second timeout
-
-            success: function(response) {
-                alert('Form submitted successfully!');
-                $('#solutionForm')[0].reset();  // Reset the form
-                $('#csrfToken').val(response.newCsrfToken);  // Refresh CSRF token
-                $('#successMessage').fadeIn();
-                $('#errorMessage').fadeOut();
-            },
-
-            error: function(xhr, status, error) {
-                if (xhr.status === 400) {
-                    alert('Validation error. Please check your inputs.');
-                } else if (xhr.status === 403) {
-                    alert('Session expired. Please refresh the page.');
-                    
-                } else if (xhr.status === 500) {
-                    alert('Server error. Please try again later.');
-                } else if (status === 'timeout') {
-                    alert('Request timed out. Please check your internet connection.');
+            url: 'https://balaji-electricals-website-production.up.railway.app/get-csrf-token',
+            type: 'GET',
+            xhrFields: { withCredentials: true },
+            dataType: 'json',
+            success: function(data) {
+                if (data.csrfToken) {
+                    $('#csrfToken').val(data.csrfToken);  // Set CSRF token in hidden input
+                    if (callback) callback();  // Continue form submission
                 } else {
-                    console.error('Error details:', error);
-                    $('#errorMessage').text(xhr.responseText || 'An unexpected error occurred.').fadeIn();
+                    console.error('CSRF token is missing');
+                    alert('Error fetching CSRF token. Please refresh the page.');
+                    $('#submitButton').prop('disabled', false);
+                    $('#loadingSpinner').hide();
                 }
             },
-
-            complete: function() {
-                // Re-enable button and hide spinner regardless of success or error
+            error: function() {
+                alert('Failed to fetch CSRF token. Please refresh the page.');
                 $('#submitButton').prop('disabled', false);
                 $('#loadingSpinner').hide();
             }
         });
-    });
+    }
+
+    // Submit form after CSRF token is set
+    function submitForm() {
+        const formData = {
+            formType: 'Custom Solution',
+            name: $('#name').val(),
+            email: $('#email').val(),
+            phone: $('#phone').val(),
+            'machine-type': $('#machine-type').val(),
+            description: $('#description').val(),
+        };
+
+        $.ajax({
+            url: 'https://balaji-electricals-website-production.up.railway.app/submit-solutionform',
+            type: 'POST',
+            data: JSON.stringify(formData),
+            contentType: 'application/json',
+            headers: {
+                'X-CSRF-Token': $('#csrfToken').val()
+            },
+            timeout: 10000,
+            success: function(response) {
+                alert('Form submitted successfully!');
+                $('#solutionForm')[0].reset();
+                $('#csrfToken').val(response.newCsrfToken);
+            },
+            error: function(xhr, status) {
+                if (xhr.status === 403) {
+                    alert('Session expired. Please refresh the page.');
+                    location.reload();
+                } else {
+                    alert('Failed to submit. Please try again.');
+                }
+            },
+            complete: function() {
+                $('#submitButton').prop('disabled', false);
+                $('#loadingSpinner').hide();
+            }
+        });
+    }
 });
-
-// Menu toggle functions
-function openMenu() {
-    document.getElementById('navbar').classList.add('active');
-    document.querySelector('.hamburger').style.display = 'none';
-    document.querySelector('.close-btn').style.opacity = '1';
-}
-
-function closeMenu() {
-    document.getElementById('navbar').classList.remove('active');
-    document.querySelector('.hamburger').style.display = 'block';
-    document.querySelector('.close-btn').style.opacity = '0';
-}
 
     </script>
 
