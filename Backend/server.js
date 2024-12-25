@@ -1,90 +1,91 @@
 const express = require('express');
-const mysql = require('mysql2');
+const { Sequelize } = require('sequelize');
 const bodyParser = require('body-parser');
-const sgMail = require('@sendgrid/mail');  // Import SendGrid
+const sgMail = require('@sendgrid/mail');  
 const cors = require('cors');
-const validator = require('validator');
 const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
-const helmet = require('helmet'); // New: Secure HTTP headers
+const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-const session = require('express-session');  // Session management
-const fs = require('fs');
-
-
+const session = require('express-session');
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
 require('dotenv').config();
+
 const app = express();
 
-// Define the rate limit rule
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per window
-  message: 'Too many requests from this IP, please try again after 15 minutes.',
-});
-// Middleware
+// ------------------- Middleware Setup -------------------
 app.use(helmet());
 app.use(cors({
-  origin:'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
+  origin: 'https://balajielectricals.netlify.app', 
   methods: ['GET', 'POST', 'OPTIONS'],
-  credentials: true, // Allow cookies
-  allowedHeaders: ['Content-Type', 'Authorization']  // Standardize CSRF header
+  credentials: true, 
+  allowedHeaders: ['Content-Type', 'Authorization']  
 }));
 
-
-// Apply to all routes
+// Rate limiter to prevent abuse
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, 
+  max: 100, 
+  message: 'Too many requests from this IP, try again later.'
+});
 app.use(limiter);
+
+// Body parser middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cookieParser());
+
+app.set('trust proxy', 1);  // Trust the first proxy (for secure cookies)
+
+// ------------------- Sequelize Database Setup -------------------
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
+  host: process.env.DB_HOST,
+  dialect: 'mysql',
+  port: process.env.DB_PORT,
+  logging: false,
+  pool: {
+    max: 10,
+    min: 0,
+    acquire: 30000,
+    idle: 10000  
+  }
+});
+
+// Test the connection
+sequelize.authenticate()
+  .then(() => console.log('Sequelize connected successfully'))
+  .catch((err) => console.error('Sequelize connection failed:', err));
+
+// ------------------- Session Store Setup -------------------
+const sessionStore = new SequelizeStore({ db: sequelize });
+
+sessionStore.sync();
+
 app.use(session({
-  secret: process.env.SESSION_SECRET, // This should be a secure, random string from your environment variables
+  secret: process.env.SESSION_SECRET,
+  store: sessionStore,
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',  // Set to true in production for secure cookies
-    sameSite: 'Strict', // Can be 'Strict' or 'Lax
-    maxAge: 3600
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'Strict',
+    maxAge: 1 * 60 * 60 * 1000  
   }
 }));
-app.set('trust proxy', 1); // Trust the first proxy
-app.use(cookieParser()); // Parse cookies
-app.use(bodyParser.json());
-app.use(express.json());                        
-app.use(bodyParser.urlencoded({ extended: true }));
 
-
-// MySQL Database Connection
-const pool = mysql.createPool({
-  host: process.env.DB_HOST, // From environment variables
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
-
-// Test connection on startup
-pool.getConnection((err, connection) => {
-  if (err) {
-    console.error('Database Connection Failed:', err);
-  } else {
-    console.log('Connected to Database');
-    connection.release();
-  }
-});
-module.exports = pool;  // Export pool directly
-
-// Email Setup using environment variables
+// ------------------- SendGrid Setup -------------------
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-// API to handle form submissions
+// ------------------- API: Form Submission -------------------
 app.post('/submit-solutionForm', [
     body('name').trim().escape(),
     body('email').isEmail().normalizeEmail(),
     body('phone').isLength({ min: 10, max: 10 }).isNumeric().trim(),
-    body('description').trim().escape().isLength({ min: 10, max: 100 }),
-    body('machine-type').optional().escape(),
-], (req, res) => {
+    body('description').isLength({ min: 10, max: 100 }).trim().escape(),
+    body('machine-type').optional().escape()
+], async (req, res) => {
     console.log('Form Data:', req.body);
 
     const errors = validationResult(req);
@@ -94,68 +95,45 @@ app.post('/submit-solutionForm', [
     }
 
     const { formType, name, email, phone, 'machine-type': machineType, description } = req.body;
-    // Make sure machineType is not undefined or null
+
     if (!machineType) {
-        return res.status(400).send({ success: false, message: 'Machine Type is required' });
+        return res.status(400).json({ success: false, message: 'Machine Type is required' });
     }
-    
 
-    const query = `
-        INSERT INTO custom_solutions 
-        (form_type, name, email, phone, machine_type, description) 
-        VALUES (?, ?, ?, ?, ?, ?)
-    `;
-    
-    const values = [
-        formType, 
-        name, 
-        email, 
-        phone, 
-        machineType, 
-        description
-    ];
-    pool.query(query, values, (err, result) => {
-        if (err) {
-            console.error('Error inserting data:', err);
-            return res.status(500).send({ success: false, message: 'Error saving data.' });
-        }
+    try {
+        await sequelize.query(
+            `INSERT INTO custom_solutions (form_type, name, email, phone, machine_type, description) VALUES (?, ?, ?, ?, ?, ?)`,
+            {
+                replacements: [formType, name, email, phone, machineType, description],
+                type: Sequelize.QueryTypes.INSERT
+            }
+        );
 
-        // Send email to user and admin
+        // Send confirmation email to user
         const userMail = {
-            from: process.env.SENDGRID_SENDER_EMAIL,  // Must be verified on SendGrid
-            to: email, // Corrected to use formData.email
+            from: process.env.SENDGRID_SENDER_EMAIL,
+            to: email,
             subject: 'Custom Solution Request Received',
-            text: `Hello ${name},\n\nThank you for requesting a custom solution.\nWe will get back to you shortly.`
+            text: `Hello ${name},\n\nThank you for requesting a custom solution. We will get back to you shortly.`
         };
 
         const adminMail = {
             from: process.env.SENDGRID_SENDER_EMAIL,
-            to: process.env.ADMIN_EMAIL,  // Admin email from .env
-            subject: 'New custom solution Request',
-            text: `New Custom Solution request received:\n\nName: ${name}\nDescription: ${description}\nPhone: ${phone}\nEmail: ${email}\nMachine Type: ${machineType || 'N/A'}`
+            to: process.env.ADMIN_EMAIL,
+            subject: 'New Custom Solution Request',
+            text: `New request:\n\nName: ${name}\nPhone: ${phone}\nEmail: ${email}\nDescription: ${description}\nMachine Type: ${machineType}`
         };
-          // Send emails
-          sgMail
-          .send(userMail)
-          .then(() => {
-              console.log('Confirmation email sent to user');
-          })
-          .catch((error) => {
-              console.error('Error sending email to user:', error);
-          });
 
-      sgMail
-          .send(adminMail)
-          .then(() => {
-              console.log('Notification email sent to admin');
-          })
-          .catch((error) => {
-              console.error('Error sending email to admin:', error);
-          });
-        res.status(200).send({ success: true, message: 'Form submitted successfully!' });
-    });
+        await sgMail.send(userMail);
+        await sgMail.send(adminMail);
+        
+        res.status(200).json({ success: true, message: 'Form submitted successfully!' });
+
+    } catch (error) {
+        console.error('Database/Email Error:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
 });
-
 
 
 // POST endpoint to handle form submission
