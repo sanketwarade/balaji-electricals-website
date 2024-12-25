@@ -21,6 +21,16 @@ const limiter = rateLimit({
   max: 100, // Limit each IP to 100 requests per window
   message: 'Too many requests from this IP, please try again after 15 minutes.',
 });
+// Middleware
+app.use(helmet());
+app.use(cors({
+  origin:'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
+  methods: ['GET', 'POST', 'OPTIONS'],
+  credentials: true, // Allow cookies
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token','Origin']  // Standardize CSRF header
+}));
+app.options('*', cors());
+
 
 // Apply to all routes
 app.use(limiter);
@@ -32,31 +42,24 @@ app.use(cookieParser()); // Parse cookies
 // CSRF Token Middleware (Token Generation & Storage)
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://balajielectricals.netlify.app');
-  if (!req.cookies.csrfSecret) {
-    // Generate a new secret if not present
-    const secret = tokens.secretSync();
+  res.header('Access-Control-Allow-Credentials', 'true');  // Ensure the credentials header is set
+
+  let secret = req.cookies.csrfSecret;
+  if (!secret) {
+    // Generate a new secret if not found
+    secret = tokens.secretSync();
     res.cookie('csrfSecret', secret, {
       httpOnly: true,
       sameSite: 'None',
-      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',  // Ensures cookie is set securely
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
     });
-    console.log('CSRF secret cookie created:', secret);
+    console.log('New CSRF secret created:', secret);
   }
 
-  // Access the csrfSecret from cookies
-  const secret = req.cookies.csrfSecret;
-  if (!secret) {
-    // Handle case where secret is still missing
-    return res.status(400).send({ success: false, message: 'CSRF secret missing' });
-  }
-
-  // Create CSRF token using the secret
   req.csrfToken = tokens.create(secret);
   res.locals.csrfToken = req.csrfToken;
   next();
 });
-
-
 
 // CSRF Token Route
 app.get('/get-csrf-token', cors({
@@ -87,17 +90,10 @@ app.get('/get-csrf-token', cors({
         return res.status(500).send({ success: false, message: 'Internal Server Error' });
     }
 });
+app.get('/favicon.ico', (req, res) => res.status(204).send());  // Returns an empty response
 
 
-// Middleware
-app.use(helmet());
-app.use(cors({
-  origin:'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
-  methods: ['GET', 'POST', 'OPTIONS'],
-  credentials: true, // Allow cookies
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token']  // Standardize CSRF header
-}));
-app.options('/submit-solutionForm', cors());
+
 
   
 
