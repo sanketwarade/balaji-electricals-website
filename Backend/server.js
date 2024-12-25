@@ -7,13 +7,13 @@ const validator = require('validator');
 const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet'); // New: Secure HTTP headers
+const cookieParser = require('cookie-parser');
+const session = require('express-session');  // Session management
+const fs = require('fs');
+
 
 require('dotenv').config();
-
-
 const app = express();
-
-
 
 // Define the rate limit rule
 const limiter = rateLimit({
@@ -21,24 +21,32 @@ const limiter = rateLimit({
   max: 100, // Limit each IP to 100 requests per window
   message: 'Too many requests from this IP, please try again after 15 minutes.',
 });
-
-// Apply to all routes
-app.use(limiter);
-
-app.set('trust proxy', 1); // Trust the first proxy
-
-
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin:  'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
-  methods: ['GET', 'POST'],
-  
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin:'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
+  methods: ['GET', 'POST', 'OPTIONS'],
+  credentials: true, // Allow cookies
+  allowedHeaders: ['Content-Type', 'Authorization']  // Standardize CSRF header
 }));
+
+
+// Apply to all routes
+app.use(limiter);
+app.use(session({
+  secret: process.env.SESSION_SECRET, // This should be a secure, random string from your environment variables
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',  // Set to true in production for secure cookies
+    sameSite: 'Strict', // Can be 'Strict' or 'Lax'
+  }
+}));
+app.set('trust proxy', 1); // Trust the first proxy
+app.use(cookieParser()); // Parse cookies
 app.use(bodyParser.json());
-app.use(express.json());
-                         
+app.use(express.json());                        
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
@@ -63,26 +71,20 @@ pool.getConnection((err, connection) => {
     connection.release();
   }
 });
-
 module.exports = pool;  // Export pool directly
-
 
 // Email Setup using environment variables
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // API to handle form submissions
-app.post('/submit-solutionform', [
+app.post('/submit-solutionForm', [
     body('name').trim().escape(),
     body('email').isEmail().normalizeEmail(),
     body('phone').isLength({ min: 10, max: 10 }).isNumeric().trim(),
     body('description').trim().escape().isLength({ min: 10, max: 100 }),
     body('machine-type').optional().escape(),
 ], (req, res) => {
-
     console.log('Form Data:', req.body);
-
-    
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
