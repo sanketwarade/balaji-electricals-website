@@ -596,7 +596,7 @@
                     alert('Validation error. Please check your inputs.');
                 } else if (xhr.status === 403) {
                     alert('Session expired. Please refresh the page.');
-                    location.reload();
+                    
                 } else if (xhr.status === 500) {
                     alert('Server error. Please try again later.');
                 } else if (status === 'timeout') {
