@@ -143,6 +143,8 @@ app.post('/submit-solutionForm', [
   // CSRF Token Validation
   const csrfToken = req.headers['x-csrf-token'];
   const secret = req.cookies.csrfSecret;
+  console.log('CSRF Token:', csrfToken);  // Log the token value
+  console.log('CSRF Secret:', secret);  // Log the secret value
 
   if (!csrfToken || !tokens.verify(secret, csrfToken)) {
     return res.status(403).send({ success: false, message: 'Invalid CSRF token' });
