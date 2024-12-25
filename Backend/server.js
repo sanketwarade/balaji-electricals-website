@@ -8,8 +8,8 @@ const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet'); // New: Secure HTTP headers
 const cookieParser = require('cookie-parser');
-const csrf = require('csrf');
-const tokens = new csrf();
+const session = require('express-session');  // Session management
+const fs = require('fs');
 
 
 require('dotenv').config();
@@ -27,79 +27,26 @@ app.use(cors({
   origin:'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
   methods: ['GET', 'POST', 'OPTIONS'],
   credentials: true, // Allow cookies
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token','Origin']  // Standardize CSRF header
+  allowedHeaders: ['Content-Type', 'Authorization']  // Standardize CSRF header
 }));
-app.options('*', cors());
 
 
 // Apply to all routes
 app.use(limiter);
+app.use(session({
+  secret: process.env.SESSION_SECRET, // This should be a secure, random string from your environment variables
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',  // Set to true in production for secure cookies
+    sameSite: 'Strict', // Can be 'Strict' or 'Lax'
+  }
+}));
 app.set('trust proxy', 1); // Trust the first proxy
 app.use(cookieParser()); // Parse cookies
-
-// CSRF Token Middleware with HTTPS Enforcement in Production
-// CSRF Token Middleware (Token Generation & Storage)
-// CSRF Token Middleware (Token Generation & Storage)
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://balajielectricals.netlify.app');
-  res.header('Access-Control-Allow-Credentials', 'true');  // Ensure the credentials header is set
-
-  let secret = req.cookies.csrfSecret;
-  if (!secret) {
-    // Generate a new secret if not found
-    secret = tokens.secretSync();
-    res.cookie('csrfSecret', secret, {
-      httpOnly: true,
-      sameSite: 'None',
-      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
-    });
-    console.log('New CSRF secret created:', secret);
-  }
-
-  req.csrfToken = tokens.create(secret);
-  res.locals.csrfToken = req.csrfToken;
-  next();
-});
-
-// CSRF Token Route
-app.get('/get-csrf-token', cors({
-  origin: 'https://balajielectricals.netlify.app', // Frontend URL
-  credentials: true // Allow cookies to be sent
-}), (req, res) => {
-    try {
-        if (!req.cookies.csrfSecret) {
-            console.log('No csrfSecret cookie found. Creating new one...');
-            const secret = tokens.secretSync();
-            res.cookie('csrfSecret', secret, {
-                httpOnly: true,
-                secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
-                sameSite: 'None',
-            });
-        }
-
-        const secret = req.cookies.csrfSecret;
-        if (secret) {
-            const csrfToken = tokens.create(secret);
-            console.log('CSRF Token created:', csrfToken);
-            return res.status(200).send({ csrfToken });
-        }
-
-        return res.status(500).send({ success: false, message: 'CSRF Secret is missing' });
-    } catch (err) {
-        console.error('Error generating CSRF token:', err);
-        return res.status(500).send({ success: false, message: 'Internal Server Error' });
-    }
-});
-app.get('/favicon.ico', (req, res) => res.status(204).send());  // Returns an empty response
-
-
-
-
-  
-
 app.use(bodyParser.json());
-app.use(express.json());
-                         
+app.use(express.json());                        
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
@@ -124,12 +71,9 @@ pool.getConnection((err, connection) => {
     connection.release();
   }
 });
-
 module.exports = pool;  // Export pool directly
 
-
 // Email Setup using environment variables
-
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // API to handle form submissions
@@ -140,16 +84,6 @@ app.post('/submit-solutionForm', [
     body('description').trim().escape().isLength({ min: 10, max: 100 }),
     body('machine-type').optional().escape(),
 ], (req, res) => {
-  // CSRF Token Validation
-  const csrfToken = req.headers['x-csrf-token'];
-  const secret = req.cookies.csrfSecret;
-  console.log('CSRF Token:', csrfToken);  // Log the token value
-  console.log('CSRF Secret:', secret);  // Log the secret value
-
-  if (!csrfToken || !tokens.verify(secret, csrfToken)) {
-    return res.status(403).send({ success: false, message: 'Invalid CSRF token' });
-  }
-
     console.log('Form Data:', req.body);
 
     const errors = validationResult(req);
