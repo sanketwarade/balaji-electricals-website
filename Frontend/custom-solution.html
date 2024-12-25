@@ -386,7 +386,7 @@
             Form submitted successfully! We will get back to you shortly.
         </div>
 
-        <form id="solutionForm" action="/submit-quoteForm" method="POST">
+        <form id="solutionForm" action="/submit-solutionForm" method="POST">
             <input type="hidden" id="csrfToken" name="csrfToken" value="">
             <div class="form-group">
                 <label for="name">Your Name</label>
@@ -572,7 +572,7 @@
                 data: JSON.stringify(formData),
                 contentType: 'application/json',
                 headers: {
-                   'csrfSecret': csrfToken  // Add CSRF token in the headers
+                   'X-CSRF-Token': $('#csrfToken').val()  // CSRF token added here
                     },
 
                 timeout: 10000,  // 10-second timeout for the request
