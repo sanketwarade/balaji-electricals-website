@@ -10,11 +10,9 @@ const helmet = require('helmet'); // New: Secure HTTP headers
 const cookieParser = require('cookie-parser');
 const csrf = require('csrf');
 const tokens = new csrf();
-const csrfProtection = csrf({ cookie: true });
+
 
 require('dotenv').config();
-
-
 const app = express();
 
 // Define the rate limit rule
@@ -26,25 +24,29 @@ const limiter = rateLimit({
 
 // Apply to all routes
 app.use(limiter);
-
-app.use(csrfProtection);
-
 app.set('trust proxy', 1); // Trust the first proxy
 app.use(cookieParser()); // Parse cookies
-// CSRF Middleware (Token Generation & Storage)
 
 // CSRF Token Middleware with HTTPS Enforcement in Production
 app.use((req, res, next) => {
+  if (process.env.NODE_ENV === 'production') {
+    if (req.headers['x-forwarded-proto'] !== 'https') {
+      console.log(`Redirecting HTTP to HTTPS: ${req.url}`);
+      return res.redirect('https://' + req.headers.host + req.url);
+    }
+  }
+  
   if (!req.cookies.csrfSecret) {
     const secret = tokens.secretSync();
     res.cookie('csrfSecret', secret, {
       httpOnly: true,
-      sameSite: 'None',
+      sameSite: 'None',  // Required for cross-origin requests
       secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
     });
+    console.log(`CSRF secret cookie created: ${secret}`);
   }
-  req.csrfToken = tokens.create(req.cookies.csrfSecret);  // Always create token based on existing secret
-  res.locals.csrfToken = req.csrfToken;  // Pass token to response locals
+  req.csrfToken = tokens.create(req.cookies.csrfSecret);
+  res.locals.csrfToken = req.csrfToken;
   next();
 });
 
