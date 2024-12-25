@@ -582,6 +582,9 @@
                     $('#solutionForm')[0].reset();  // Reset the form fields
                     $('#csrfToken').val('');  // Reset CSRF token field
                     $('#successMessage').fadeIn();  // Optionally show a success message
+                    $('#errorMessage').fadeOut();  // Clear any previous error messages
+               
+
                 },
 
                error: function(xhr, status, error) {
