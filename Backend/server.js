@@ -7,13 +7,14 @@ const validator = require('validator');
 const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet'); // New: Secure HTTP headers
+const cookieParser = require('cookie-parser');
+const csrf = require('csrf');
+const tokens = new csrf();
 
 require('dotenv').config();
 
 
 const app = express();
-
-
 
 // Define the rate limit rule
 const limiter = rateLimit({
@@ -26,15 +27,60 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.set('trust proxy', 1); // Trust the first proxy
+app.use(cookieParser()); // Parse cookies
+// CSRF Middleware (Token Generation & Storage)
+app.use((req, res, next) => {
+  if (!req.cookies.csrfSecret) {
+    const secret = tokens.secretSync();
+    res.cookie('csrfSecret', secret, {
+      httpOnly: true,
+      sameSite: 'None', // Required for cross-origin requests
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    });
+  }
+  req.csrfToken = tokens.create(req.cookies.csrfSecret);
+  res.locals.csrfToken = req.csrfToken;
+  next();
+});
+// CSRF Token Route
+app.get('/get-csrf-token', (req, res) => {
+  
+  try {
+    if (!req.cookies.csrfSecret) {
+      console.log('No csrfSecret cookie found. Creating new one...');
+      const secret = tokens.secretSync();
+      res.cookie('csrfSecret', secret, {
+        httpOnly: true,
+        secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+        sameSite: 'None', // Can be 'Strict', 'Lax', or 'None'
+      });
+    }
+
+    const secret = req.cookies.csrfSecret;
+    if (secret) {
+      const csrfToken = tokens.create(secret);
+      console.log('CSRF Token created:', csrfToken);
+      return res.status(200).send({ csrfToken });
+    }
+
+    return res.status(500).send({ success: false, message: 'CSRF Secret is missing' });
+  } catch (err) {
+    console.error('Error generating CSRF token:', err);
+    return res.status(500).send({ success: false, message: 'Internal Server Error' });
+  }
+});
+
 
 
 // Middleware
 app.use(helmet());
 app.use(cors({
   origin:  'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  redentials: true, // Allow cookies
+
   
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization',,'csrfsecret']
 }));
 app.use(bodyParser.json());
 app.use(express.json());
@@ -81,6 +127,12 @@ app.post('/submit-solutionform', [
 ], (req, res) => {
 
     console.log('Form Data:', req.body);
+    // CSRF Token Validation
+  const csrfToken = req.headers['csrfsecret'];
+  const secret = req.cookies.csrfSecret;
+  if (!csrfToken || csrfToken !== req.csrfToken) {
+    return res.status(403).send({ success: false, message: 'Invalid CSRF token' });
+  }
 
     
 
