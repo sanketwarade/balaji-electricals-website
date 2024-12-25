@@ -501,6 +501,14 @@
       $(document).ready(function() {
       $('#solutionForm').submit(function(event) {
         event.preventDefault();
+        // Phone number validation
+      const phoneNumber = $('#phone').val();
+      const phonePattern = /^[0-9]{10}$/; // Regex for 10-digit phone number
+
+      if (!phonePattern.test(phoneNumber)) {
+         alert("Please enter a valid 10-digit phone number.");
+         return;  // Stop form submission
+      }
 
 
         const formData = {
