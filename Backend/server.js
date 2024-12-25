@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const sgMail = require('@sendgrid/mail');  
 const cors = require('cors');
 const { body, validationResult } = require('express-validator');
+const validator = require('validator');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
