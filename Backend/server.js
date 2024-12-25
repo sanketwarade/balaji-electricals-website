@@ -88,7 +88,7 @@ app.get('/get-csrf-token', (req, res) => {
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin:'https://balajielectricals.netlify.app/:splat  301!', // Replace with your actual frontend domain
+  origin:'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
   methods: ['GET', 'POST', 'OPTIONS'],
   credentials: true, // Allow cookies
   allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token']  // Standardize CSRF header
