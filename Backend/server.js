@@ -40,7 +40,8 @@ app.use(session({
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',  // Set to true in production for secure cookies
-    sameSite: 'Strict', // Can be 'Strict' or 'Lax'
+    sameSite: 'Strict', // Can be 'Strict' or 'Lax
+    maxAge: 3600
   }
 }));
 app.set('trust proxy', 1); // Trust the first proxy
