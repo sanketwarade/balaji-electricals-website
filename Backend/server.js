@@ -10,6 +10,7 @@ const helmet = require('helmet'); // New: Secure HTTP headers
 const cookieParser = require('cookie-parser');
 const csrf = require('csrf');
 const tokens = new csrf();
+const csrfProtection = csrf({ cookie: true });
 
 require('dotenv').config();
 
@@ -26,22 +27,34 @@ const limiter = rateLimit({
 // Apply to all routes
 app.use(limiter);
 
+app.use(csrfProtection);
+
 app.set('trust proxy', 1); // Trust the first proxy
 app.use(cookieParser()); // Parse cookies
 // CSRF Middleware (Token Generation & Storage)
+
+// CSRF Token Middleware with HTTPS Enforcement in Production
 app.use((req, res, next) => {
+  // Enforce HTTPS in production
+  if (process.env.NODE_ENV === 'production') {
+    if (req.headers['x-forwarded-proto'] !== 'https') {
+      return res.redirect('https://' + req.headers.host + req.url);
+    }
+  }
+  // CSRF Token Generation & Storage
   if (!req.cookies.csrfSecret) {
     const secret = tokens.secretSync();
     res.cookie('csrfSecret', secret, {
       httpOnly: true,
-      sameSite: 'None', // Required for cross-origin requests
-      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+      sameSite: 'None',  // Required for cross-origin requests
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',  // Ensures cookie is set securely
     });
   }
   req.csrfToken = tokens.create(req.cookies.csrfSecret);
   res.locals.csrfToken = req.csrfToken;
   next();
 });
+
 // CSRF Token Route
 app.get('/get-csrf-token', (req, res) => {
   
@@ -75,13 +88,15 @@ app.get('/get-csrf-token', (req, res) => {
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin:  'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
+  origin:'https://balajielectricals.netlify.app/:splat  301!', // Replace with your actual frontend domain
   methods: ['GET', 'POST', 'OPTIONS'],
-  redentials: true, // Allow cookies
+  credentials: true, // Allow cookies
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token']  // Standardize CSRF header
+}));
+app.options('/submit-solutionForm', cors());
 
   
-  allowedHeaders: ['Content-Type', 'Authorization',,'csrfsecret']
-}));
+
 app.use(bodyParser.json());
 app.use(express.json());
                          
@@ -114,27 +129,26 @@ module.exports = pool;  // Export pool directly
 
 
 // Email Setup using environment variables
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // API to handle form submissions
-app.post('/submit-solutionform', [
+app.post('/submit-solutionForm', [
     body('name').trim().escape(),
     body('email').isEmail().normalizeEmail(),
     body('phone').isLength({ min: 10, max: 10 }).isNumeric().trim(),
     body('description').trim().escape().isLength({ min: 10, max: 100 }),
     body('machine-type').optional().escape(),
 ], (req, res) => {
-
-    console.log('Form Data:', req.body);
-    // CSRF Token Validation
-  const csrfToken = req.headers['csrfsecret'];
+  // CSRF Token Validation
+  const csrfToken = req.headers['x-csrf-token'];
   const secret = req.cookies.csrfSecret;
-  if (!csrfToken || csrfToken !== req.csrfToken) {
+
+  if (!csrfToken || !tokens.verify(secret, csrfToken)) {
     return res.status(403).send({ success: false, message: 'Invalid CSRF token' });
   }
 
-    
+    console.log('Form Data:', req.body);
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
