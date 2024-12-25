@@ -554,13 +554,14 @@
         };
 
         $.ajax({
-            url: 'https://balaji-electricals-website-production.up.railway.app/submit-solutionform',
+            url: 'https://balaji-electricals-website-production.up.railway.app/submit-solutionForm',
             type: 'POST',
             data: JSON.stringify(formData),
             contentType: 'application/json',
             headers: {
                 'X-CSRF-Token': $('#csrfToken').val()
             },
+            credentials: 'include',  // Include cookies
             timeout: 10000,
             success: function(response) {
                 alert('Form submitted successfully!');
