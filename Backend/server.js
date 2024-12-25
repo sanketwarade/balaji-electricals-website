@@ -35,23 +35,16 @@ app.use(cookieParser()); // Parse cookies
 
 // CSRF Token Middleware with HTTPS Enforcement in Production
 app.use((req, res, next) => {
-  // Enforce HTTPS in production
-  if (process.env.NODE_ENV === 'production') {
-    if (req.headers['x-forwarded-proto'] !== 'https') {
-      return res.redirect('https://' + req.headers.host + req.url);
-    }
-  }
-  // CSRF Token Generation & Storage
   if (!req.cookies.csrfSecret) {
     const secret = tokens.secretSync();
     res.cookie('csrfSecret', secret, {
       httpOnly: true,
-      sameSite: 'None',  // Required for cross-origin requests
-      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',  // Ensures cookie is set securely
+      sameSite: 'None',
+      secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
     });
   }
-  req.csrfToken = tokens.create(req.cookies.csrfSecret);
-  res.locals.csrfToken = req.csrfToken;
+  req.csrfToken = tokens.create(req.cookies.csrfSecret);  // Always create token based on existing secret
+  res.locals.csrfToken = req.csrfToken;  // Pass token to response locals
   next();
 });
 
