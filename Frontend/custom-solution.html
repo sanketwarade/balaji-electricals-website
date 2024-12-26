@@ -501,14 +501,7 @@
       $(document).ready(function() {
       $('#solutionForm').submit(function(event) {
         event.preventDefault();
-        // Phone number validation
-      const phoneNumber = $('#phone').val();
-      const phonePattern = /^[0-9]{10}$/; // Regex for 10-digit phone number
-
-      if (!phonePattern.test(phoneNumber)) {
-         alert("Please enter a valid 10-digit phone number.");
-         return;  // Stop form submission
-      }
+       
 
 
         const formData = {
@@ -526,12 +519,14 @@
                     data: JSON.stringify(formData),
                     contentType: 'application/json',
                     timeout: 10000,  // 10-second timeout for the request
+                    headers: {
+                    'X-Requested-With': 'XMLHttpRequest'  // Custom header
+                    },
 
                     success: function(response) {
                     alert('Form submitted successfully!');  // Show success message
                     $('#quoteForm')[0].reset();  // Reset the form fields
-                    // Optionally set a cookie after form submission
-                   document.cookie = "userSession=true; SameSite=Strict; Secure; path=/; max-age=3600";  // 1 hour expiry
+                    
                    $('#successMessage').fadeIn();  // Show success message
                    },
 
@@ -551,10 +546,7 @@
             });
         });
     });
-// Cookie settings after form submission
-function setSameSiteCookie() {
-document.cookie = "userSession=true; SameSite=Strict; Secure; path=/; max-age=3600";  // Cookie valid for 1 hour
-}
+
 // Menu toggle functions
 function openMenu() {
     document.getElementById('navbar').classList.add('active');
