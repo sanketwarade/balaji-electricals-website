@@ -8,8 +8,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const Sequelize = require('sequelize');
-const SequelizeStore = require('connect-session-sequelize')(session.Store);
+
 
 require('dotenv').config();
 const app = express();
@@ -28,7 +27,7 @@ app.use(helmet());
 // CORS Setup (No SameSite)
 app.use(cors({
   origin: 'https://balajielectricals.netlify.app',
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST','DELETE'],
   credentials: true
 }));
 
@@ -41,40 +40,14 @@ app.use(cookieParser());
 // CSRF Protection Middleware
 app.use((req, res, next) => {
     // Only check CSRF for POST, PUT, DELETE (not GET)
-    if (['POST', 'PUT', 'DELETE','GET'].includes(req.method) && !req.headers['x-requested-with']) {
+    if (['POST', 'PUT', 'DELETE'].includes(req.method) && !req.headers['x-requested-with']) {
         return res.status(403).json({ success: false, message: 'CSRF attack detected' });
     }
     next();
 });
 
-// Session Setup (Without SameSite)
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 3600000  // 1 hour
-  }
-}));
 
-// Sequelize Database Connection
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-  host: process.env.DB_HOST,
-  dialect: 'mysql',
-  port: process.env.DB_PORT,
-  logging: false,
-});
 
-// Test Sequelize Connection
-sequelize.authenticate()
-  .then(() => console.log('Connected to database (Sequelize)'))
-  .catch((err) => console.error('DB connection error:', err));
-
-// Session Store
-const sessionStore = new SequelizeStore({ db: sequelize });
-sessionStore.sync();
 
 // MySQL Pool Connection
 const pool = mysql.createPool({
