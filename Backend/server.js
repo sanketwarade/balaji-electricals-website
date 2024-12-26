@@ -1,6 +1,8 @@
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const csrf = require('csrf');
 const sgMail = require('@sendgrid/mail');  // Import SendGrid
 const cors = require('cors');
 const validator = require('validator');
@@ -11,6 +13,7 @@ require('dotenv').config();
 
 
 const app = express();
+const tokens = new csrf();  // Initialize CSRF tokens
 
 
 // Define the rate limit rule
@@ -36,16 +39,22 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-  const csrfHeader = req.headers['x-csrf-token'];
-  
-  if (csrfHeader !== 'secureRandomToken12345') {
-      return res.status(403).json({ error: 'Invalid CSRF token' });
-  }
-  
-  next();
-});
+app.use(cookieParser());
+// 1. Generate CSRF Token and send to frontend
+app.get('/csrf-token', (req, res) => {
+  const secret = tokens.secretSync();
+  const token = tokens.create(secret);
 
+  // Store the secret in an HTTP-only cookie
+  res.cookie('csrf-secret', secret, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'Strict'
+  });
+
+  // Send the token to the frontend
+  res.json({ csrfToken: token });
+});
 // MySQL Database Connection
 const pool = mysql.createPool({
   host: process.env.DB_HOST, // From environment variables
@@ -81,6 +90,13 @@ app.post('/submit-solutionform', [
   body('description').optional().escape(),
   body('machine-type').optional().escape(),
 ], (req, res) => {
+  const csrfToken = req.headers['x-csrf-token'];  // CSRF token from the frontend
+  const csrfSecret = req.cookies['csrf-secret'];  // Secret from cookie
+
+  // Verify CSRF token
+  if (!tokens.verify(csrfSecret, csrfToken)) {
+    return res.status(403).json({ error: 'Invalid CSRF token' });
+  }
   console.log('Form Data:', req.body);
 
   const errors = validationResult(req);
