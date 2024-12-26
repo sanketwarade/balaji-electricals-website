@@ -498,18 +498,22 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+      // Fetch CSRF token when the page loads
+fetch('https://balaji-electricals-website-production.up.railway.app/csrf-token')
+  .then(response => response.json())
+  .then(data => {
+    sessionStorage.setItem('csrfToken', data.csrfToken);  // Store CSRF token in sessionStorage
+  })
+  .catch(err => console.error('Failed to fetch CSRF token:', err));
+
       $(document).ready(function() {
-      $('#solutionForm').submit(function(event) {
-        event.preventDefault();
+        $('#solutionForm').submit(function (e) {
+    e.preventDefault();
+    const formData = $(this).serializeArray();
+    const csrfToken = sessionStorage.getItem('csrfToken');
+
        
-        const formData = {
-            formType: 'Custom Solution',
-            name: $('#name').val(),
-            email: $('#email').val(),
-            phone: $('#phone').val(),
-            'machine-type': $('#machine-type').val(),
-            description: $('#description').val(),
-        };
+       
         $.ajax({
                     url: 'https://balaji-electricals-website-production.up.railway.app/submit-solutionForm',  // Your backend endpoint
                     type: 'POST',
@@ -517,16 +521,18 @@
                     contentType: 'application/json',
                     timeout: 10000, // 10-second timeout for the request
                     headers: {
-                    'X-CSRF-TOKEN': 'secureRandomToken12345',  // Custom CSRF token header
-                    'X-Requested-With': 'XMLHttpRequest'       // Helps to identify AJAX requests
+                        'X-CSRF-TOKEN': csrfToken,  // Attach CSRF token in header
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
                       
 
                     success: function(response) {
                     alert('Form submitted successfully!');  // Show success message
-                    $('#quoteForm')[0].reset();  // Reset the form field
+                    $('#solutionForm')[0].reset();  // Reset the form field
                     $('#successMessage').fadeIn();  // Optionally show a success message
                     $('#errorMessage').fadeOut();  // Clear any previous error messages
+
+                    
                 
                 // Reload the page after form submission
                    
