@@ -515,7 +515,12 @@
                     type: 'POST',
                     data: JSON.stringify(formData),
                     contentType: 'application/json',
-                    timeout: 10000,  // 10-second timeout for the request
+                    timeout: 10000, // 10-second timeout for the request
+                    headers: {
+                    'X-CSRF-TOKEN': 'secureRandomToken12345',  // Custom CSRF token header
+                    'X-Requested-With': 'XMLHttpRequest'       // Helps to identify AJAX requests
+                    },
+                      
 
                     success: function(response) {
                     alert('Form submitted successfully!');  // Show success message
