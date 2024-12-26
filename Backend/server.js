@@ -31,11 +31,20 @@ app.use(helmet());
 app.use(cors({
   origin:  'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
   methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization','X-CSRF-TOKEN', 'X-Requested-With']
 }));
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+  const csrfHeader = req.headers['x-csrf-token'];
+  
+  if (csrfHeader !== 'secureRandomToken12345') {
+      return res.status(403).json({ error: 'Invalid CSRF token' });
+  }
+  
+  next();
+});
 
 // MySQL Database Connection
 const pool = mysql.createPool({
