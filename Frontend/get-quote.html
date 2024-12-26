@@ -516,12 +516,7 @@
    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
-            
-                
-        // Fetch CSRF token from a meta tag or from the cookie
-
-        
+        $(document).ready(function() {        
             $('#quoteForm').submit(function(event) {
                 event.preventDefault();  // Prevent form from reloading
             
@@ -537,10 +532,6 @@
                 const message = $('#message').val();
                 
              
-            
-            
-                
-    
                 // Validation flags
                 let isValid = true;
                 let errorMessage = '';
