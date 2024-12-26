@@ -29,7 +29,7 @@ app.set('trust proxy', 1); // This allows Express to trust the X-Forwarded-For h
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin:  'https://darling-conkies-1620b9.netlify.app', // Replace with your actual frontend domain
+  origin:  'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
