@@ -498,32 +498,25 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-      // Fetch CSRF token when the page loads
-fetch('https://balaji-electricals-website-production.up.railway.app/csrf-token')
-  .then(response => response.json())
-  .then(data => {
-    sessionStorage.setItem('csrfToken', data.csrfToken);  // Store CSRF token in sessionStorage
-  })
-  .catch(err => console.error('Failed to fetch CSRF token:', err));
-
-      $(document).ready(function() {
-        $('#solutionForm').submit(function (e) {
-    e.preventDefault();
-    const formData = $(this).serializeArray();
-    const csrfToken = sessionStorage.getItem('csrfToken');
-
+         $(document).ready(function() {
+      $('#solutionForm').submit(function(event) {
+        event.preventDefault();
        
-       
+        const formData = {
+            formType: 'Custom Solution',
+            name: $('#name').val(),
+            email: $('#email').val(),
+            phone: $('#phone').val(),
+            'machine-type': $('#machine-type').val(),
+            description: $('#description').val(),
+        };
         $.ajax({
                     url: 'https://balaji-electricals-website-production.up.railway.app/submit-solutionForm',  // Your backend endpoint
                     type: 'POST',
                     data: JSON.stringify(formData),
                     contentType: 'application/json',
                     timeout: 10000, // 10-second timeout for the request
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,  // Attach CSRF token in header
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
+                    
                       
 
                     success: function(response) {
