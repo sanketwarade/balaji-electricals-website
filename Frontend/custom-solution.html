@@ -524,8 +524,12 @@
                     $('#errorMessage').fadeOut();  // Clear any previous error messages
                 
                 // Reload the page after form submission
-                    location.reload();
-                    },
+                   
+        // Delay page reload by 1.5 seconds
+        setTimeout(function() {
+            location.reload();
+        }, 1500);  // 1500 ms (1.5 seconds)
+    },
 
                 error: function(xhr, status, error) {
                     // Handle timeout error
