@@ -7,8 +7,6 @@ const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-const session = require('express-session');
-
 
 require('dotenv').config();
 const app = express();
@@ -23,6 +21,9 @@ app.use(limiter);
 
 // Basic Security with Helmet
 app.use(helmet());
+
+app.set('trust proxy', 1); // trust first proxy
+
 
 // CORS Setup (No SameSite)
 app.use(cors({
@@ -57,7 +58,8 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  connectTimeout: 10000  // Increase timeout to 10 seconds (default is 10s)
 });
 
 pool.getConnection((err, connection) => {
