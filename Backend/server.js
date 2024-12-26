@@ -22,6 +22,9 @@ const limiter = rateLimit({
 
 // Apply to all routes
 app.use(limiter);
+// Enable trust proxy in Express
+app.set('trust proxy', 1); // This allows Express to trust the X-Forwarded-For header
+
 
 // Middleware
 app.use(helmet());
