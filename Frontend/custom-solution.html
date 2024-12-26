@@ -502,8 +502,6 @@
       $('#solutionForm').submit(function(event) {
         event.preventDefault();
        
-
-
         const formData = {
             formType: 'Custom Solution',
             name: $('#name').val(),
@@ -512,23 +510,19 @@
             'machine-type': $('#machine-type').val(),
             description: $('#description').val(),
         };
-
         $.ajax({
                     url: 'https://balaji-electricals-website-production.up.railway.app/submit-quoteForm',  // Your backend endpoint
                     type: 'POST',
                     data: JSON.stringify(formData),
                     contentType: 'application/json',
                     timeout: 10000,  // 10-second timeout for the request
-                    headers: {
-                    'X-Requested-With': 'XMLHttpRequest'  // Custom header
-                    },
 
                     success: function(response) {
                     alert('Form submitted successfully!');  // Show success message
-                    $('#quoteForm')[0].reset();  // Reset the form fields
-                    
-                   $('#successMessage').fadeIn();  // Show success message
-                   },
+                    $('#quoteForm')[0].reset();  // Reset the form field
+                    $('#successMessage').fadeIn();  // Optionally show a success message
+                    $('#errorMessage').fadeOut();  // Clear any previous error messages
+                },
 
                 error: function(xhr, status, error) {
                     // Handle timeout error
