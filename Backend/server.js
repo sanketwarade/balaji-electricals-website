@@ -121,8 +121,13 @@ app.post('/submit-solutionform', [
   const csrfSecret = req.session.csrfSecret;
 
   if (!tokens.verify(csrfSecret, csrfToken)) {
-    return res.status(403).json({ error: 'Invalid CSRF token' });
-  }
+    // Process form data
+        // Send email and insert data into the database
+        res.json({ message: 'Form submitted successfully' });
+    } else {
+        res.status(403).json({ error: 'Invalid CSRF token' });
+    }
+});
   console.log('Form Data:', req.body);
 
   const errors = validationResult(req);
@@ -183,7 +188,7 @@ app.post('/submit-solutionform', [
       });
       res.status(200).send({ success: true, message: 'Form submitted successfully!' });
   });
-});
+
 
 
 
