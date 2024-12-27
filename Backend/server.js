@@ -85,6 +85,8 @@ app.use(session({
   }
 }));
 
+
+
 // CORS Configuration
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://balajielectricals.netlify.app');
@@ -110,7 +112,9 @@ app.get('/csrf-token', (req, res) => {
 // Email Setup using environment variables
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-app.post('/submit-solutionform', [
+const csrfProtection = csrf({ cookie: true });
+
+app.post('/submit-solutionform', csrfProtection, [
   body('name').trim().escape(),
   body('email').isEmail().normalizeEmail(),
   body('phone').isLength({ min: 10, max: 10 }).isNumeric().trim(),
