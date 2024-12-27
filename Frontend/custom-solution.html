@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request a Custom Solution</title>
     <script src="js/common.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -388,7 +388,7 @@
         </div>
 
         <form id="solutionForm" action="/submit-solutionForm" method="POST">
-            <input type="hidden" id="csrfTokenField" name="_csrf" value="">
+        
             <div class="form-group">
                 <label for="name">Your Name</label>
                 <input type="text" id="name" name="name" required placeholder="Enter your name">
@@ -498,15 +498,25 @@
         </p>
     </footer>
 
-    
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
     <script>
-         // Fetch CSRF Token on Page Load
-         $(document).ready(function () {
-            $.get('https://balaji-electricals-website-production.up.railway.app/', function (data) {
-                $('#csrfTokenField').val(data.csrfToken);  // Set CSRF token for form submissions
-                sessionStorage.setItem('csrfToken', data.csrfToken);  // Store for AJAX requests
-            });
-        });
+
+         // Fetch CSRF token on page load and store it in localStorage
+        $(document).ready(function () {
+        fetch('https://balaji-electricals-website-production.up.railway.app/csrf-token', {
+        credentials: 'include'  // Ensures cookies are sent with the request
+        })
+       .then(res => res.json())
+       .then(data => {
+        localStorage.setItem('csrfToken', data.csrfToken);
+        })
+        .catch(err => {
+        console.error('Failed to fetch CSRF token:', err);
+    });
+});
+
 
           // AJAX Form Submission with Custom Header
           $('#solutionForm').submit(function (e) {
@@ -517,50 +527,46 @@
                 email: $('#email').val(),
                 phone: $('#phone').val(),
                 description: $('#description').val(),
-                _csrf: $('#csrfTokenField').val()  // Hidden CSRF token for form
+                
             };
+            $.ajax({
 
-            const csrfToken = sessionStorage.getItem('csrfToken');
-         
-     
-        
-        $.ajax({
-                    url: 'https://balaji-electricals-website-production.up.railway.app/submit-solutionForm',  // Your backend endpoint
-                    type: 'POST',
-                    data: JSON.stringify(formData),
-                    contentType: 'application/json',
-                    xhrFields: {
-                    withCredentials: true  // Allow sending cookies
-                    },
-                    headers: {
-                   'X-CSRF-TOKEN': csrfTokenFromCookie,  // Use token from cookie
-                   'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    timeout: 10000, // 10-second timeout for the request
+            url: 'https://balaji-electricals-website-production.up.railway.app/submit-solutionForm', // Your backend endpoint
+            type: 'POST',
+            data: JSON.stringify(formData),
+            contentType: 'application/json',
+            headers: {
+            'X-CSRF-TOKEN': localStorage.getItem('csrfToken'),
+            },
+            timeout: 10000, // 10-second timeout for the request
                     
                       
 
-                    success: function(response) {
-                    alert('Form submitted successfully!');  // Show success message
-                    $('#solutionForm')[0].reset();  // Reset the form field
-                    $('#successMessage').fadeIn();  // Optionally show a success message
-                    $('#errorMessage').fadeOut();  // Clear any previous error messages
+            success: function(response) {
+            alert('Form submitted successfully!');  // Show success message
+            $('#solutionForm')[0].reset();  // Reset the form field
+            $('#successMessage').fadeIn();  // Optionally show a success message
+            $('#errorMessage').fadeOut();  // Clear any previous error messages
+
 
                     
                 
-                // Reload the page after form submission
+            // Reload the page after form submission
                    
-        // Delay page reload by 1.5 seconds
-        setTimeout(function() {
-            location.reload();
-        }, 1500);  // 1500 ms (1.5 seconds)
-    },
+            // Delay page reload by 1.5 seconds
+            setTimeout(function() {
+
+                location.reload();
+                }, 1500);  // 1500 ms (1.5 seconds)
+
+                },
 
                 error: function(xhr, status, error) {
                     // Handle timeout error
                     if (status === 'timeout') {
                         alert('Request timed out. Please check your internet connection.');
                     } else {
+
                         // Log error details to console
                         console.error('Error details:', error);
                         console.log('Full Response:', xhr.responseText);  // Log entire server response
