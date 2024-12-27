@@ -529,11 +529,12 @@
                     type: 'POST',
                     data: JSON.stringify(formData),
                     contentType: 'application/json',
-                    headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                    },
                     xhrFields: {
-                    withCredentials: true  // Ensures cookies are sent with the request
+                    withCredentials: true  // Allow sending cookies
+                    },
+                    headers: {
+                   'X-CSRF-TOKEN': csrfTokenFromCookie,  // Use token from cookie
+                   'X-Requested-With': 'XMLHttpRequest'
                     },
                     timeout: 10000, // 10-second timeout for the request
                     
