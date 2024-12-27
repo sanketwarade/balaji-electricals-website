@@ -517,6 +517,12 @@
     });
 });
 
+const csrfToken = localStorage.getItem('csrfToken');
+        if (!csrfToken) {
+            alert('CSRF token missing. Please refresh the page.');
+            return;
+        }
+
 
           // AJAX Form Submission with Custom Header
           $('#solutionForm').submit(function (e) {
@@ -539,7 +545,10 @@
             data: JSON.stringify(formData),
             contentType: 'application/json',
             headers: {
-            'X-CSRF-TOKEN': localStorage.getItem('csrfToken'),
+                'X-CSRF-TOKEN': csrfToken,
+            },
+            xhrFields: {
+            withCredentials: true  // Allow sending cookies (session)
             },
             timeout: 10000, // 10-second timeout for the request
                     
