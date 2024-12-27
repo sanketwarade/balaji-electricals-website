@@ -81,7 +81,7 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 24,  // Session valid for 1 day
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',  // Secure cookie in production
-    sameSite: 'None'  // Ensure CSRF cookie can work cross-origin
+    sameSite: 'Strict'  // Ensure CSRF cookie can work cross-origin
   }
 }));
 
@@ -102,9 +102,8 @@ app.get('/csrf-token', (req, res) => {
   const csrfToken = tokens.create(csrfSecret);
   req.session.csrfSecret = csrfSecret;
   
-  res.json({ csrfToken });
+  res.json({ csrfToken, expiresIn: 24 * 60 * 60 });  // Send token and expiry to frontend
 });
-
 
 
 
