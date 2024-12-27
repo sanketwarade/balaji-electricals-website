@@ -76,12 +76,12 @@ app.use(session({
   secret: process.env.SESSION_SECRET,  // Replace with a secure secret
   resave: false,
   store: sessionStore,
-  saveUninitialized: false,
+  saveUninitialized: true,
   cookie: {
     maxAge: 1000 * 60 * 60 * 24,  // Session valid for 1 day
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',  // Secure cookie in production
-    sameSite: 'lax'  // Ensure CSRF cookie can work cross-origin
+    sameSite: 'None'  // Ensure CSRF cookie can work cross-origin
   }
 }));
 
