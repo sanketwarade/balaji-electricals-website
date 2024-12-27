@@ -33,14 +33,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(helmet());
 
-// CORS Configuration  
-app.use(cors({
-  origin: 'https://balajielectricals.netlify.app',
-  methods: ['GET', 'POST'],
-  credentials: true, // Allow credentials (cookies)
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-TOKEN', 'X-Requested-With'],
- 
-}));
+// Allow requests only from your frontend
+const corsOptions = {
+  origin: 'https://balajielectricals.netlify.app',  // Allow your frontend
+  methods: ['GET', 'POST'],  // Allow specific methods
+  allowedHeaders: ['Content-Type', 'X-CSRF-TOKEN'],  // Allow headers
+  credentials: true  // Allow cookies or sessions to be sent
+};
+
+app.use(cors(corsOptions));
 
 app.use(session({
   secret: process.env.SESSION_SECRET,  // Replace with a secure secret
@@ -132,20 +133,9 @@ app.post('/submit-solutionform', [
       (form_type, name, email, phone, machine_type, description) 
       VALUES (?, ?, ?, ?, ?, ?)
   `;
-  
-  const values = [
-    formType, 
-    name, 
-    email, 
-    phone, 
-    machineType, 
-    description
-  ];
-
-  pool.query(query, values, (err, result) => {
+  pool.query(query, [form_Type, name, email, phone, machine_type, description], (err, result) => {
     if (err) {
-      console.error('Error inserting data:', err);
-      return res.status(500).send({ success: false, message: 'Error saving data.' });
+        console.error('Error inserting data:', err)
     }
 
     const userMail = {
