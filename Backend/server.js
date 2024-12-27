@@ -48,7 +48,7 @@ app.use((req, res, next) => {
   if (!csrfSecret) {
       // Generate a new secret if not found
       csrfSecret = tokens.secretSync();
-      res.cookie('csrfSecret', csrfSecret, { httpOnly: true, secure: true, sameSite: 'Strict' });
+      res.cookie('csrfSecret', csrfSecret, { httpOnly: true, secure: true, sameSite: 'None' });
   }
 
   // Generate a CSRF token for frontend (used for AJAX and form)
