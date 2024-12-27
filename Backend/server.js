@@ -1,18 +1,19 @@
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const csrf = require('csrf');  // CSRF token library
 const sgMail = require('@sendgrid/mail');  // Import SendGrid
 const cors = require('cors');
 const validator = require('validator');
 const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet'); // New: Secure HTTP headers
+const tokens = new csrf();
 require('dotenv').config();
 
 
 const app = express();
-
-
 
 // Define the rate limit rule
 const limiter = rateLimit({
@@ -26,17 +27,49 @@ app.use(limiter);
 // Enable trust proxy in Express
 app.set('trust proxy', 1); // This allows Express to trust the X-Forwarded-For header
 
-
-// Middleware
-app.use(helmet());
-app.use(cors({
-  origin:  'https://balajielectricals.netlify.app', // Replace with your actual frontend domain
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization','X-Requested-With']
-}));
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(helmet());
+
+// CORS Configuration  
+app.use(cors({
+  origin: 'https://balajielectricals.netlify.app',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-TOKEN', 'X-Requested-With']
+}));
+
+// Middleware to Generate and Validate CSRF Tokens
+app.use((req, res, next) => {
+  let csrfSecret = req.cookies.csrfSecret;
+
+  if (!csrfSecret) {
+      // Generate a new secret if not found
+      csrfSecret = tokens.secretSync();
+      res.cookie('csrfSecret', csrfSecret, { httpOnly: true, secure: true, sameSite: 'Strict' });
+  }
+
+  // Generate a CSRF token for frontend (used for AJAX and form)
+  const csrfToken = tokens.create(csrfSecret);
+
+  // Attach the token to the response (For AJAX requests)
+  res.locals.csrfToken = csrfToken;
+
+  // Pass CSRF token to frontend when accessing pages
+  if (req.method === 'GET' && req.url === '/') {
+      return res.json({ csrfToken });
+  }
+
+  // CSRF Validation (For POST requests)
+  const csrfTokenFromRequest = req.headers['x-csrf-token'] || req.body._csrf;
+  if (!csrfTokenFromRequest || !tokens.verify(csrfSecret, csrfTokenFromRequest)) {
+      return res.status(403).json({ error: 'Invalid CSRF token' });
+  }
+
+  next();
+});
+
 
 // MySQL Database Connection
 const pool = mysql.createPool({
