@@ -37,7 +37,8 @@ app.use(helmet());
 app.use(cors({
   origin: 'https://balajielectricals.netlify.app',
   methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-TOKEN', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-TOKEN', 'X-Requested-With'],
+  credentials: true  // Allow credentials (cookies)
 }));
 
 // Middleware to Generate and Validate CSRF Tokens
