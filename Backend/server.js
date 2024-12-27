@@ -8,10 +8,11 @@ const sgMail = require('@sendgrid/mail');  // Import SendGrid
 const cors = require('cors');
 const validator = require('validator');
 const { body, validationResult } = require('express-validator');
-const rateLimit = require('express-rate-limit');
 const helmet = require('helmet'); // New: Secure HTTP headers
-const tokens = new csrf();
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
+
+const app = express();
 
 // Define the rate limit rule
 const limiter = rateLimit({
@@ -28,8 +29,9 @@ app.set('trust proxy', 1); // This allows Express to trust the X-Forwarded-For h
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(helmet());
+
+const tokens = new csrf();
 
 // Allow requests only from your frontend
 const corsOptions = {
@@ -68,7 +70,7 @@ const sessionStore = new MySQLStore({}, pool);
 
 module.exports = pool;  // Export pool directly
 
-const app = express();
+
 
 app.use(session({
   secret: process.env.SESSION_SECRET,  // Replace with a secure secret
@@ -78,7 +80,7 @@ app.use(session({
   cookie: {
     maxAge: 1000 * 60 * 60 * 24,  // Session valid for 1 day
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === 'production',  // Secure cookie in production
     sameSite: 'lax'  // Ensure CSRF cookie can work cross-origin
   }
 }));
@@ -118,7 +120,9 @@ app.post('/submit-solutionform', [
   const csrfToken = req.headers['x-csrf-token'];
   const csrfSecret = req.session.csrfSecret;
 
-  
+  if (!tokens.verify(csrfSecret, csrfToken)) {
+    return res.status(403).json({ error: 'Invalid CSRF token' });
+  }
   console.log('Form Data:', req.body);
 
   const errors = validationResult(req);
@@ -177,17 +181,11 @@ app.post('/submit-solutionform', [
       .catch((error) => {
         console.error('Error sending email to admin:', error);
       });
-
-    
-if (tokens.verify(csrfSecret, csrfToken)) {
-  console.log('Form Data:', req.body);
-  res.json({ message: 'Form submitted successfully' });
-} else {
-  res.status(403).json({ error: 'Invalid CSRF token' });
-}
-res.status(200).send({ success: true, message: 'Form submitted successfully!' });
+      res.status(200).send({ success: true, message: 'Form submitted successfully!' });
   });
 });
+
+
 
 
 // POST endpoint to handle form submission (Quote Form)
