@@ -509,19 +509,16 @@
         credentials: 'include'  // Ensures cookies are sent with the request
         })
         .then(res => res.json())
-        .then(data => {
-            if (data.csrfToken) {
-                localStorage.setItem('csrfToken', data.csrfToken);
-                } else {
-                console.error('CSRF token not received');
-                }
-           })
-       
-        .catch(err => {
-        console.error('Failed to fetch CSRF token:', err);
+        .then(res => res.json())
+    .then(data => {
+      localStorage.setItem('csrfToken', data.csrfToken);
+    })
+    .catch(err => {
+      console.error('Failed to fetch CSRF token:', err);
     });
 });
-
+        
+      
  // AJAX Form Submission with Custom Header
  $('#solutionForm').submit(function (e) {
     e.preventDefault();
@@ -529,28 +526,18 @@
 
     // Ensure CSRF token is available before proceeding
     const csrfToken = localStorage.getItem('csrfToken');
-        if (!csrfToken) {
-        alert('CSRF token missing. Please refresh the page and try again.');
-        return;
-        }
-
-
-
-
-         
-
+    console.log('Sending CSRF token:', csrfToken);  // Log the token
+       
             const formData = {
                 formType: 'Custom Solution',
                 name: $('#name').val(),
                 email: $('#email').val(),
                 phone: $('#phone').val(),
                 'machine-type': $('#machine-type').val(),
-                description: $('#description').val(),
-                
-                
+                description: $('#description').val(), 
             };
+            
             $.ajax({
-
             url: 'https://balaji-electricals-website-production.up.railway.app/submit-solutionForm', // Your backend endpoint
             type: 'POST',
             data: JSON.stringify(formData),
