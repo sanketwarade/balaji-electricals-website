@@ -673,9 +673,11 @@
                   data: JSON.stringify(formData),
                   contentType: 'application/json',
                   headers: {
-                  'X-CSRF-TOKEN': csrfToken,  // Include the CSRF token
-                   },
-
+                 'X-CSRF-TOKEN': csrfToken,  // Include CSRF token in headers
+                  },
+                  xhrFields: {
+                 withCredentials: true,  // Ensure session cookie is sent
+                },
                   timeout: 10000, // 10-second timeout for the request
                   success: function(response) {
                   alert('Form submitted successfully!');  // Show success message
