@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request a Custom Solution</title>
     <script src="js/common.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -387,6 +388,7 @@
         </div>
 
         <form id="solutionForm" action="/submit-solutionForm" method="POST">
+            <input type="hidden" id="csrfTokenField" name="_csrf" value="">
             <div class="form-group">
                 <label for="name">Your Name</label>
                 <input type="text" id="name" name="name" required placeholder="Enter your name">
@@ -496,25 +498,41 @@
         </p>
     </footer>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <script>
-         $(document).ready(function() {
-      $('#solutionForm').submit(function(event) {
-        event.preventDefault();
-       
-        const formData = {
-            formType: 'Custom Solution',
-            name: $('#name').val(),
-            email: $('#email').val(),
-            phone: $('#phone').val(),
-            'machine-type': $('#machine-type').val(),
-            description: $('#description').val(),
-        };
+         // Fetch CSRF Token on Page Load
+         $(document).ready(function () {
+            $.get('https://balaji-electricals-website-production.up.railway.app/', function (data) {
+                $('#csrfTokenField').val(data.csrfToken);  // Set CSRF token for form submissions
+                sessionStorage.setItem('csrfToken', data.csrfToken);  // Store for AJAX requests
+            });
+        });
+
+          // AJAX Form Submission with Custom Header
+          $('#solutionForm').submit(function (e) {
+            e.preventDefault();
+
+            const formData = {
+                name: $('#name').val(),
+                email: $('#email').val(),
+                phone: $('#phone').val(),
+                description: $('#description').val(),
+                _csrf: $('#csrfTokenField').val()  // Hidden CSRF token for form
+            };
+
+            const csrfToken = sessionStorage.getItem('csrfToken');
+         
+     
+        
         $.ajax({
                     url: 'https://balaji-electricals-website-production.up.railway.app/submit-solutionForm',  // Your backend endpoint
                     type: 'POST',
                     data: JSON.stringify(formData),
                     contentType: 'application/json',
+                    headers: {
+                    'X-CSRF-TOKEN': csrfToken,  // Attach CSRF token as header
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
                     timeout: 10000, // 10-second timeout for the request
                     
                       
@@ -550,7 +568,7 @@
                 }
             });
         });
-    });
+  
 
 // Menu toggle functions
 function openMenu() {
