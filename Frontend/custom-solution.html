@@ -623,6 +623,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <script>
+      let csrfRetryCount = 0; // Track retry attempts
       // Fetch CSRF token on page load and store it in localStorage
       $(document).ready(function () {
         // Fetch CSRF token on page load
@@ -631,26 +632,33 @@
       // Function to fetch CSRF token
 
       function fetchCsrfToken() {
-        fetch('https://balaji-electricals-website-production.up.railway.app/csrf-token', {
-          credentials: 'include'
-          })
-        .then((res) => {
-          if (!res.ok) {
-            // If response is not OK (status code outside of 2xx range), throw an error
-            throw new Error("Failed to fetch CSRF token: " + res.statusText);
+        fetch(
+          "https://balaji-electricals-website-production.up.railway.app/csrf-token",
+          {
+            credentials: "include",
           }
-          return res.json(); // Attempt to parse the response as JSON
-        })
-        .then((data) => {
-          // Successfully received CSRF token
-          localStorage.setItem("csrfToken", data.csrfToken);
-          console.log("Session is active, CSRF token fetched:", data.csrfToken);
-        })
-        .catch((err) => {
-          // Handle any errors (network errors, failed JSON parsing, etc.)
-          console.error(err);
-          alert("Error fetching CSRF token. Please try again later.");
-        });
+        )
+          .then((res) => {
+            if (!res.ok) {
+              // If response is not OK (status code outside of 2xx range), throw an error
+              throw new Error("Failed to fetch CSRF token: " + res.statusText);
+            }
+            return res.json(); // Attempt to parse the response as JSON
+          })
+          .then((data) => {
+            // Successfully received CSRF token
+            localStorage.setItem("csrfToken", data.csrfToken);
+            console.log(
+              "Session is active, CSRF token fetched:",
+              data.csrfToken
+            );
+            csrfRetryCount = 0; // Reset retry count after successful token fetch
+          })
+          .catch((err) => {
+            // Handle any errors (network errors, failed JSON parsing, etc.)
+            console.error(err);
+            alert("Error fetching CSRF token. Please try again later.");
+          });
       }
 
       // AJAX Form Submission with Custom Header
@@ -668,12 +676,12 @@
           "machine-type": $("#machine-type").val(),
           description: $("#description").val(),
         };
-         // Submit form via AJAX
+        // Submit form via AJAX
         submitForm(formData, csrfToken);
-        });
-        // AJAX Form Submission Function
-        function submitForm(formData, csrfToken) {
-          $.ajax({
+      });
+      // AJAX Form Submission Function
+      function submitForm(formData, csrfToken) {
+        $.ajax({
           url: "https://balaji-electricals-website-production.up.railway.app/submit-solutionForm", // Your backend endpoint
           type: "POST",
           data: JSON.stringify(formData),
@@ -690,6 +698,8 @@
             $("#solutionForm")[0].reset(); // Reset the form field
             $("#successMessage").fadeIn(); // Optionally show a success message
             $("#errorMessage").fadeOut(); // Clear any previous error message
+            // Refresh CSRF token after successful form submission
+            fetchCsrfToken();
 
             // Reload the page after form submission
             // Delay page reload by 1.5 seconds
@@ -697,19 +707,31 @@
               location.reload();
             }, 1500); // 1500 ms (1.5 seconds)
           },
-        
 
           error: function (xhr, status, error) {
             if (xhr.status === 403) {
-                // CSRF token expired or invalid – fetch new token and retry
-                console.warn('CSRF token expired, retrying...');
+              console.warn("CSRF token expired, fetching new token...");
+
+              if (csrfRetryCount < 2) {
+                csrfRetryCount++;
                 fetchCsrfToken();
-                const newCsrfToken = localStorage.getItem('csrfToken');
-                submitForm(formData, newCsrfToken);
+
+                // Retry form submission with new token
+                setTimeout(() => {
+                  const newCsrfToken = localStorage.getItem("csrfToken");
+                  submitForm(formData, newCsrfToken);
+                }, 1000);
+              } else {
+                alert(
+                  "Failed to submit form after multiple attempts. Please try again later."
+                );
+                csrfRetryCount = 0;
+              }
             } else {
-                console.error('Submission error:', xhr.responseText);
-                alert('Failed to submit form. Please try again.');
+              console.error("Submission error:", xhr.responseText);
+              alert("Form submission failed. Please try again.");
             }
+
             // Handle timeout error
             if (status === "timeout") {
               alert(
@@ -728,25 +750,22 @@
                 )
                 .fadeIn();
             }
-
           },
         });
 
+        // Menu toggle functions
+        function openMenu() {
+          document.getElementById("navbar").classList.add("active");
+          document.querySelector(".hamburger").style.display = "none";
+          document.querySelector(".close-btn").style.opacity = "1";
+        }
 
-      // Menu toggle functions
-      function openMenu() {
-        document.getElementById("navbar").classList.add("active");
-        document.querySelector(".hamburger").style.display = "none";
-        document.querySelector(".close-btn").style.opacity = "1";
+        function closeMenu() {
+          document.getElementById("navbar").classList.remove("active");
+          document.querySelector(".hamburger").style.display = "block";
+          document.querySelector(".close-btn").style.opacity = "0";
+        }
       }
-
-      function closeMenu() {
-        document.getElementById("navbar").classList.remove("active");
-        document.querySelector(".hamburger").style.display = "block";
-        document.querySelector(".close-btn").style.opacity = "0";
-      }
-    }
-
     </script>
   </body>
 </html>
