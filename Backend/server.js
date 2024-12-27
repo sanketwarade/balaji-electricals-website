@@ -112,9 +112,8 @@ app.get('/csrf-token', (req, res) => {
 // Email Setup using environment variables
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const csrfProtection = csrf({ cookie: true });
 
-app.post('/submit-solutionform', csrfProtection, [
+app.post('/submit-solutionform', [
   body('name').trim().escape(),
   body('email').isEmail().normalizeEmail(),
   body('phone').isLength({ min: 10, max: 10 }).isNumeric().trim(),
