@@ -118,15 +118,19 @@ app.post('/submit-solutionform', [
   body('machine-type').optional().escape(),
 ], (req, res) => {
   const csrfToken = req.headers['x-csrf-token'];
-  const csrfSecret = req.session.csrfSecret;
+const csrfSecret = req.session.csrfSecret;
+console.log('Received CSRF token:', csrfToken);  // Log received token
+console.log('Stored CSRF secret:', csrfSecret);  // Log stored token
 
-  if (!csrfToken) {
-    return res.status(400).json({ error: 'CSRF token missing' });
-  }
+if (!csrfToken) {
+  return res.status(400).json({ error: 'CSRF token missing' });
+}
 
-  if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
-    return res.status(403).json({ error: 'Invalid CSRF token' });
-  }
+if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
+  console.log('CSRF verification failed');
+  return res.status(403).json({ error: 'Invalid CSRF token' });
+}
+ 
 
   console.log('Form Data:', req.body);
 
