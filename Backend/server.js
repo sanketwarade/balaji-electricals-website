@@ -144,7 +144,7 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
   }
 
   // Destructure only once to avoid redeclaration issues
-  const { formType, name, email, phone, 'machine-type': machineType, description } = req.body;
+  const { formType, name, email, phone,  'machine-type': machineType, description } = req.body;
 
   // Ensure that machineType is not undefined or null
   if (!machineType) {
@@ -156,7 +156,7 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
       (form_type, name, email, phone, machine_type, description) 
       VALUES (?, ?, ?, ?, ?, ?)
   `;
-  pool.query(query, [formType, name, email, phone, machine_type, description], (err, result) => {
+  pool.query(query, [formType, name, email, phone, machineType, description], (err, result) => {
     if (err) {
         console.error('Error inserting data:', err)
     }
