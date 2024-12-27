@@ -123,8 +123,6 @@ app.post('/submit-solutionform', [
   if (!tokens.verify(csrfSecret, csrfToken)) {
     // Process form data
         // Send email and insert data into the database
-        res.json({ message: 'Form submitted successfully' });
-    } else {
         res.status(403).json({ error: 'Invalid CSRF token' });
     }
 });
