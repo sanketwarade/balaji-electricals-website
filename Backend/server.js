@@ -2,6 +2,7 @@ const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
 const csrf = require('csrf');  // CSRF token library
 const sgMail = require('@sendgrid/mail');  // Import SendGrid
 const cors = require('cors');
@@ -11,9 +12,6 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet'); // New: Secure HTTP headers
 const tokens = new csrf();
 require('dotenv').config();
-
-
-const app = express();
 
 // Define the rate limit rule
 const limiter = rateLimit({
@@ -43,36 +41,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,  // Replace with a secure secret
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'None'  // Ensure CSRF cookie can work cross-origin
-  }
-}));
-
-// CORS Configuration
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://balajielectricals.netlify.app');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, X-CSRF-TOKEN');
-  next();
-});
-
-// CSRF Token Generation Endpoint
-app.get('/csrf-token', (req, res) => {
-  const csrfSecret = tokens.secretSync();
-  const csrfToken = tokens.create(csrfSecret);
-  req.session.csrfSecret = csrfSecret;
-  
-  res.json({ csrfToken });
-});
-
-
 // MySQL Database Connection
 const pool = mysql.createPool({
   host: process.env.DB_HOST, // From environment variables
@@ -95,7 +63,46 @@ pool.getConnection((err, connection) => {
   }
 });
 
+// Create the MySQL session store using the pool
+const sessionStore = new MySQLStore({}, pool);
+
 module.exports = pool;  // Export pool directly
+
+const app = express();
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,  // Replace with a secure secret
+  resave: false,
+  store: sessionStore,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24,  // Session valid for 1 day
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax'  // Ensure CSRF cookie can work cross-origin
+  }
+}));
+
+// CORS Configuration
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://balajielectricals.netlify.app');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, X-CSRF-TOKEN');
+  next();
+});
+
+// CSRF Token Generation Endpoint
+app.get('/csrf-token', (req, res) => {
+  const csrfSecret = tokens.secretSync();
+  const csrfToken = tokens.create(csrfSecret);
+  req.session.csrfSecret = csrfSecret;
+  
+  res.json({ csrfToken });
+});
+
+
+
 
 
 // Email Setup using environment variables
