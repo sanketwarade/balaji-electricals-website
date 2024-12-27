@@ -1,7 +1,7 @@
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+const session = require('express-session');
 const csrf = require('csrf');  // CSRF token library
 const sgMail = require('@sendgrid/mail');  // Import SendGrid
 const cors = require('cors');
@@ -30,7 +30,7 @@ app.set('trust proxy', 1); // This allows Express to trust the X-Forwarded-For h
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
+
 app.use(helmet());
 
 // CORS Configuration  
@@ -42,34 +42,33 @@ app.use(cors({
  
 }));
 
-// Middleware to Generate and Validate CSRF Tokens
+app.use(session({
+  secret: process.env.SESSION_SECRET,  // Replace with a secure secret
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None'  // Ensure CSRF cookie can work cross-origin
+  }
+}));
+
+// CORS Configuration
 app.use((req, res, next) => {
-  let csrfSecret = req.cookies.csrfSecret;
-
-  if (!csrfSecret) {
-      // Generate a new secret if not found
-      csrfSecret = tokens.secretSync();
-      res.cookie('csrfSecret', csrfSecret, { httpOnly: true, secure: true, sameSite: 'None' });
-  }
-
-  // Generate a CSRF token for frontend (used for AJAX and form)
-  const csrfToken = tokens.create(csrfSecret);
-
-  // Attach the token to the response (For AJAX requests)
-  res.locals.csrfToken = csrfToken;
-
-  // Pass CSRF token to frontend when accessing pages
-  if (req.method === 'GET' && req.url === '/') {
-      return res.json({ csrfToken });
-  }
-
-  // CSRF Validation (For POST requests)
-  const csrfTokenFromRequest = req.headers['x-csrf-token'] || req.body._csrf;
-  if (!csrfTokenFromRequest || !tokens.verify(csrfSecret, csrfTokenFromRequest)) {
-      return res.status(403).json({ error: 'Invalid CSRF token' });
-  }
-
+  res.header('Access-Control-Allow-Origin', 'https://balajielectricals.netlify.app');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, X-CSRF-TOKEN');
   next();
+});
+
+// CSRF Token Generation Endpoint
+app.get('/csrf-token', (req, res) => {
+  const csrfSecret = tokens.secretSync();
+  const csrfToken = tokens.create(csrfSecret);
+  req.session.csrfSecret = csrfSecret;
+  
+  res.json({ csrfToken });
 });
 
 
@@ -108,6 +107,9 @@ app.post('/submit-solutionform', [
   body('description').optional().escape(),
   body('machine-type').optional().escape(),
 ], (req, res) => {
+  const csrfToken = req.headers['x-csrf-token'];
+  const csrfSecret = req.session.csrfSecret;
+
   
   console.log('Form Data:', req.body);
 
@@ -179,9 +181,17 @@ app.post('/submit-solutionform', [
         console.error('Error sending email to admin:', error);
       });
 
-    res.status(200).send({ success: true, message: 'Form submitted successfully!' });
+    
+if (tokens.verify(csrfSecret, csrfToken)) {
+  console.log('Form Data:', req.body);
+  res.json({ message: 'Form submitted successfully' });
+} else {
+  res.status(403).json({ error: 'Invalid CSRF token' });
+}
+res.status(200).send({ success: true, message: 'Form submitted successfully!' });
   });
 });
+
 
 // POST endpoint to handle form submission (Quote Form)
 app.post('/submit-quoteForm', [
