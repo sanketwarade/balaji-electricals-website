@@ -120,11 +120,13 @@ app.post('/submit-solutionform', [
   const csrfToken = req.headers['x-csrf-token'];
   const csrfSecret = req.session.csrfSecret;
 
-  if (!tokens.verify(csrfSecret, csrfToken)) {
-    // Process form data
-        // Send email and insert data into the database
-        res.status(403).json({ error: 'Invalid CSRF token' });
-    }
+  if (!csrfToken) {
+    return res.status(400).json({ error: 'CSRF token missing' });
+  }
+
+  if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
+    return res.status(403).json({ error: 'Invalid CSRF token' });
+  }
 
   console.log('Form Data:', req.body);
 
@@ -147,7 +149,7 @@ app.post('/submit-solutionform', [
       (form_type, name, email, phone, machine_type, description) 
       VALUES (?, ?, ?, ?, ?, ?)
   `;
-  pool.query(query, [form_Type, name, email, phone, machine_type, description], (err, result) => {
+  pool.query(query, [formType, name, email, phone, machine_type, description], (err, result) => {
     if (err) {
         console.error('Error inserting data:', err)
     }
