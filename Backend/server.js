@@ -33,41 +33,7 @@ app.use(express.static(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend')));
 app.use(bodyParser.urlencoded({ extended: true }));
 // Apply Helmet with CSP
 // Use Helmet to enforce CSP
-app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'", "*.railway.app", "https://balaji-electricals.netlify.app"],
-      scriptSrc: [
-        "'self'",
-        "'unsafe-inline'",  // Allows inline scripts (be cautious with this)
-        "*.railway.app",
-        "https://balaji-electricals.netlify.app",
-        "https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"
-      ],
-      styleSrc: [
-        "'self'",
-        "https://fonts.googleapis.com",
-        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-      ],
-      fontSrc: [
-        "'self'",
-        "https://fonts.gstatic.com"
-      ],
-      imgSrc: ["'self'", "data:", "*.railway.app", "https://balaji-electricals.netlify.app"],
-      connectSrc: [
-        "'self'",
-        "*.railway.app",  // Allow backend connections
-        "https://balaji-electricals-website-production.up.railway.app",
-        "https://ajax.googleapis.com"
-      ],
-      frameSrc: ["'none'"],
-      objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],
-      reportUri: "/csp-violation-report"
-    },
-    reportOnly: false
-  })
-);
+app.use(helmet())
 
 const tokens = new csrf();
 
