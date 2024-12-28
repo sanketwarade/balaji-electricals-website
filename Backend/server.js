@@ -53,7 +53,10 @@ app.use(
         "https://fonts.gstatic.com"
       ],
       imgSrc: ["'self'", "data:", "*.railway.app", "https://balaji-electricals.netlify.app"],
-      connectSrc: ["'self'", "*.railway.app"],
+      connectSrc: [
+        "'self'",
+        "https://balaji-electricals-website-production.up.railway.app"
+      ],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],
