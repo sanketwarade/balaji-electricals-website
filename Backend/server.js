@@ -327,58 +327,24 @@ app.post('/submit-Enquiryform', [
       console.log('CSRF verification failed');
       return res.status(403).json({ error: 'Invalid CSRF token' });
     }
-    console.log('Form Data:', req.body);
+    console.log('Received Data:', req.body);
+
+    const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log('Validation Errors:', errors.array());
+    return res.status(400).json({ errors: errors.array() });
+  }
   
   const { formType, name, email, phone, subject } = req.body;
 
-  let errors = [];
-
-  // *Validate Name*
-  if (!name || name.trim() === '') {
-    errors.push('Name is required.');
-  } else if (!validator.isLength(name, { min: 2, max: 50 })) {
-    errors.push('Name must be between 2 and 50 characters.');
-  }
-
-  // *Validate Email*
-  if (!email || !validator.isEmail(email)) {
-    errors.push('A valid email address is required.');
-  }
-
-  // *Validate Phone*
-  if (!phone || !validator.isMobilePhone(phone, 'en-IN')) {
-    errors.push('A valid 10-digit phone number is required.');
-  }
-
-  // *Validate Subject*
-  if (!subject || subject.trim().length < 10 || subject.trim().length > 200) {
-    errors.push('Subject must be between 10 and 200 characters.');
-  }
-
-  // If there are validation errors, return them
-  if (errors.length > 0) {
-    return res.status(400).json({ success: false, errors });
-  }
-
-
-
-  // Sanitize Inputs
-  const sanitizedInputs = {
-    name: validator.escape(name),
-    email: validator.escape(email),
-    phone: validator.escape(phone),
-    subject: validator.escape(subject),
-  };
-
+  
   // Save data to MySQL
-  const query = 'INSERT INTO enquiries (form_type, name, email, phone, subject) VALUES (?, ?, ?, ?)';
-  const values = [sanitizedInputs.name, sanitizedInputs.email, sanitizedInputs.phone, sanitizedInputs.subject];
+  const query = 'INSERT INTO enquiries (form_type, name, email, phone, subject) VALUES (?, ?, ?, ?, ?)';
 
-  pool.query(query, values, (err, result) => {
-    if (err) {
-      console.error('Error inserting data:', err);
-      return res.status(500).send('Error saving data');
-    }
+  pool.execute(
+    'INSERT INTO enquiries (form_type, name, email, phone, subject) VALUES (?, ?, ?, ?, ?)',
+    [formType, name, email, phone,  subject]
+  );
 
     // Send confirmation email to the user
     const userMail = {
@@ -412,7 +378,7 @@ app.post('/submit-Enquiryform', [
     // Send success response
     res.status(200).send('Enquiry submitted successfully');
   });
-});
+
 
 
 // Maintenance Mode Check
