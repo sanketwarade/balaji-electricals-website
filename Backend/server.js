@@ -65,7 +65,7 @@ app.use(
       upgradeInsecureRequests: [],
       reportUri: "/csp-violation-report"
     },
-    reportOnly: true
+    reportOnly: false
   })
 );
 
