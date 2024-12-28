@@ -85,7 +85,7 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 24,  // Session valid for 1 day
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',  // Secure cookie in production
-    sameSite: 'Strict'  // Ensure CSRF cookie can work cross-origin
+    sameSite: 'None'  // Ensure CSRF cookie can work cross-origin
   }
 }));
 
