@@ -161,7 +161,15 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
   `;
   pool.execute(
     'INSERT INTO custom_solutions (form_type, name, email, phone, machine_type, description) VALUES (?, ?, ?, ?, ?, ?)',
-    [formType, name, email, phone, machineType, description]
+    [formType, name, email, phone, machineType, description],
+    (err, result) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      console.log('Data inserted into database:', result);
+    }
+  
   );
 
     const userMail = {
@@ -318,6 +326,8 @@ app.post('/submit-Enquiryform', [
     const csrfSecret = req.session.csrfSecret;
     console.log('Received CSRF token:', csrfToken);  // Log received token
     console.log('Stored CSRF secret:', csrfSecret);  // Log stored token
+    console.log('Received CSRF token:', csrfToken);  // Log received token
+  console.log('Stored CSRF secret:', csrfSecret); 
     
     if (!csrfToken) {
       return res.status(400).json({ error: 'CSRF token missing' });
@@ -343,13 +353,20 @@ app.post('/submit-Enquiryform', [
 
   pool.execute(
     'INSERT INTO enquiries (form_type, name, email, phone, subject) VALUES (?, ?, ?, ?, ?)',
-    [formType, name, email, phone,  subject]
+    [formType, name, email, phone,  subject],
+    (err, result) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      console.log('Data inserted into database:', result);
+    }
   );
 
     // Send confirmation email to the user
     const userMail = {
       from: process.env.SENDGRID_SENDER_EMAIL,
-      to: sanitizedInputs.email,
+      to: req.body.email,
       subject: 'Thank you for your enquiry!',
       text: `Dear ${name},\n\nThank you for reaching out to BALAJI ELECTRICALS. We will get back to you soon.\n\nBest regards,\nBALAJI ELECTRICALS`,
     };
