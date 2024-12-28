@@ -462,7 +462,7 @@ function validateEmail(email) {
   return re.test(String(email).toLowerCase());
 }
 
-// Send Notifications (Async/Await for Pool)
+// Send Notifications 
 async function sendNotifications() {
   const selectQuery = 'SELECT email FROM notify_emails WHERE notified = false';
 
