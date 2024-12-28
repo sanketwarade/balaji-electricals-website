@@ -411,7 +411,7 @@ app.use((req, res, next) => {
 
 // HTML Page Routes
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend', 'index.html'));
+  res.sendFile(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend', 'maintenance.html'));
 });
 
 // 404 Page
@@ -486,7 +486,7 @@ async function markAsNotified(email) {
 }
 
 // Countdown Timer for Sending Notifications
-const maintenanceEndDate = new Date("2024-12-29T00:55:59");
+const maintenanceEndDate = new Date("2024-12-29T01:03:59");
 const timeUntilEnd = maintenanceEndDate - new Date();
 
 if (timeUntilEnd > 0) {
