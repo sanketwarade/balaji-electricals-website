@@ -56,6 +56,7 @@ app.use(
       imgSrc: ["'self'", "data:", "*.railway.app", "https://balaji-electricals.netlify.app"],
       connectSrc: [
         "'self'",
+        "*.railway.app",  // Allow backend connections
         "https://balaji-electricals-website-production.up.railway.app",
         "https://ajax.googleapis.com"
       ],
