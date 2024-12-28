@@ -687,7 +687,6 @@
               let csrfRetryCount = 0; // Track retry attempts
                 // Fetch CSRF token on page load and store it in localStorage
                 $(document).ready(function () {
-                  // Fetch CSRF token on page load
                   fetchCsrfToken();
                 });
                 // Function to fetch CSRF token
@@ -725,7 +724,7 @@
 
 
                   // AJAX Form Submission with Custom Header
-                $("#solutionForm").submit(function (e) {
+                $("#Enquiryform").submit(function (e) {
                   e.preventDefault();
 
 
@@ -737,10 +736,12 @@
                         phone: $('#phone').val(),
                        subject: $('#subject').val(),
                       };
+
                       if (!validateForm(formData)) return;
                       const csrfToken = localStorage.getItem("csrfToken");
-                  console.log("Sending CSRF token:", csrfToken);
-                  submitForm(formData, csrfToken);
+                      console.log("Sending CSRF token:", csrfToken);
+                      
+                      submitForm(formData, csrfToken);
                 });
                  // Form Validation
                  function validateForm({
