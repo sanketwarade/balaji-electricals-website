@@ -199,11 +199,6 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
       res.status(200).send({ success: true, message: 'Form submitted successfully!' });
   });
 
-
-
-
-
-
 // POST endpoint to handle form submission (Quote Form)
 app.post('/submit-quoteForm', [
   body('name').trim().escape().isLength({ min: 2, max: 50 }),
@@ -213,7 +208,20 @@ app.post('/submit-quoteForm', [
 ], 
 
   (req, res) => {
-    const { name, company, contact, email, machines, message } = req.body;
+    const csrfToken = req.headers['x-csrf-token'];
+    const csrfSecret = req.session.csrfSecret;
+    console.log('Received CSRF token:', csrfToken);  // Log received token
+    console.log('Stored CSRF secret:', csrfSecret);  // Log stored token
+    
+    if (!csrfToken) {
+      return res.status(400).json({ error: 'CSRF token missing' });
+    }
+    
+    if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
+      console.log('CSRF verification failed');
+      return res.status(403).json({ error: 'Invalid CSRF token' });
+    }
+    const { formType, name, company, contact, email, machines, message } = req.body;
     // Log received data for debugging
     console.log('Received Data:', req.body);  // Log received data on backend
   // Ensure company is not undefined or null
@@ -306,8 +314,22 @@ app.post('/submit-Enquiryform', [
   body('phone').isMobilePhone('en-IN'),
   body('subject').trim().escape().isLength({ min: 10, max: 200 }),
 ],  (req, res) => {
-  const { name, email, phone, subject } = req.body;
-  console.log('Request received:', req.body);
+  const csrfToken = req.headers['x-csrf-token'];
+    const csrfSecret = req.session.csrfSecret;
+    console.log('Received CSRF token:', csrfToken);  // Log received token
+    console.log('Stored CSRF secret:', csrfSecret);  // Log stored token
+    
+    if (!csrfToken) {
+      return res.status(400).json({ error: 'CSRF token missing' });
+    }
+    
+    if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
+      console.log('CSRF verification failed');
+      return res.status(403).json({ error: 'Invalid CSRF token' });
+    }
+    console.log('Form Data:', req.body);
+  
+  const { formType, name, email, phone, subject } = req.body;
 
   let errors = [];
 
@@ -349,7 +371,7 @@ app.post('/submit-Enquiryform', [
   };
 
   // Save data to MySQL
-  const query = 'INSERT INTO enquiries (name, email, phone, subject) VALUES (?, ?, ?, ?)';
+  const query = 'INSERT INTO enquiries (form_type, name, email, phone, subject) VALUES (?, ?, ?, ?)';
   const values = [sanitizedInputs.name, sanitizedInputs.email, sanitizedInputs.phone, sanitizedInputs.subject];
 
   pool.query(query, values, (err, result) => {
