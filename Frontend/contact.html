@@ -743,13 +743,7 @@
 
                       submitForm(formData, csrfToken);
                 });
-                 // Form Validation
-                 function validateForm({
-                  name,
-                  email,
-                  phone,
-                  subject,
-                }) {
+                 
                     // Form Validation
       function validateForm({ name, email, phone, subject }) {
         let isValid = true;
@@ -871,7 +865,7 @@
                   document.querySelector('.hamburger').style.display = 'block';  // Show hamburger when menu closes
                   document.querySelector('.close-btn').style.opacity = '0';  // Hide close button
               }
-            };
+            
              
     </script>
   </body>
