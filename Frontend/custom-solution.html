@@ -2,6 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta
+      name="description"
+      content="Request custom welding solutions and services from BALAJI ELECTRICALS, specializing in automation, control panels, and welding machine manufacturing."
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline' https://ajax.googleapis.com; object-src 'none';"
+    />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Request a Custom Solution</title>
     <script src="js/common.js"></script>
@@ -17,10 +26,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
     />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-    />
+
     <style>
       body {
         font-family: "Poppins", Arial, sans-serif;
@@ -430,6 +436,7 @@
             id="phone"
             name="phone"
             required
+            pattern="^\d{10}$"
             placeholder="Enter your phone number"
           />
         </div>
@@ -665,9 +672,6 @@
       $("#solutionForm").submit(function (e) {
         e.preventDefault();
 
-        // Ensure CSRF token is available before proceeding
-        const csrfToken = localStorage.getItem("csrfToken");
-        console.log("Sending CSRF token:", csrfToken); // Log the token
         const formData = {
           formType: "Custom Solution",
           name: $("#name").val(),
@@ -676,9 +680,46 @@
           "machine-type": $("#machine-type").val(),
           description: $("#description").val(),
         };
-        // Submit form via AJAX
+
+        if (!validateForm(formData)) return;
+
+        
+        const csrfToken = localStorage.getItem("csrfToken");
+        console.log("Sending CSRF token:", csrfToken);
         submitForm(formData, csrfToken);
       });
+
+      // Form Validation
+      function validateForm({
+        name,
+        email,
+        phone,
+        "machine-type": machineType,
+      }) {
+        if (!name || !email || !phone || !machineType) {
+          alert("Please fill in all required fields.");
+          return false;
+        }
+
+        if (!validateEmail(email)) {
+          alert("Invalid email format.");
+          return false;
+        }
+
+        if (!/^\d{10}$/.test(phone)) {
+          alert("Phone number must be 10 digits.");
+          return false;
+        }
+
+        return true;
+      }
+
+      // Email Validation Helper
+      function validateEmail(email) {
+        const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        return re.test(email);
+      }
+
       // AJAX Form Submission Function
       function submitForm(formData, csrfToken) {
         $.ajax({
