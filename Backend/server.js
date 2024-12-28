@@ -45,20 +45,24 @@ app.use(
       ],
       styleSrc: [
         "'self'",
+        "https://fonts.googleapis.com",
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
       ],
-      fontSrc: ["'self'", "https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"],
+      fontSrc: [
+        "'self'",
+        "https://fonts.gstatic.com"
+      ],
       imgSrc: ["'self'", "data:", "*.railway.app", "https://balaji-electricals.netlify.app"],
       connectSrc: ["'self'", "*.railway.app"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],  // Automatically upgrade HTTP to HTTPS
-      reportUri: "/csp-violation-report" // Path for violation reports
+      upgradeInsecureRequests: [],
+      reportUri: "/csp-violation-report"
     },
-    // Uncomment for testing mode (reporting only)
-     reportOnly: true
+    reportOnly: true
   })
 );
+
 
 // Serve the main site or redirect to live frontend URL
 app.get('/', (req, res) => {
