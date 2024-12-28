@@ -399,7 +399,7 @@ app.post('/submit-Enquiryform', [
 
 
 // Maintenance Mode Check
-const isMaintenance = process.env.MAINTENANCE_MODE === 'false';
+const isMaintenance = process.env.MAINTENANCE_MODE === 'true';
 
 app.use((req, res, next) => {
   if (isMaintenance && req.path !== '/maintenance.html' && !req.path.startsWith('/api')) {
@@ -486,7 +486,7 @@ async function markAsNotified(email) {
 }
 
 // Countdown Timer for Sending Notifications
-const maintenanceEndDate = new Date("2024-12-28T17:50:59");
+const maintenanceEndDate = new Date("2024-12-29T00:55:59");
 const timeUntilEnd = maintenanceEndDate - new Date();
 
 if (timeUntilEnd > 0) {
