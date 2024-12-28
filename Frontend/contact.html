@@ -479,7 +479,7 @@
 
       <div class="form-container">
         <h2>Enquiry Form</h2>
-        <form id="Enquiryform">
+        <form id="Enquiryform" action="/submit-Enquiryform" method="POST">
           <label for="name">Full Name*</label>
           <input
             type="text"
@@ -740,7 +740,7 @@
                       if (!validateForm(formData)) return;
                       const csrfToken = localStorage.getItem("csrfToken");
                       console.log("Sending CSRF token:", csrfToken);
-                      
+
                       submitForm(formData, csrfToken);
                 });
                  // Form Validation
