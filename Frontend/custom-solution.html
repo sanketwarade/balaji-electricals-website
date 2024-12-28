@@ -6,18 +6,67 @@
       name="description"
       content="Request custom welding solutions and services from BALAJI ELECTRICALS, specializing in automation, control panels, and welding machine manufacturing."
     />
-    <meta
-    http-equiv="Content-Security-Policy"
-    content="
-      default-src 'self'; 
-      img-src 'self' data:; 
-      script-src 'self' 'unsafe-inline' https://ajax.googleapis.com; 
-      style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
-      font-src 'self' https://fonts.gstatic.com; 
-      connect-src 'self'https://balaji-electricals-website-production.up.railway.app; 
-      object-src 'none';
-    "
-  />
+    
+Using hashes or nonces for inline scripts and styles is the more secure approach compared to allowing 'unsafe-inline'. This method ensures that only specific inline scripts or styles that match the hash or nonce are allowed to execute, thus preventing potential malicious code injection.
+
+1. Using Hashes for Inline Scripts and Styles
+Hashes allow only inline scripts or styles that exactly match the hash to execute. Here's how you can implement it:
+
+Steps:
+Generate the hash for your inline script: Use a hashing algorithm (like SHA-256) to generate a hash for your inline scripts or styles.
+Add the hash to your CSP: Include the hash in the script-src or style-src directives.
+Example for Inline Script Hashing:
+Assuming you have an inline script with the following code:
+
+html
+Copy code
+<script>
+  console.log('Hello, World!');
+</script>
+To add a hash for this script:
+
+Use a tool or command to generate the SHA-256 hash of the script content (you can use sha256sum or a web-based tool).
+The hash will look something like this: sha256-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.
+Now, update your CSP like this:
+
+html
+Copy code
+<meta
+  http-equiv="Content-Security-Policy"
+  content="
+    default-src 'self'; 
+    script-src 'self' sha256-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx https://ajax.googleapis.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
+    font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+    connect-src 'self' https://balaji-electricals-website-production.up.railway.app;
+    object-src 'none';
+  "
+/>
+The script with that specific hash will be allowed, and all other inline scripts will be blocked.
+
+Example for Inline Styles Hashing:
+If you have inline styles like:
+
+html
+Copy code
+<style>
+  body { background-color: #f0f0f0; }
+</style>
+Generate the hash for the content and include it in your CSP like:
+
+html
+Copy code
+<meta
+  http-equiv="Content-Security-Policy"
+  content="
+    default-src 'self'; 
+    script-src 'self' sha256-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx https://ajax.googleapis.com;
+    style-src 'self' sha256-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx https://fonts.googleapis.com https://cdnjs.cloudflare.com;
+    font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+    connect-src 'self' https://balaji-electricals-website-production.up.railway.app;
+    object-src 'none';
+  "
+/>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Request a Custom Solution</title>
