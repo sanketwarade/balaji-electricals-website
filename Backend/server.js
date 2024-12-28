@@ -10,6 +10,7 @@ const validator = require('validator');
 const { body, validationResult } = require('express-validator');
 const helmet = require('helmet'); // New: Secure HTTP headers
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -28,8 +29,47 @@ app.set('trust proxy', 1); // This allows Express to trust the X-Forwarded-For h
 
 app.use(bodyParser.json());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend')));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(helmet());
+// Apply Helmet with CSP
+// Use Helmet to enforce CSP
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'", "*.railway.app", "https://balaji-electricals.netlify.app"],
+      scriptSrc: [
+        "'self'",
+        "*.railway.app",
+        "https://balaji-electricals.netlify.app",
+        "https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+      ],
+      styleSrc: [
+        "'self'",
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      ],
+      fontSrc: ["'self'", "https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"],
+      imgSrc: ["'self'", "data:", "*.railway.app", "https://balaji-electricals.netlify.app"],
+      connectSrc: ["'self'", "*.railway.app"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],  // Automatically upgrade HTTP to HTTPS
+      reportUri: "/csp-violation-report" // Path for violation reports
+    },
+    // Uncomment for testing mode (reporting only)
+     reportOnly: true
+  })
+);
+
+// Serve the main site or redirect to live frontend URL
+app.get('/', (req, res) => {
+  res.redirect('https://balaji-electricals.netlify.app');  // Redirect to live frontend
+});
+
+// Handle CSP Violation Reports
+app.post('/csp-violation-report', express.json(), (req, res) => {
+  console.log('CSP Violation Reported:', req.body);
+  res.status(204).end();  // Respond with No Content
+});
 
 const tokens = new csrf();
 
@@ -102,7 +142,7 @@ app.get('/csrf-token', (req, res) => {
   const csrfToken = tokens.create(csrfSecret);
   req.session.csrfSecret = csrfSecret;
   
-  res.json({ csrfToken, expiresIn: 24 * 60 * 60 });  // Send token and expiry to frontend
+  res.json({ csrfToken, expiresIn: req.session.cookie.maxAge / 1000 });
 });
 
 
@@ -155,10 +195,10 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
       (form_type, name, email, phone, machine_type, description) 
       VALUES (?, ?, ?, ?, ?, ?)
   `;
-  pool.query(query, [formType, name, email, phone, machineType, description], (err, result) => {
-    if (err) {
-        console.error('Error inserting data:', err)
-    }
+  pool.execute(
+    'INSERT INTO custom_solutions (form_type, name, email, phone, machine_type, description) VALUES (?, ?, ?, ?, ?, ?)',
+    [formType, name, email, phone, machineType, description]
+  );
 
     const userMail = {
       from: process.env.SENDGRID_SENDER_EMAIL,  // Must be verified on SendGrid
@@ -194,7 +234,7 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
       });
       res.status(200).send({ success: true, message: 'Form submitted successfully!' });
   });
-});
+
 
 
 
@@ -387,7 +427,107 @@ app.post('/submit-Enquiryform', [
     res.status(200).send('Enquiry submitted successfully');
   });
 });
-  
+
+
+// Maintenance Mode Check
+const isMaintenance = process.env.MAINTENANCE_MODE === 'false';
+
+app.use((req, res, next) => {
+  if (isMaintenance && req.path !== '/maintenance.html' && !req.path.startsWith('/api')) {
+    res.sendFile(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend', 'maintenance.html'));
+  } else {
+    next();
+  }
+});
+
+// HTML Page Routes
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend', 'index.html'));
+});
+
+// 404 Page
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend', '404.html'));
+});
+
+// Handle Email Submissions (Async/Await for Pool)
+app.post('/notify', async (req, res) => {
+  const { email } = req.body;
+
+  if (email && validateEmail(email)) {
+    const query = `INSERT INTO notify_emails (email) VALUES (?) 
+                   ON DUPLICATE KEY UPDATE email=email`;
+
+    try {
+      const [result] = await pool.execute(query, [email]);
+      res.status(200).send({ message: 'You will be notified!' });
+    } catch (err) {
+      console.error('Failed to insert email:', err);
+      res.status(500).send({ error: 'Database error' });
+    }
+  } else {
+    res.status(400).send({ error: 'Invalid email address' });
+  }
+});
+
+// Validate Email
+function validateEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(String(email).toLowerCase());
+}
+
+// Send Notifications (Async/Await for Pool)
+async function sendNotifications() {
+  const selectQuery = 'SELECT email FROM notify_emails WHERE notified = false';
+
+  try {
+    const [results] = await pool.execute(selectQuery);
+
+    const message = {
+      from: process.env.ADMIN_EMAIL,
+      subject: 'We are Back Online!',
+      text: 'Hello! Balaji Electricals is back online. Thank you for your patience.',
+      html: `<p>Hello! <b>Balaji Electricals</b> is now back online. Thank you for waiting!</p>`,
+    };
+
+    for (const row of results) {
+      message.to = row.email;
+      try {
+        await sgMail.send(message);
+        console.log(`Email sent to ${row.email}`);
+        await markAsNotified(row.email);
+      } catch (error) {
+        console.error(`Failed to send email to ${row.email}:`, error.toString());
+      }
+    }
+  } catch (err) {
+    console.error('Failed to fetch emails:', err);
+  }
+}
+
+// Mark Emails as Notified (Async)
+async function markAsNotified(email) {
+  const updateQuery = 'UPDATE notify_emails SET notified = true WHERE email = ?';
+
+  try {
+    await pool.execute(updateQuery, [email]);
+  } catch (err) {
+    console.error(`Failed to update notified status for ${email}`, err);
+  }
+}
+
+// Countdown Timer for Sending Notifications
+const maintenanceEndDate = new Date("2024-12-28T17:50:59");
+const timeUntilEnd = maintenanceEndDate - new Date();
+
+if (timeUntilEnd > 0) {
+  setTimeout(() => {
+    sendNotifications();
+    console.log('Maintenance ended. Notifications sent.');
+  }, timeUntilEnd);
+}
+
+
 // Start server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
