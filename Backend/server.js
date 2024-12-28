@@ -39,6 +39,7 @@ app.use(
       defaultSrc: ["'self'", "*.railway.app", "https://balaji-electricals.netlify.app"],
       scriptSrc: [
         "'self'",
+        "'unsafe-inline'",  // Allows inline scripts (be cautious with this)
         "*.railway.app",
         "https://balaji-electricals.netlify.app",
         "https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"
@@ -55,7 +56,8 @@ app.use(
       imgSrc: ["'self'", "data:", "*.railway.app", "https://balaji-electricals.netlify.app"],
       connectSrc: [
         "'self'",
-        "https://balaji-electricals-website-production.up.railway.app"
+        "https://balaji-electricals-website-production.up.railway.app",
+        "https://ajax.googleapis.com"
       ],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
@@ -65,18 +67,6 @@ app.use(
     reportOnly: true
   })
 );
-
-
-// Serve the main site or redirect to live frontend URL
-app.get('/', (req, res) => {
-  res.redirect('https://balaji-electricals.netlify.app');  // Redirect to live frontend
-});
-
-// Handle CSP Violation Reports
-app.post('/csp-violation-report', express.json(), (req, res) => {
-  console.log('CSP Violation Reported:', req.body);
-  res.status(204).end();  // Respond with No Content
-});
 
 const tokens = new csrf();
 
