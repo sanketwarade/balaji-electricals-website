@@ -223,25 +223,16 @@ app.post('/submit-quoteForm', [
   body('message').trim().escape().isLength({ min: 10, max: 200 }),
 ], 
   (req, res) => {
-    const csrfToken = req.headers['x-csrf-token'];
-    const csrfSecret = req.session.csrfSecret;
-    console.log('Received CSRF token:', csrfToken);  // Log received token
-    console.log('Stored CSRF secret:', csrfSecret); 
-    
-    if (!csrfToken) {
-      return res.status(400).json({ error: 'CSRF token missing' });
-    }
-    
-    if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
-      console.log('CSRF verification failed');
-      return res.status(403).json({ error: 'Invalid CSRF token' });
-    }
-    console.log('Received Data:', req.body);
-    const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    console.log('Validation Errors:', errors.array());
-    return res.status(400).json({ errors: errors.array() });
-  }
+    const csrfToken = req.headers['x-csrf-token'] || req.body.csrfToken;
+const csrfSecret = req.session.csrfSecret;
+
+console.log('Received CSRF token:', csrfToken);
+console.log('Stored CSRF secret:', csrfSecret);
+
+if (!csrfToken || !csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
+  console.log('CSRF verification failed');
+  return res.status(403).json({ error: 'Invalid or missing CSRF token' });
+}
     const { formType, name, company, contact, email, machines, message } = req.body;
     
   // Ensure company is not undefined or null
@@ -259,19 +250,13 @@ app.post('/submit-quoteForm', [
   const query = 'INSERT INTO quote_requests (name, company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?)';
   const values = [sanitizedInputs.name, companyValue, sanitizedInputs.phone, sanitizedInputs.email, JSON.stringify(machines), sanitizedInputs.message];
 
-  pool.execute(
-    'INSERT INTO enquiries (form_type, name, comany, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [formType, name, email, contact, company, machines, message],
-    (query, values,(err, result) => {
-      if (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({ error: 'Database error' });
-      }
-      console.log('Data inserted into database:', result);
+  pool.execute(query, values, (err, result) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: 'Database error' });
     }
-  )
-  );
-
+    console.log('Data inserted into database:', result);
+  });
     // Send email to user (confirmation)
     const userMail = {
       from: process.env.SENDGRID_SENDER_EMAIL,
@@ -301,10 +286,21 @@ app.post('/submit-quoteForm', [
       console.error('Error sending email to admin:', error);
     });
 
-    // Send success response
+    // Send emails only if database insertion succeeds
+  Promise.all([
+    sgMail.send(userMail).then(() => {
+      console.log('Confirmation email sent to user');
+    }),
+    sgMail.send(adminMail).then(() => {
+      console.log('Notification email sent to admin');
+    })
+  ]).then(() => {
     res.status(200).json({ message: 'Quote request submitted successfully' });
+  }).catch((error) => {
+    console.error('Error sending email:', error);
+    res.status(500).json({ error: 'Emails failed but data is stored' });
   });
- 
+});
 
 // POST endpoint to handle form submission (Enquiry Form)
 app.post('/submit-Enquiryform', [
