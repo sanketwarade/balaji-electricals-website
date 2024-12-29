@@ -674,208 +674,203 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
-        let csrfRetryCount = 0; // Track retry attempts
-
         // Fetch CSRF token on page load and store it in localStorage
         $(document).ready(function () {
             fetchCsrfToken();
-                });
-
-                function fetchCsrfToken() {
-                    fetch(
-                      "https://balaji-electricals-website-production.up.railway.app/csrf-token",
-                      {
-                        credentials: "include",
-                      }
-                    )
-
-                    .then((res) => {
-                        if (!res.ok) {
-                          // If response is not OK (status code outside of 2xx range), throw an error
-                          throw new Error("Failed to fetch CSRF token: " + res.statusText);
-                        }
-                        return res.json(); // Attempt to parse the response as JSON
-                    })
-                    .then((data) => {
-                        // Successfully received CSRF token
-                        localStorage.setItem("csrfToken", data.csrfToken);
-                        console.log(
-                          "Session is active, CSRF token fetched:",
-                          data.csrfToken
-                        );
-                        csrfRetryCount = 0; // Reset retry count after successful token fetch
-                    })
-                    .catch((err) => {
-                        // Handle any errors (network errors, failed JSON parsing, etc.)
-                        console.error(err);
-                        alert("Error fetching CSRF token. Please try again later.");
-                      });
-                    }
-                    // AJAX Form Submission with Custom Header
-                    $("#Enquiryform").submit(function (e) {
-                        e.preventDefault();
-
-                        // Get form field values
-                       // Prepare form data
-                        const formData = {
-                            formType:"quote",
-                            name: $('#name').val(),
-                            email: $('#email').val(),
-                            contact: $('#contact').val(),
-                            company:  $('#company').val(),
-                            machines:  $('#machines').val(),
-                            message: $('#message').val(),
-                        }
-                        if (!validateForm(formData)) return;
-                        const csrfToken = localStorage.getItem("csrfToken");
-                        console.log("Sending CSRF token:", csrfToken);
-
-                        submitForm(formData, csrfToken);
-                        });
-
-                        // Form Validation
-                        function validateForm({ name, email, contact, company,machines,message }) {
-                            let isValid = true;
-                            let errorMessage = '';
-
-                            // Name Validation (Non-empty, at least 3 characters)
-        if (!name || name.length < 3) {
-          errorMessage += "Name must be at least 3 characters long.\n";
-          isValid = false;
+        });
+    
+        function fetchCsrfToken() {
+            fetch(
+                "https://balaji-electricals-website-production.up.railway.app/csrf-token",
+                {
+                    credentials: "include",
+                }
+            )
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error("Failed to fetch CSRF token: " + res.statusText);
+                }
+                return res.json();
+            })
+            .then((data) => {
+                // Store token in localStorage
+                localStorage.setItem("csrfToken", data.csrfToken);
+                console.log("Session is active, CSRF token fetched:", data.csrfToken);
+                csrfRetryCount = 0;
+            })
+            .catch((err) => {
+                console.error(err);
+                alert("Error fetching CSRF token. Please try again later.");
+            });
         }
-
-                            // Email Validation (Format)
-        if (!validateEmail(email)) {
-          errorMessage += "Please enter a valid email address.\n";
-          isValid = false;
+    
+        // AJAX Form Submission with Custom Header
+        $("#Enquiryform").submit(function (e) {
+            e.preventDefault();
+    
+            const csrfToken = localStorage.getItem("csrfToken");
+            
+            // Debugging CSRF token
+            console.log("Stored CSRF Token (Before Submission):", csrfToken);
+    
+            if (!csrfToken) {
+                alert("CSRF token not found. Refreshing...");
+                fetchCsrfToken();
+                return;
+            }
+    
+            // Prepare form data
+            const formData = {
+                formType: "quote",
+                name: $('#name').val(),
+                email: $('#email').val(),
+                contact: $('#contact').val(),
+                company: $('#company').val(),
+                machines: $('#machines').val(),
+                message: $('#message').val(),
+            };
+    
+            if (!validateForm(formData)) return;
+    
+            // Debugging CSRF token before submission
+            console.log("Submitting with CSRF Token:", csrfToken);
+    
+            submitForm(formData, csrfToken);
+        });
+    
+        // Form Validation
+        function validateForm({ name, email, contact, company, machines, message }) {
+            let isValid = true;
+            let errorMessage = '';
+    
+            if (!name || name.length < 3) {
+                errorMessage += "Name must be at least 3 characters long.\n";
+                isValid = false;
+            }
+    
+            if (!validateEmail(email)) {
+                errorMessage += "Please enter a valid email address.\n";
+                isValid = false;
+            }
+    
+            if (!/^\d{10}$/.test(contact)) {
+                errorMessage += "Phone number must be exactly 10 digits.\n";
+                isValid = false;
+            }
+    
+            if (!company || company.length < 2) {
+                errorMessage += "Company name must be at least 2 characters long.\n";
+                $('#company').addClass('error-highlight');
+                isValid = false;
+            } else {
+                $('#company').removeClass('error-highlight');
+            }
+    
+            if (!message || message.length < 10) {
+                errorMessage += "Message must be at least 10 characters long.\n";
+                isValid = false;
+            }
+    
+            if (!machines || machines.length === 0) {
+                errorMessage += "Please select at least one machine or part.\n";
+                $('#machines').addClass('error-highlight');
+                isValid = false;
+            } else {
+                $('#machines').removeClass('error-highlight');
+            }
+    
+            if (!isValid) {
+                alert(errorMessage);
+            }
+            return isValid;
         }
-
-                             // Phone Validation (Exactly 10 digits)
-        if (!/^\d{10}$/.test(contact)) {
-          errorMessage += "Phone number must be exactly 10 digits.\n";
-          isValid = false;
-        }
-        // Company Validation (New)
-        if (!company || company.length < 2) {
-            errorMessage += "Company name must be at least 2 characters long.\n";
-            isValid = false;
-            $('#company').addClass('error-highlight');  // Highlight field on error
-        } else {
-            $('#company').removeClass('error-highlight'); // Remove highlight if valid
-        }
-
-        // Subject Validation (Minimum 10 characters)
-        if (!message || message.length < 10) {
-          errorMessage += "Message must be at least 10 characters long.\n";
-          isValid = false;
-        }
-        if (!machines || machines.length === 0) {
-            errorMessage += "Please select at least one machine or part.\n";
-            $('#machines').addClass('error-highlight');
-            isValid = false;
-        } else {
-            $('#machines').removeClass('error-highlight');
-        }
-        if (!isValid) {
-            alert(errorMessage);
-        }
-        return isValid;
-        }
-
+    
         // Email Validation Helper
         function validateEmail(email) {
-        const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-        return re.test(email);
+            const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+            return re.test(email);
         }
-
-                  
-                                  
-                  // AJAX Form Submission Function
-                    function submitForm(formData, csrfToken) {
-
-
-                    $.ajax({
-                      url: 'https://balaji-electricals-website-production.up.railway.app/submit-quoteForm',  // Your backend endpoint
-                      type: 'POST',
-                      data: JSON.stringify(formData),
-                      contentType: 'application/json',
-                      headers: {
-                        "X-CSRF-TOKEN": csrfToken, // Include CSRF token in headers
-                        },
-                        xhrFields: {
-                            withCredentials: true, // Ensure session cookie is sent
-                        },
-
-                        timeout: 10000,  // 10-second timeout for the request
-
-
-                        success: function(response) {
-                        alert('Form submitted successfully!');  // Show success message
-                        $('#quoteForm')[0].reset();  // Reset the form fields
-                       // Reset CSRF token field
-                      $('#successMessage').fadeIn();  // Optionally show a success message
-                      $('#errorMessage').fadeOut();  // Clear any previous error messages
-                      // Refresh CSRF token after successful form submission
-                  fetchCsrfToken();
-                   // Reload the page after form submission
-                  // Delay page reload by 1.5 seconds
-                  setTimeout(function () {
-                  location.reload();
-                  }, 1500); // 1500 ms (1.5 seconds)
-              },
-                  
-
-                  error: function(xhr, status, error) {
+    
+        // AJAX Form Submission Function
+        function submitForm(formData, csrfToken) {
+            $.ajax({
+                url: 'https://balaji-electricals-website-production.up.railway.app/submit-quoteForm',
+                type: 'POST',
+                data: JSON.stringify(formData),
+                contentType: 'application/json',
+                headers: {
+                    "X-CSRF-TOKEN": csrfToken  // Attach CSRF token
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                timeout: 10000,  // 10-second timeout
+    
+                beforeSend: function () {
+                    console.log("Form is being submitted with CSRF Token:", csrfToken);
+                },
+    
+                success: function (response) {
+                    alert('Form submitted successfully!');
+                    $('#Enquiryform')[0].reset();
+    
+                    // Refresh CSRF token after successful submission
+                    fetchCsrfToken();
+                    $('#successMessage').fadeIn();  // Optionally show a success message
+                    $('#errorMessage').fadeOut();  // Clear any previous error messages
+    
+                    // Delay page reload by 1.5 seconds
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1500);
+                },
+    
+                error: function (xhr, status, error) {
                     if (xhr.status === 403) {
-              console.warn("CSRF token expired, fetching new token...");
-
-              if (csrfRetryCount < 2) {
-                csrfRetryCount++;
-                fetchCsrfToken();
-
-                // Retry form submission with new token
-                setTimeout(() => {
-                  const newCsrfToken = localStorage.getItem("csrfToken");
-                  submitForm(formData, newCsrfToken);
-                }, 1000);
-              } else {
-                alert(
-                  "Failed to submit form after multiple attempts. Please try again later."
-                );
-                csrfRetryCount = 0;
-              }
-            } else {
-              console.error("Submission error:", xhr.responseText);
-              alert("Form submission failed. Please try again.");
-            }
-
-                      // Handle timeout error
-                      if (status === 'timeout') {
-                          alert('Request timed out. Please check your internet connection.');
-                      } else {
-                          // Log error details to console
-                          console.error('Error details:', error);
-                          console.log('Full Response:', xhr.responseText);  // Log entire server response
-
-                          // Show detailed error message
-                          $('#errorMessage').text(xhr.responseText || 'There was an error while submitting the form. Please try again later.').fadeIn();
-                      }
-                  }
-              });
-
-
-          function openMenu() {
-          document.getElementById('navbar').classList.add('active');
-          document.querySelector('.hamburger').style.display = 'none';  // Hide hamburger when menu opens
-          document.querySelector('.close-btn').style.opacity = '1';  // Show close button
-      }
-    }
-
-      function closeMenu() {
-          document.getElementById('navbar').classList.remove('active');
-          document.querySelector('.hamburger').style.display = 'block';  // Show hamburger when menu closes
-          document.querySelector('.close-btn').style.opacity = '0';  // Hide close button
-      }
+                        console.warn("CSRF token expired, fetching new token...");
+    
+                        if (csrfRetryCount < 2) {
+                            csrfRetryCount++;
+                            fetchCsrfToken();
+    
+                            // Retry form submission with new token
+                            setTimeout(() => {
+                                const newCsrfToken = localStorage.getItem("csrfToken");
+                                console.log("Retrying with new CSRF Token:", newCsrfToken);
+                                submitForm(formData, newCsrfToken);
+                            }, 1500);
+                        } else {
+                            alert("Failed to submit form after multiple attempts. Please try again later.");
+                            csrfRetryCount = 0;
+                        }
+                    } else {
+                        console.error("Submission error:", xhr.responseText);
+                        alert("Form submission failed. Please try again.");
+                    }
+    
+                    if (status === 'timeout') {
+                        alert('Request timed out. Please check your internet connection.');
+                    } else {
+                        console.error('Error details:', error);
+                        console.log('Full Response:', xhr.responseText);
+                        $('#errorMessage').text(xhr.responseText || 'Error submitting form. Please try again.').fadeIn();
+                    }
+                }
+            });
+        }
+    
+        // Mobile Menu Open
+        function openMenu() {
+            document.getElementById('navbar').classList.add('active');
+            document.querySelector('.hamburger').style.display = 'none';
+            document.querySelector('.close-btn').style.opacity = '1';
+        }
+    
+        // Mobile Menu Close
+        function closeMenu() {
+            document.getElementById('navbar').classList.remove('active');
+            document.querySelector('.hamburger').style.display = 'block';
+            document.querySelector('.close-btn').style.opacity = '0';
+        }
     </script>
-  </body>
-</html>
+    
