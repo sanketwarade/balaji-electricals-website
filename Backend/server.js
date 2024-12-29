@@ -86,7 +86,7 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 24,  // Session valid for 1 day
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',  // Secure cookie in production
-    sameSite: 'None'  // Ensure CSRF cookie can work cross-origin
+    sameSite: 'None'    // Ensure CSRF cookie can work cross-origin
   }
 }));
 
@@ -106,6 +106,9 @@ app.get('/csrf-token', (req, res) => {
   const csrfSecret = tokens.secretSync();
   const csrfToken = tokens.create(csrfSecret);
   req.session.csrfSecret = csrfSecret;
+
+  console.log("Generated CSRF Secret:", csrfSecret);
+  console.log("Generated CSRF Token:", csrfToken);
   
   res.json({ csrfToken, expiresIn: req.session.cookie.maxAge / 1000 });
 });
@@ -223,9 +226,7 @@ app.post('/submit-quoteForm', [
     const csrfToken = req.headers['x-csrf-token'];
     const csrfSecret = req.session.csrfSecret;
     console.log('Received CSRF token:', csrfToken);  // Log received token
-    console.log('Stored CSRF secret:', csrfSecret);  // Log stored token
-    console.log('Received CSRF token:', csrfToken);  // Log received token
-  console.log('Stored CSRF secret:', csrfSecret); 
+    console.log('Stored CSRF secret:', csrfSecret); 
     
     if (!csrfToken) {
       return res.status(400).json({ error: 'CSRF token missing' });
