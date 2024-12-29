@@ -136,8 +136,6 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
   console.log('CSRF verification failed');
   return res.status(403).json({ error: 'Invalid CSRF token' });
 }
- 
-
   console.log('Form Data:', req.body);
 
   const errors = validationResult(req);
@@ -153,28 +151,34 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
   if (!machineType) {
     return res.status(400).send({ success: false, message: 'Machine Type is required' });
   }
+  // Sanitize Inputs
+  const sanitizedInputs = {
+    name: validator.escape(name),
+    email: validator.escape(email),
+    phone: validator.escape(phone),
+    subject: validator.escape(machineType),
+    description: validator.escape(description)
+  };
 
-  const query = `
-      INSERT INTO custom_solutions 
-      (form_type, name, email, phone, machine_type, description) 
-      VALUES (?, ?, ?, ?, ?, ?)
-  `;
+
+  const query = `'INSERT INTO custom_solutions (form_type, name, email, phone, machine_type, description) VALUES (?, ?, ?, ?, ?, ?);''
+  `
+  const values = [sanitizedInputs.name, sanitizedInputs.email, sanitizedInputs.phone, sanitizedInputs.machineType,sanitizedInputs.description];
   pool.execute(
     'INSERT INTO custom_solutions (form_type, name, email, phone, machine_type, description) VALUES (?, ?, ?, ?, ?, ?)',
     [formType, name, email, phone, machineType, description],
-    (err, result) => {
+    (query, values,(err, result) => {
       if (err) {
         console.error('Database error:', err);
         return res.status(500).json({ error: 'Database error' });
       }
       console.log('Data inserted into database:', result);
     }
-  
+  )
   );
-
     const userMail = {
       from: process.env.SENDGRID_SENDER_EMAIL,  // Must be verified on SendGrid
-      to: email, 
+      to: sanitizedInputs.email, 
       subject: 'Custom Solution Request Received',
       text: `Hello ${name},\n\nThank you for requesting a custom solution.\nWe will get back to you shortly.`
     };
@@ -214,12 +218,13 @@ app.post('/submit-quoteForm', [
   body('contact').isMobilePhone('en-IN'),
   body('message').trim().escape().isLength({ min: 10, max: 200 }),
 ], 
-
   (req, res) => {
     const csrfToken = req.headers['x-csrf-token'];
     const csrfSecret = req.session.csrfSecret;
     console.log('Received CSRF token:', csrfToken);  // Log received token
     console.log('Stored CSRF secret:', csrfSecret);  // Log stored token
+    console.log('Received CSRF token:', csrfToken);  // Log received token
+  console.log('Stored CSRF secret:', csrfSecret); 
     
     if (!csrfToken) {
       return res.status(400).json({ error: 'CSRF token missing' });
@@ -229,40 +234,17 @@ app.post('/submit-quoteForm', [
       console.log('CSRF verification failed');
       return res.status(403).json({ error: 'Invalid CSRF token' });
     }
+    console.log('Received Data:', req.body);
+    const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log('Validation Errors:', errors.array());
+    return res.status(400).json({ errors: errors.array() });
+  }
     const { formType, name, company, contact, email, machines, message } = req.body;
-    // Log received data for debugging
-    console.log('Received Data:', req.body);  // Log received data on backend
+    
   // Ensure company is not undefined or null
   const companyValue = company || ''; // Default to empty string if company is undefined
-   // Initialize an error message array
-   let errors = [];
-   // *Validate Name*
-   if (!name || name.trim() === '') {
-    errors.push('Name is required.');
-  } else if (!validator.isLength(name, { min: 2, max: 50 })) {
-    errors.push('Name must be between 2 and 50 characters.');
-  }
-
-  // *Validate Email*
-  if (!email || !validator.isEmail(email)) {
-    errors.push('A valid email address is required.');
-  }
-
-  // *Validate Phone*
-  if (!contact || !validator.isMobilePhone(contact, 'en-IN')) {
-    errors.push('A valid 10-digit phone number is required.');
-  }
-
-  // *Validate Subject*
-  if (!message || message.trim().length < 10 || message.trim().length > 200) {
-    errors.push('message must be between 10 and 200 characters.');
-  }
-
-  // If there are validation errors, return them
-  if (errors.length > 0) {
-    return res.status(400).json({ success: false, errors });
-  }
-
+  
   // Sanitize Inputs
   const sanitizedInputs = {
     name: validator.escape(name),
@@ -275,11 +257,18 @@ app.post('/submit-quoteForm', [
   const query = 'INSERT INTO quote_requests (name, company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?)';
   const values = [sanitizedInputs.name, companyValue, sanitizedInputs.phone, sanitizedInputs.email, JSON.stringify(machines), sanitizedInputs.message];
 
-  pool.query(query, values, (err, result) => {
-    if (err) {
-      console.error('Error inserting data into database:', err);
-      return res.status(500).json({ message: 'Error saving data to database' });
+  pool.execute(
+    'INSERT INTO enquiries (form_type, name, comany, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [formType, name, email, contact, company, machines, message],
+    (query, values,(err, result) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      console.log('Data inserted into database:', result);
     }
+  )
+  );
 
     // Send email to user (confirmation)
     const userMail = {
@@ -313,7 +302,7 @@ app.post('/submit-quoteForm', [
     // Send success response
     res.status(200).json({ message: 'Quote request submitted successfully' });
   });
-  });
+ 
 
 // POST endpoint to handle form submission (Enquiry Form)
 app.post('/submit-Enquiryform', [
@@ -347,26 +336,36 @@ app.post('/submit-Enquiryform', [
   
   const { formType, name, email, phone, subject } = req.body;
 
+  // Sanitize Inputs
+  const sanitizedInputs = {
+    name: validator.escape(name),
+    email: validator.escape(email),
+    phone: validator.escape(phone),
+    subject: validator.escape(subject),
+  };
+
   
   // Save data to MySQL
   const query = 'INSERT INTO enquiries (form_type, name, email, phone, subject) VALUES (?, ?, ?, ?, ?)';
+  const values = [sanitizedInputs.name, sanitizedInputs.email, sanitizedInputs.phone, sanitizedInputs.subject];
 
   pool.execute(
     'INSERT INTO enquiries (form_type, name, email, phone, subject) VALUES (?, ?, ?, ?, ?)',
     [formType, name, email, phone,  subject],
-    (err, result) => {
+    (query, values,(err, result) => {
       if (err) {
         console.error('Database error:', err);
         return res.status(500).json({ error: 'Database error' });
       }
       console.log('Data inserted into database:', result);
     }
+  )
   );
 
     // Send confirmation email to the user
     const userMail = {
       from: process.env.SENDGRID_SENDER_EMAIL,
-      to: req.body.email,
+      to: sanitizedInputs.email,
       subject: 'Thank you for your enquiry!',
       text: `Dear ${name},\n\nThank you for reaching out to BALAJI ELECTRICALS. We will get back to you soon.\n\nBest regards,\nBALAJI ELECTRICALS`,
     };
@@ -399,7 +398,7 @@ app.post('/submit-Enquiryform', [
 
 
 // Maintenance Mode Check
-const isMaintenance = process.env.MAINTENANCE_MODE === 'true';
+const isMaintenance = process.env.MAINTENANCE_MODE === 'false';
 
 app.use((req, res, next) => {
   if (isMaintenance && req.path !== '/maintenance.html' && !req.path.startsWith('/api')) {
