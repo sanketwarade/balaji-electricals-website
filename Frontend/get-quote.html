@@ -709,6 +709,7 @@
             e.preventDefault();
     
             const csrfToken = localStorage.getItem("csrfToken");
+            console.log('Sending CSRF Token:', csrfToken);  // Check before sendin
             
             // Debugging CSRF token
             console.log("Stored CSRF Token (Before Submission):", csrfToken);
@@ -728,6 +729,7 @@
                 company: $('#company').val(),
                 machines: $('#machines').val(),
                 message: $('#message').val(),
+                csrfToken  // Include CSRF token
             };
     
             if (!validateForm(formData)) return;
