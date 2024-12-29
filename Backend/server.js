@@ -94,10 +94,10 @@ app.use(session({
 
 // CORS Configuration
 app.use((req, res, next) => {
-  res.setheader('Access-Control-Allow-Origin', 'https://balajielectricals.netlify.app');
-  res.setheader('Access-Control-Allow-Credentials', 'true');
-  res.setheader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.setheader('Access-Control-Allow-Headers', 'Content-Type, X-CSRF-TOKEN');
+  res.setHeader('Access-Control-Allow-Origin', 'https://balajielectricals.netlify.app');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-CSRF-TOKEN');
   next();
 });
 
