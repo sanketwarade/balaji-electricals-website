@@ -680,8 +680,6 @@
         $(document).ready(function () {
             fetchCsrfToken();
                 });
-                // Function to fetch CSRF token
-                // Function to fetch CSRF token
 
                 function fetchCsrfToken() {
                     fetch(
@@ -736,7 +734,7 @@
                         });
 
                         // Form Validation
-                        function validateForm({ name, email, phone, subject }) {
+                        function validateForm({ name, email, contact, company,machines,message }) {
                             let isValid = true;
                             let errorMessage = '';
 
@@ -791,7 +789,7 @@
         }
 
                   
-                  console.log('Company Value:', company);  // Log company value before AJAX
+                                  
                   // AJAX Form Submission Function
                     function submitForm(formData, csrfToken) {
 
@@ -802,18 +800,18 @@
                       data: JSON.stringify(formData),
                       contentType: 'application/json',
                       headers: {
-              "X-CSRF-TOKEN": csrfToken, // Include CSRF token in headers
-              },
-              xhrFields: {
-                withCredentials: true, // Ensure session cookie is sent
-              },
+                        "X-CSRF-TOKEN": csrfToken, // Include CSRF token in headers
+                        },
+                        xhrFields: {
+                            withCredentials: true, // Ensure session cookie is sent
+                        },
 
-                      timeout: 10000,  // 10-second timeout for the request
+                        timeout: 10000,  // 10-second timeout for the request
 
 
-                      success: function(response) {
-                      alert('Form submitted successfully!');  // Show success message
-                      $('#quoteForm')[0].reset();  // Reset the form fields
+                        success: function(response) {
+                        alert('Form submitted successfully!');  // Show success message
+                        $('#quoteForm')[0].reset();  // Reset the form fields
                        // Reset CSRF token field
                       $('#successMessage').fadeIn();  // Optionally show a success message
                       $('#errorMessage').fadeOut();  // Clear any previous error messages
