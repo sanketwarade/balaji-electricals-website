@@ -31,7 +31,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend')));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(csrf({ cookie: true }));  // Use session, not cookies
+
 // Apply Helmet with CSP
 // Use Helmet to enforce CSP
 app.use(helmet())
