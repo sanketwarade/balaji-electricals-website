@@ -112,6 +112,13 @@ app.get('/csrf-token', (req, res) => {
   
   res.json({ csrfToken, expiresIn: req.session.cookie.maxAge / 1000 });
 });
+app.use((req, res, next) => {
+  if (!req.session.csrfSecret) {
+    req.session.csrfSecret = tokens.secretSync();
+    console.log("CSRF Secret Created for Session:", req.session.csrfSecret);
+  }
+  next();
+});
 
 
 
@@ -223,16 +230,22 @@ app.post('/submit-quoteForm', [
   body('message').trim().escape().isLength({ min: 10, max: 200 }),
 ], 
   (req, res) => {
-    const csrfToken = req.headers['x-csrf-token'] || req.body.csrfToken;
-const csrfSecret = req.session.csrfSecret;
-
-console.log('Received CSRF token:', csrfToken);
-console.log('Stored CSRF secret:', csrfSecret);
-
-if (!csrfToken || !csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
-  console.log('CSRF verification failed');
-  return res.status(403).json({ error: 'Invalid or missing CSRF token' });
-}
+    const csrfSecret = req.session.csrfSecret;
+    const tokenFromFrontend = req.headers['x-csrf-token'] || req.body.csrfToken;
+  
+    console.log("CSRF Secret from Session (Backend):", csrfSecret);
+    console.log("CSRF Token from Frontend:", tokenFromFrontend);
+  
+    if (!csrfSecret || !tokenFromFrontend) {
+      console.log("CSRF token missing.");
+      return res.status(400).json({ error: 'CSRF token missing' });
+    }
+  
+    if (!tokens.verify(csrfSecret, tokenFromFrontend)) {
+      console.log("CSRF Verification Failed.");
+      return res.status(403).json({ error: 'Invalid CSRF token' });
+    }
+      
     const { formType, name, company, contact, email, machines, message } = req.body;
     
   // Ensure company is not undefined or null
@@ -247,14 +260,16 @@ if (!csrfToken || !csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
   };
 
   // Save data to MySQL
-  const query = 'INSERT INTO quote_requests (name, company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?)';
-  const values = [sanitizedInputs.name, companyValue, sanitizedInputs.phone, sanitizedInputs.email, JSON.stringify(machines), sanitizedInputs.message];
+  const query = 'INSERT INTO quote_requests (form_type, name, company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  const values = [sanitizedInputs.name, companyValue, sanitizedInputs.contact, sanitizedInputs.email, JSON.stringify(machines), sanitizedInputs.message];
 
   pool.execute(query, values, (err, result) => {
+   
     if (err) {
       console.error('Database error:', err);
       return res.status(500).json({ error: 'Database error' });
     }
+    [formType, name, email, contact, company, machines, message]
     console.log('Data inserted into database:', result);
   });
     // Send email to user (confirmation)
