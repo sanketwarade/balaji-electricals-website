@@ -1,646 +1,883 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Get Quote</title>
     <script src="js/common.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Poppins', Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(to bottom, #f4f4f9, #dfe6e9);
-            color: #333;
+      body {
+        font-family: "Poppins", Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(to bottom, #f4f4f9, #dfe6e9);
+        color: #333;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #003366;
+        color: white;
+        padding: 15px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+      }
+
+      .logo img {
+        height: 40px;
+        margin-right: 10px;
+      }
+
+      .logo h1 {
+        font-size: 1.5rem;
+        margin: 0;
+        font-weight: bold;
+      }
+
+      nav {
+        display: flex;
+        gap: 20px;
+      }
+
+      nav a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1rem;
+        transition: color 0.3s ease;
+      }
+
+      nav a:hover {
+        color: #ffd700;
+      }
+
+      /* Hamburger Menu on the right */
+      .hamburger {
+        display: none; /* Hidden by default */
+        position: absolute;
+        top: 25px;
+        right: 10px;
+        z-index: 1100;
+        cursor: pointer;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .hamburger.active {
+        transform: rotate(90deg); /* Rotate the hamburger icon when active */
+      }
+
+      .hamburger i {
+        color: #fff;
+        font-size: 2rem;
+      }
+      /* Mobile menu */
+      #navbar {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 70%;
+        height: 100%;
+        background-color: #00264d;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        transition: right 0.3s ease;
+        z-index: 1000;
+        justify-content: flex-start; /* Align items at the top */
+        padding-top: 60px; /* Add space at the top to avoid overlapping with the header */
+      }
+
+      /* When the navbar is active, bring it into view */
+      #navbar.active {
+        right: 0;
+      }
+
+      #navbar a {
+        color: #fff;
+        font-size: 1rem;
+        font-weight: bold;
+        text-decoration: none;
+        margin: 10px 0;
+      }
+
+      #navbar a:hover {
+        color: #ffd700;
+      }
+
+      /* Close button inside the menu */
+      .close-btn {
+        align-self: flex-end;
+        font-size: 1.5rem;
+        color: #fff;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+      }
+      #navbar.active .close-btn {
+        opacity: 1; /* Fade in the close button when menu is active */
+      }
+
+      /* Media Queries for Mobile */
+      @media (max-width: 768px) {
+        .hamburger {
+          display: block; /* Show hamburger menu only on small screens */
         }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #003366;
-            color: white;
-            padding: 15px 20px;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        nav.desktop-nav {
+          display: none; /* Hide navigation links on mobile */
         }
+      }
 
-        .logo {
-            display: flex;
-            align-items: center;
-        }
+      section {
+        max-width: 700px;
+        margin: 30px auto;
+        background: white;
+        border-radius: 12px;
+        padding: 25px 30px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
 
-        .logo img {
-            height: 40px;
-            margin-right: 10px;
-        }
+      section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+      }
 
-        .logo h1 {
-            font-size: 1.5rem;
-            margin: 0;
-            font-weight: bold;
-        }
+      h2 {
+        text-align: center;
+        color: #003366;
+        margin-bottom: 20px;
+      }
 
+      form {
+        display: flex;
+        flex-direction: column;
+      }
+
+      label {
+        margin-top: 15px;
+        font-weight: bold;
+      }
+
+      input,
+      textarea,
+      select {
+        margin-top: 8px;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 16px;
+        width: 100%;
+      }
+
+      textarea {
+        resize: vertical;
+      }
+
+      button {
+        margin-top: 25px;
+        padding: 12px;
+        background: #003366;
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.2s ease;
+      }
+
+      button:hover {
+        background: #1e90ff;
+        transform: scale(1.02);
+      }
+
+      .success,
+      .error {
+        margin-top: 20px;
+        text-align: center;
+        display: none;
+      }
+
+      .success {
+        color: green;
+        font-weight: bold;
+      }
+
+      .error {
+        color: red;
+        font-weight: bold;
+      }
+
+      .error-highlight {
+        border: 2px solid red;
+        }  
+
+      footer {
+        background: #003366;
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+
+      footer a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.3s ease;
+      }
+
+      footer a:hover {
+        color: #ffd700;
+      }
+
+      select[multiple] {
+        height: auto;
+        min-height: 100px;
+        background: #f9f9f9;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+      .error-highlight {
+        border: 2px solid red;
+      }
+      /* Media Queries for Responsive Design */
+
+      /* Tablets and small devices */
+      @media (max-width: 1024px) {
+        header,
+        footer,
         nav {
-            display: flex;
-            gap: 20px;
+          flex-wrap: wrap;
+          justify-content: center;
+          text-align: center;
         }
 
         nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1rem;
-            transition: color 0.3s ease;
+          margin: 5px;
         }
-
-        nav a:hover {
-            color: #FFD700;
-        }
-        
-        /* Hamburger Menu on the right */
-        .hamburger {
-    display: none; /* Hidden by default */
-    position: absolute;
-    top: 25px;
-    right: 10px;
-    z-index: 1100;
-    cursor: pointer;
-    transition: transform 0.3s ease-in-out;
-}
-
-.hamburger.active {
-    transform: rotate(90deg); /* Rotate the hamburger icon when active */
-}
-
-.hamburger i {
-    color: #fff;
-    font-size: 2rem;
-}
-/* Mobile menu */
-#navbar {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    width: 70%;
-    height: 100%;
-    background-color: #00264d;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-    transition: right 0.3s ease;
-    z-index: 1000;
-    justify-content: flex-start; /* Align items at the top */
-    padding-top: 60px; /* Add space at the top to avoid overlapping with the header */
-}
-
-/* When the navbar is active, bring it into view */
-#navbar.active {
-    right: 0;
-}
-
-#navbar a {
-    color: #fff;
-    font-size: 1rem;
-    font-weight: bold;
-    text-decoration: none;
-    margin: 10px 0;
-}
-
-#navbar a:hover {
-    color: #FFD700;
-}
-
-/* Close button inside the menu */
-.close-btn {
-    align-self: flex-end;
-    font-size: 1.5rem;
-    color: #fff;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-}
-#navbar.active .close-btn {
-    opacity: 1; /* Fade in the close button when menu is active */
-}
-
- /* Media Queries for Mobile */
-@media (max-width: 768px) {
-    .hamburger {
-        display: block; /* Show hamburger menu only on small screens */
-    }
-
-    nav.desktop-nav {
-        display: none; /* Hide navigation links on mobile */
-    }
-}
 
         section {
-            max-width: 700px;
-            margin: 30px auto;
-            background: white;
-            border-radius: 12px;
-            padding: 25px 30px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+          padding: 20px;
         }
 
-        section:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+        footer div {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+      }
+
+      /* Mobile devices (max-width 768px) */
+      @media (max-width: 768px) {
+        header {
+          flex-direction: column;
+          text-align: center;
         }
 
-        h2 {
-            text-align: center;
-            color: #003366;
-            margin-bottom: 20px;
+        .logo h1 {
+          font-size: 2rem;
+          margin: 10px 0;
         }
 
-        form {
-            display: flex;
-            flex-direction: column;
+        /* Add this rule to shift the logo left */
+        .logo {
+          margin-left: -80px; /* Adjust the value as needed */
         }
 
-        label {
-            margin-top: 15px;
-            font-weight: bold;
+        nav {
+          display: block;
+          text-align: center;
         }
 
-        input, textarea, select {
-            margin-top: 8px;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            width: 100%;
+        nav a {
+          display: block;
+          margin: 5px 0;
+          font-size: 1rem;
+        }
+        .hamburger {
+          order: 2; /* Keep the hamburger menu to the right */
+          margin-left: auto; /* Push it to the far end */
         }
 
-        textarea {
-            resize: vertical;
+        section {
+          margin: 10px;
+          padding: 15px;
         }
 
+        input,
+        textarea,
         button {
-            margin-top: 25px;
-            padding: 12px;
-            background: #003366;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.3s ease, transform 0.2s ease;
+          width: 100%;
+          box-sizing: border-box;
+          margin: 5px 0;
         }
 
-        button:hover {
-            background: #1e90ff;
-            transform: scale(1.02);
-        }
-
-        .success, .error {
-            margin-top: 20px;
-            text-align: center;
-            display: none;
-        }
-
-        .success {
-            color: green;
-            font-weight: bold;
-        }
-
-        .error {
-            color: red;
-            font-weight: bold;
+        select[multiple] {
+          width: 100%;
         }
 
         footer {
-            background: #003366;
-            color: white;
-            padding: 20px;
-            text-align: center;
+          text-align: center;
         }
 
-        footer a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s ease;
+        footer div {
+          flex-direction: column;
+          gap: 10px;
         }
 
-        footer a:hover {
-            color: #FFD700;
+        footer p {
+          font-size: 0.9rem;
+        }
+      }
+
+      /* Very small screens (max-width 480px) */
+      @media (max-width: 480px) {
+        .logo h1 {
+          font-size: 1.5rem;
         }
 
-        
-        select[multiple] {
-    height: auto;
-    min-height: 100px;
-    background: #f9f9f9;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-}
-.error-highlight {
-    border: 2px solid red;
-}
-/* Media Queries for Responsive Design */
+        nav a {
+          font-size: 0.9rem;
+        }
 
-/* Tablets and small devices */
-@media (max-width: 1024px) {
-    header, footer, nav {
-        flex-wrap: wrap;
-        justify-content: center;
-        text-align: center;
-    }
+        section {
+          margin: 5px;
+          padding: 10px;
+        }
 
-    nav a {
-        margin: 5px;
-    }
+        input,
+        textarea,
+        button {
+          font-size: 0.9rem;
+        }
 
-    section {
-        padding: 20px;
-    }
-
-    footer div {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-}
-
-/* Mobile devices (max-width 768px) */
-@media (max-width: 768px) {
-    header {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .logo h1 {
-        font-size: 2rem;
-        margin: 10px 0;
-    }
-
-    /* Add this rule to shift the logo left */
-    .logo {
-        margin-left: -80px;  /* Adjust the value as needed */
-    }
-
-    nav {
-        display: block;
-        text-align: center;
-    }
-
-    nav a {
-        display: block;
-        margin: 5px 0;
-        font-size: 1rem;
-    }
-    .hamburger {
-        order: 2; /* Keep the hamburger menu to the right */
-        margin-left: auto; /* Push it to the far end */
-    }
-
-    section {
-        margin: 10px;
-        padding: 15px;
-    }
-
-    input, textarea, button {
-        width: 100%;
-        box-sizing: border-box;
-        margin: 5px 0;
-    }
-
-    select[multiple] {
-        width: 100%;
-    }
-
-    footer {
-        text-align: center;
-    }
-
-    footer div {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    footer p {
-        font-size: 0.9rem;
-    }
-}
-
-/* Very small screens (max-width 480px) */
-@media (max-width: 480px) {
-    .logo h1 {
-        font-size: 1.5rem;
-    }
-
-    nav a {
-        font-size: 0.9rem;
-    }
-
-    section {
-        margin: 5px;
-        padding: 10px;
-    }
-
-    input, textarea, button {
-        font-size: 0.9rem;
-    }
-
-    footer p {
-        font-size: 0.8rem;
-    }
-    
-}
-
-
+        footer p {
+          font-size: 0.8rem;
+        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <header>
-        <div class="logo">
-            <img src="images/BALAJI ELECTRICALS LOGO.jpg" alt="BALAJI ELECTRICALS Logo" loading="lazy">
+      <div class="logo">
+        <img
+          src="images/BALAJI ELECTRICALS LOGO.jpg"
+          alt="BALAJI ELECTRICALS Logo"
+          loading="lazy"
+        />
 
-            <h1>BALAJI ELECTRICALS</h1>
-        </div>
-         <!-- Hamburger Menu (hidden by default on desktop) -->
-    <div class="hamburger" onclick="openMenu()">
+        <h1>BALAJI ELECTRICALS</h1>
+      </div>
+      <!-- Hamburger Menu (hidden by default on desktop) -->
+      <div class="hamburger" onclick="openMenu()">
         <i class="fas fa-bars"></i>
-    </div>
+      </div>
 
-    <!-- Desktop Navigation -->
-    <nav class="desktop-nav">
+      <!-- Desktop Navigation -->
+      <nav class="desktop-nav">
         <a href="index.html">Home</a>
         <a href="about.html">About Us</a>
         <a href="index.html">Product & Solutions</a>
         <a href="contact.html">Contact Us</a>
-    </nav>
+      </nav>
 
-    <!-- Mobile Navigation Menu -->
-    <nav id="navbar">
+      <!-- Mobile Navigation Menu -->
+      <nav id="navbar">
         <div class="close-btn" onclick="closeMenu()">
-            <i class="fas fa-times"></i>
+          <i class="fas fa-times"></i>
         </div>
         <a href="index.html">Home</a>
         <a href="about.html">About Us</a>
         <a href="index.html">Product & Solutions</a>
         <a href="contact.html">Contact Us</a>
         <a href="gallery.html">Gallery</a>
-    </nav>
-       
+      </nav>
     </header>
 
     <section>
-        <h2>Enter Your Details</h2>
-        <form id="quoteForm">
-            <fieldset>
-                
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" placeholder="Your full name" required><br><br>
+      <h2>Enter Your Details</h2>
+      <form
+        id="quoteForm"
+        action="https://balaji-electricals-website-production.up.railway.app/submit-quoteForm"
+        method="POST"
+      >
+        <fieldset>
+          <label for="name">Name:</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Your full name"
+            required
+          /><br /><br />
 
-            <label for="company">Company Name:</label>
-            <input type="text" id="company" name="company" placeholder="Company Name" required><br><br>
+          <label for="company">Company Name:</label>
+          <input
+            type="text"
+            id="company"
+            name="company"
+            placeholder="Company Name"
+            required
+          /><br /><br />
 
-            <label for="contact">Contact Number:</label>
-            <input type="tel" id="contact" name="contact" placeholder="Your contact number" required><br><br>
+          <label for="contact">Contact Number:</label>
+          <input
+            type="tel"
+            id="contact"
+            name="contact"
+            placeholder="Your contact number"
+            required
+          /><br /><br />
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" placeholder="Your email address" required><br><br>
+          <label for="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Your email address"
+            required
+          /><br /><br />
 
-            <label for="machines">Machines/Parts:</label>
-            <select id="machines" name="machines[]" multiple required>
-                <option value="MIG Welding Machine">MIG Welding Machine</option>
-                <option value="TIG Welding Machine">TIG Welding Machine</option>
-                <option value="SPM Welding Machine">SPM Welding Machine</option>
-                <option value="Rotary Positioner">Rotary Positioner</option>
-                <option value="X-Y Linear Slides">X-Y Linear Slides</option>
-                <option value="Spare Parts">Spare Parts</option>
-                <option value="Control Panels">Control Panels</option>
-            </select><br><br>
+          <label for="machines">Machines/Parts:</label>
+          <select id="machines" name="machines[]" multiple required>
+            <option value="MIG Welding Machine">MIG Welding Machine</option>
+            <option value="TIG Welding Machine">TIG Welding Machine</option>
+            <option value="SPM Welding Machine">SPM Welding Machine</option>
+            <option value="Rotary Positioner">Rotary Positioner</option>
+            <option value="X-Y Linear Slides">X-Y Linear Slides</option>
+            <option value="Spare Parts">Spare Parts</option>
+            <option value="Control Panels">Control Panels</option></select
+          ><br /><br />
 
-            <label for="message">Message:</label>
-            <textarea id="message" name="message" rows="5" placeholder="Additional details or requirements"required></textarea><br><br>
+          <label for="message">Message:</label>
+          <textarea
+            id="message"
+            name="message"
+            rows="5"
+            placeholder="Additional details or requirements"
+            required
+          ></textarea
+          ><br /><br />
 
-            <button type="submit" id="submitBtn" aria-label="Submit the quote form">Submit</button>
+          <button
+            type="submit"
+            id="submitBtn"
+            aria-label="Submit the quote form"
+          >
+            Submit
+          </button>
         </fieldset>
-        </form>
-        <p class="success" id="successMessage" aria-live="polite" style="display: none;">Your quote request has been submitted successfully!</p>
-<p class="error" id="errorMessage" aria-live="assertive" style="display: none;">There was an error submitting your request. Please try again.</p>
+      </form>
+      <p
+        class="success"
+        id="successMessage"
+        aria-live="polite"
+        style="display: none"
+      >
+        Your quote request has been submitted successfully!
+      </p>
+      <p
+        class="error"
+        id="errorMessage"
+        aria-live="assertive"
+        style="display: none"
+      >
+        There was an error submitting your request. Please try again.
+      </p>
     </section>
 
     <footer>
-        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; align-items: flex-start; padding: 20px; gap: 40px;">
-            <!-- Business Info -->
-            <div style="flex: 1; min-width: 300px; text-align: left;">
-                <h3 style="margin: 0; font-size: 1.2rem;">BALAJI ELECTRICALS</h3>
-                <p style="margin: 10px 0; font-weight: bold;">
-                    <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Head Office:
-                </p>
-                <p style="margin: 0; margin-left: 20px;">
-                    Morwadi, Pimpri, Pune 411018
-                </p>
-                <p style="margin: 10px 0; font-weight: bold;">
-                    <img src="images/map.png" alt="Address Icon" style="width: 16px; margin-right: 5px;"> Manufacturing Plant:
-                </p>
-                <p style="margin: 0; margin-left: 20px;">
-                    Swapnil Industries, Bhosari MIDC, Pimpri-Chinchwad 411026
-                </p>
-                <p style="margin: 10px 0; font-weight: bold;">
-                    <img src="images/gmail (1).png" alt="Email Icon" style="width: 16px; margin-right: 5px;"> Email:
-                </p>
-                <p style="margin: 0; margin-left: 20px;">
-                    <a href="mailto:balaji.elect09@gmail.com" style="color: white; text-decoration: none;">balaji.elect09@gmail.com</a>
-                </p>
-                <p style="margin: 10px 0; font-weight: bold;">
-                    <img src="images/mobile.png" alt="Phone Icon" style="width: 16px; margin-right: 5px;"> Mobile:
-                </p>
-                <p style="margin: 0; margin-left: 20px;">
-                    <a href="tel:+918888834724" style="color: white; text-decoration: none;">+91 8888834724</a>
-                </p>
-                <p style="margin: 0; margin-left: 20px;">
-                    <a href="tel:+919028888638" style="color: white; text-decoration: none;">+91 9028888638</a>
-                </p>
-            </div>
-    
-            <!-- Services Offered -->
-            <div style="flex: 1; min-width: 300px; text-align: left; margin-right: 40px;">
-                <h3 style="margin: 0; font-size: 1.2rem;">Our Services</h3>
-                <ul style="list-style: none; padding: 0; margin: 10px 0;">
-                    <li>- Sales and Services of Welding Machines</li>
-                    <li>- Control Panels and Automation</li>
-                    <li>- Manufacturing Welding SPM and Rotary Positioners</li>
-                    <li>- Industry-specific Automation Solutions</li>
-                </ul>
-            </div>
-    
-            <!-- Quick Links -->
-            <div style="flex: 1; min-width: 300px; text-align: left;">
-                <h3 style="margin: 0; font-size: 1.2rem;">Quick Links</h3>
-                <ul style="list-style: none; padding: 0; margin: 10px 0;">
-                    <li><a href="index.html" aria-label="Navigate to Home page" style="color: white; text-decoration: none;">Home</a></li>
-                    <li><a href="about.html" style="color: white; text-decoration: none;">About Us</a></li>
-                    <li><a href="contact.html" style="color: white; text-decoration: none;">Contact Us</a></li>
-                    <li><a href="index.html"  style="color: white; text-decoration: none;">Products & Solutions</a></li>
-                    <li><a href="gallery.html"  style="color: white; text-decoration: none;">Gallery</a></li>
-                    
-                </ul>
-            </div>
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          align-items: flex-start;
+          padding: 20px;
+          gap: 40px;
+        "
+      >
+        <!-- Business Info -->
+        <div style="flex: 1; min-width: 300px; text-align: left">
+          <h3 style="margin: 0; font-size: 1.2rem">BALAJI ELECTRICALS</h3>
+          <p style="margin: 10px 0; font-weight: bold">
+            <img
+              src="images/map.png"
+              alt="Address Icon"
+              style="width: 16px; margin-right: 5px"
+            />
+            Head Office:
+          </p>
+          <p style="margin: 0; margin-left: 20px">
+            Morwadi, Pimpri, Pune 411018
+          </p>
+          <p style="margin: 10px 0; font-weight: bold">
+            <img
+              src="images/map.png"
+              alt="Address Icon"
+              style="width: 16px; margin-right: 5px"
+            />
+            Manufacturing Plant:
+          </p>
+          <p style="margin: 0; margin-left: 20px">
+            Swapnil Industries, Bhosari MIDC, Pimpri-Chinchwad 411026
+          </p>
+          <p style="margin: 10px 0; font-weight: bold">
+            <img
+              src="images/gmail (1).png"
+              alt="Email Icon"
+              style="width: 16px; margin-right: 5px"
+            />
+            Email:
+          </p>
+          <p style="margin: 0; margin-left: 20px">
+            <a
+              href="mailto:balaji.elect09@gmail.com"
+              style="color: white; text-decoration: none"
+              >balaji.elect09@gmail.com</a
+            >
+          </p>
+          <p style="margin: 10px 0; font-weight: bold">
+            <img
+              src="images/mobile.png"
+              alt="Phone Icon"
+              style="width: 16px; margin-right: 5px"
+            />
+            Mobile:
+          </p>
+          <p style="margin: 0; margin-left: 20px">
+            <a
+              href="tel:+918888834724"
+              style="color: white; text-decoration: none"
+              >+91 8888834724</a
+            >
+          </p>
+          <p style="margin: 0; margin-left: 20px">
+            <a
+              href="tel:+919028888638"
+              style="color: white; text-decoration: none"
+              >+91 9028888638</a
+            >
+          </p>
         </div>
-        <!-- Social Media Links -->
-    <div style="text-align: left; flex: 1; min-width: 300px;">
-        <h3 style="margin: 0; font-size: 1.2rem;">Follow Us On</h3>
-        <div style="margin: 10px 0; display: flex; gap: 20px; align-items: center;">
-            <a href="https://www.linkedin.com/company/balajielectricals/" target="_blank" style="text-decoration: none;">
-                <i class="fab fa-linkedin" style="font-size: 2rem; color: #eef075;"></i> <!-- LinkedIn Blue -->
-            </a>
-            
 
+        <!-- Services Offered -->
+        <div
+          style="
+            flex: 1;
+            min-width: 300px;
+            text-align: left;
+            margin-right: 40px;
+          "
+        >
+          <h3 style="margin: 0; font-size: 1.2rem">Our Services</h3>
+          <ul style="list-style: none; padding: 0; margin: 10px 0">
+            <li>- Sales and Services of Welding Machines</li>
+            <li>- Control Panels and Automation</li>
+            <li>- Manufacturing Welding SPM and Rotary Positioners</li>
+            <li>- Industry-specific Automation Solutions</li>
+          </ul>
         </div>
-    </div>
-    
-          <!-- Horizontal Line -->
-          <hr style="border: none; border-top: 1px solid white; margin: 20px 0;">
-          
-        <p style="text-align: center; margin-top: 20px;">&copy; 2024 BALAJI ELECTRICALS | 
-            <a href="terms.html" style="color: white; text-decoration: none;">Terms of Use</a> | 
-            <a href="privacy.html" style="color: white; text-decoration: none;">Privacy Policy</a>
-        </p>
+
+        <!-- Quick Links -->
+        <div style="flex: 1; min-width: 300px; text-align: left">
+          <h3 style="margin: 0; font-size: 1.2rem">Quick Links</h3>
+          <ul style="list-style: none; padding: 0; margin: 10px 0">
+            <li>
+              <a
+                href="index.html"
+                aria-label="Navigate to Home page"
+                style="color: white; text-decoration: none"
+                >Home</a
+              >
+            </li>
+            <li>
+              <a href="about.html" style="color: white; text-decoration: none"
+                >About Us</a
+              >
+            </li>
+            <li>
+              <a href="contact.html" style="color: white; text-decoration: none"
+                >Contact Us</a
+              >
+            </li>
+            <li>
+              <a href="index.html" style="color: white; text-decoration: none"
+                >Products & Solutions</a
+              >
+            </li>
+            <li>
+              <a href="gallery.html" style="color: white; text-decoration: none"
+                >Gallery</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+      <!-- Social Media Links -->
+      <div style="text-align: left; flex: 1; min-width: 300px">
+        <h3 style="margin: 0; font-size: 1.2rem">Follow Us On</h3>
+        <div
+          style="margin: 10px 0; display: flex; gap: 20px; align-items: center"
+        >
+          <a
+            href="https://www.linkedin.com/company/balajielectricals/"
+            target="_blank"
+            style="text-decoration: none"
+          >
+            <i
+              class="fab fa-linkedin"
+              style="font-size: 2rem; color: #eef075"
+            ></i>
+            <!-- LinkedIn Blue -->
+          </a>
+        </div>
+      </div>
+
+      <!-- Horizontal Line -->
+      <hr style="border: none; border-top: 1px solid white; margin: 20px 0" />
+
+      <p style="text-align: center; margin-top: 20px">
+        &copy; 2024 BALAJI ELECTRICALS |
+        <a href="terms.html" style="color: white; text-decoration: none"
+          >Terms of Use</a
+        >
+        |
+        <a href="privacy.html" style="color: white; text-decoration: none"
+          >Privacy Policy</a
+        >
+      </p>
     </footer>
 
-   
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
-        $(document).ready(function() {        
-            $('#quoteForm').submit(function(event) {
-                event.preventDefault();  // Prevent form from reloading
-            
-    
-                // Get form field values
-                 // Prepare form data
-               
-                const name = $('#name').val();
-                const email = $('#email').val();
-                const contact = $('#contact').val();
-                const company = $('#company').val();
-                const machines = $('#machines').val();
-                const message = $('#message').val();
-                
-             
-                // Validation flags
-                let isValid = true;
-                let errorMessage = '';
-                
-    
-                // Validate Name (Non-empty)
-                if (name.trim() === '') {
-                    isValid = false;
-                    errorMessage += 'Name is required.\n';
-                }
-    
-                // Validate Email (Valid email format)
-                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-                if (!emailPattern.test(email)) {
-                    isValid = false;
-                    errorMessage += 'Please enter a valid email address.\n';
-                }
-    
-                // Validate Mobile Number (Exactly 10 digits)
-                const phonePattern = /^\d{10}$/;
-                if (!phonePattern.test(contact)) {
-                    isValid = false;
-                    errorMessage += 'Mobile number must be exactly 10 digits.\n';
-                }
-    
-                // Validate Description (Minimum 10 characters)
-                if (message.trim().length < 10) {
-                    isValid = false;
-                    errorMessage += 'Description must be at least 10 characters long.\n';
-                }
-                // Validate Machines (At least one selected)
-                if (!machines || machines.length === 0) {
-                isValid = false;
-                errorMessage += 'Please select at least one machine or part.\n';
-                $('#machines').addClass('error-highlight'); // Add a red border or highlight
-                } else {
-                $('#machines').removeClass('error-highlight'); // Remove highlight on valid input
-                }
+        let csrfRetryCount = 0; // Track retry attempts
 
+        // Fetch CSRF token on page load and store it in localStorage
+        $(document).ready(function () {
+            fetchCsrfToken();
+                });
+                // Function to fetch CSRF token
+                // Function to fetch CSRF token
 
-    
-                // If validation failed, display errors
-                if (!isValid) {
-                    alert(errorMessage);  // Show error message
-                    return;  // Stop form submission
-                }
-    
-                // If validation passed, proceed to submit the form via AJAX
-                const formData = {
-                    formType: 'quote', // Add this field for the form type
-                    name: name,
-                    company: company,  // Ensure company is passed correctly
-                    email: email,
-                    contact: contact,
-                    machines: machines ,
-                    message: message,
-                };
-                console.log('Company Value:', company);  // Log company value before AJAX
+                function fetchCsrfToken() {
+                    fetch(
+                      "https://balaji-electricals-website-production.up.railway.app/csrf-token",
+                      {
+                        credentials: "include",
+                      }
+                    )
 
-    
-                $.ajax({
-                    url: 'https://balaji-electricals-website-production.up.railway.app/submit-quoteForm',  // Your backend endpoint
-                    type: 'POST',
-                    data: JSON.stringify(formData),
-                    contentType: 'application/json',
-                   
-                    timeout: 10000,  // 10-second timeout for the request
-
-                    success: function(response) {
-                    alert('Form submitted successfully!');  // Show success message
-                    $('#quoteForm')[0].reset();  // Reset the form fields
-                     // Reset CSRF token field
-                    $('#successMessage').fadeIn();  // Optionally show a success message
-                    $('#errorMessage').fadeOut();  // Clear any previous error messages
-                },
-
-                error: function(xhr, status, error) {
-                    // Handle timeout error
-                    if (status === 'timeout') {
-                        alert('Request timed out. Please check your internet connection.');
-                    } else {
-                        // Log error details to console
-                        console.error('Error details:', error);
-                        console.log('Full Response:', xhr.responseText);  // Log entire server response
-
-                        // Show detailed error message
-                        $('#errorMessage').text(xhr.responseText || 'There was an error while submitting the form. Please try again later.').fadeIn();
+                    .then((res) => {
+                        if (!res.ok) {
+                          // If response is not OK (status code outside of 2xx range), throw an error
+                          throw new Error("Failed to fetch CSRF token: " + res.statusText);
+                        }
+                        return res.json(); // Attempt to parse the response as JSON
+                    })
+                    .then((data) => {
+                        // Successfully received CSRF token
+                        localStorage.setItem("csrfToken", data.csrfToken);
+                        console.log(
+                          "Session is active, CSRF token fetched:",
+                          data.csrfToken
+                        );
+                        csrfRetryCount = 0; // Reset retry count after successful token fetch
+                    })
+                    .catch((err) => {
+                        // Handle any errors (network errors, failed JSON parsing, etc.)
+                        console.error(err);
+                        alert("Error fetching CSRF token. Please try again later.");
+                      });
                     }
-                }
-            });
-        });
-    });
-        function openMenu() {
-        document.getElementById('navbar').classList.add('active');
-        document.querySelector('.hamburger').style.display = 'none';  // Hide hamburger when menu opens
-        document.querySelector('.close-btn').style.opacity = '1';  // Show close button
+                    // AJAX Form Submission with Custom Header
+                    $("#Enquiryform").submit(function (e) {
+                        e.preventDefault();
+
+                        // Get form field values
+                       // Prepare form data
+                        const formData = {
+                            formType:"quote",
+                            name: $('#name').val(),
+                            email: $('#email').val(),
+                            contact: $('#contact').val(),
+                            company:  $('#company').val(),
+                            machines:  $('#machines').val(),
+                            message: $('#message').val(),
+                        }
+                        if (!validateForm(formData)) return;
+                        const csrfToken = localStorage.getItem("csrfToken");
+                        console.log("Sending CSRF token:", csrfToken);
+
+                        submitForm(formData, csrfToken);
+                        });
+
+                        // Form Validation
+                        function validateForm({ name, email, phone, subject }) {
+                            let isValid = true;
+                            let errorMessage = '';
+
+                            // Name Validation (Non-empty, at least 3 characters)
+        if (!name || name.length < 3) {
+          errorMessage += "Name must be at least 3 characters long.\n";
+          isValid = false;
+        }
+
+                            // Email Validation (Format)
+        if (!validateEmail(email)) {
+          errorMessage += "Please enter a valid email address.\n";
+          isValid = false;
+        }
+
+                             // Phone Validation (Exactly 10 digits)
+        if (!/^\d{10}$/.test(contact)) {
+          errorMessage += "Phone number must be exactly 10 digits.\n";
+          isValid = false;
+        }
+        // Company Validation (New)
+        if (!company || company.length < 2) {
+            errorMessage += "Company name must be at least 2 characters long.\n";
+            isValid = false;
+            $('#company').addClass('error-highlight');  // Highlight field on error
+        } else {
+            $('#company').removeClass('error-highlight'); // Remove highlight if valid
+        }
+
+        // Subject Validation (Minimum 10 characters)
+        if (!message || message.length < 10) {
+          errorMessage += "Message must be at least 10 characters long.\n";
+          isValid = false;
+        }
+        if (!machines || machines.length === 0) {
+            errorMessage += "Please select at least one machine or part.\n";
+            $('#machines').addClass('error-highlight');
+            isValid = false;
+        } else {
+            $('#machines').removeClass('error-highlight');
+        }
+        if (!isValid) {
+            alert(errorMessage);
+        }
+        return isValid;
+        }
+
+        // Email Validation Helper
+        function validateEmail(email) {
+        const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        return re.test(email);
+        }
+
+                  
+                  console.log('Company Value:', company);  // Log company value before AJAX
+                  // AJAX Form Submission Function
+                    function submitForm(formData, csrfToken) {
+
+
+                    $.ajax({
+                      url: 'https://balaji-electricals-website-production.up.railway.app/submit-quoteForm',  // Your backend endpoint
+                      type: 'POST',
+                      data: JSON.stringify(formData),
+                      contentType: 'application/json',
+                      headers: {
+              "X-CSRF-TOKEN": csrfToken, // Include CSRF token in headers
+              },
+              xhrFields: {
+                withCredentials: true, // Ensure session cookie is sent
+              },
+
+                      timeout: 10000,  // 10-second timeout for the request
+
+
+                      success: function(response) {
+                      alert('Form submitted successfully!');  // Show success message
+                      $('#quoteForm')[0].reset();  // Reset the form fields
+                       // Reset CSRF token field
+                      $('#successMessage').fadeIn();  // Optionally show a success message
+                      $('#errorMessage').fadeOut();  // Clear any previous error messages
+                      // Refresh CSRF token after successful form submission
+                  fetchCsrfToken();
+                   // Reload the page after form submission
+                  // Delay page reload by 1.5 seconds
+                  setTimeout(function () {
+                  location.reload();
+                  }, 1500); // 1500 ms (1.5 seconds)
+              },
+                  
+
+                  error: function(xhr, status, error) {
+                    if (xhr.status === 403) {
+              console.warn("CSRF token expired, fetching new token...");
+
+              if (csrfRetryCount < 2) {
+                csrfRetryCount++;
+                fetchCsrfToken();
+
+                // Retry form submission with new token
+                setTimeout(() => {
+                  const newCsrfToken = localStorage.getItem("csrfToken");
+                  submitForm(formData, newCsrfToken);
+                }, 1000);
+              } else {
+                alert(
+                  "Failed to submit form after multiple attempts. Please try again later."
+                );
+                csrfRetryCount = 0;
+              }
+            } else {
+              console.error("Submission error:", xhr.responseText);
+              alert("Form submission failed. Please try again.");
+            }
+
+                      // Handle timeout error
+                      if (status === 'timeout') {
+                          alert('Request timed out. Please check your internet connection.');
+                      } else {
+                          // Log error details to console
+                          console.error('Error details:', error);
+                          console.log('Full Response:', xhr.responseText);  // Log entire server response
+
+                          // Show detailed error message
+                          $('#errorMessage').text(xhr.responseText || 'There was an error while submitting the form. Please try again later.').fadeIn();
+                      }
+                  }
+              });
+
+
+          function openMenu() {
+          document.getElementById('navbar').classList.add('active');
+          document.querySelector('.hamburger').style.display = 'none';  // Hide hamburger when menu opens
+          document.querySelector('.close-btn').style.opacity = '1';  // Show close button
+      }
     }
-    
-    function closeMenu() {
-        document.getElementById('navbar').classList.remove('active');
-        document.querySelector('.hamburger').style.display = 'block';  // Show hamburger when menu closes
-        document.querySelector('.close-btn').style.opacity = '0';  // Hide close button
-    }
-        
-        </script>
-</body>
+
+      function closeMenu() {
+          document.getElementById('navbar').classList.remove('active');
+          document.querySelector('.hamburger').style.display = 'block';  // Show hamburger when menu closes
+          document.querySelector('.close-btn').style.opacity = '0';  // Hide close button
+      }
+    </script>
+  </body>
 </html>
-
-
-
-                
-         
