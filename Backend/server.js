@@ -31,6 +31,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend')));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(csrf({ cookie: true }));  // Use session, not cookies
 // Apply Helmet with CSP
 // Use Helmet to enforce CSP
 app.use(helmet())
@@ -93,10 +94,10 @@ app.use(session({
 
 // CORS Configuration
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://balajielectricals.netlify.app');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, X-CSRF-TOKEN');
+  res.setheader('Access-Control-Allow-Origin', 'https://balajielectricals.netlify.app');
+  res.setheader('Access-Control-Allow-Credentials', 'true');
+  res.setheader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setheader('Access-Control-Allow-Headers', 'Content-Type, X-CSRF-TOKEN');
   next();
 });
 
