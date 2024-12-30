@@ -199,88 +199,57 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
 app.post('/submit-quoteForm', [
   body('name').trim().escape().isLength({ min: 3, max: 50 }),
   body('email').isEmail().normalizeEmail(),
-  body('contact').isMobilePhone('en-IN'),
-  body('message').trim().escape().isLength({ min: 10, max: 200 }),
+  body('contact').isLength({min:10, max:100}).trim(),
+  body('message').trim().escape().isLength({ min: 10, max: 100 }),
+  body('company').trim.escape().isLength({min:3, max:50}),
+  body('machines').trim.escape().isIn(['Mig Welding Machine', 'Tig Welding Machine', 'SPM Welding Machine', 'Rotary Positioner','X-Y Linear Slides','Spare Parts','Control Panels']) .withMessage('Invalid machine selection.')
 ], 
   (req, res) => {
-    console.log('CSRF Token from Request:', req.body.csrfToken);
-    console.log('CSRF Secret from Session:', req.session.csrfSecret);  // Ensure session is enabled
-    
-
     console.log('Received Data:', req.body);
-    console.log('CSRF Token:', req.body.csrfToken);
-
+    const csrfToken = req.headers['x-csrf-token'];
     const csrfSecret = req.session.csrfSecret;
-    const tokenFromFrontend = req.headers['x-csrf-token'] || req.body.csrfToken;
-  
-    console.log("CSRF Secret from Session (Backend):", csrfSecret);
-    console.log("CSRF Token from Frontend:", tokenFromFrontend);
-  
-    if (!csrfSecret || !tokenFromFrontend) {
-      console.log("CSRF token missing.");
+    console.log('Received CSRF token:', csrfToken);  // Log received token
+    console.log('Stored CSRF secret:', csrfSecret);  // Log stored token
+    if (!csrfToken) {
       return res.status(400).json({ error: 'CSRF token missing' });
     }
-  
-    if (!tokens.verify(csrfSecret, tokenFromFrontend)) {
-      console.log("CSRF Verification Failed.");
+    if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
+      console.log('CSRF verification failed');
       return res.status(403).json({ error: 'Invalid CSRF token' });
     }
-      
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+    console.log('Validation Errors:', errors.array());
+    return res.status(400).json({ errors: errors.array() });
+    }
     const { formType, name, company, contact, email, machines, message } = req.body;
     // Validate and process the data
     if (!name || !email || !contact || !company || !machines || !message) {
       return res.status(400).json({ error: 'All fields are required' });
   }
-
-    // Backend validation
-
-    // Mobile number validation (exactly 10 digits)
-    const mobilePattern = /^\d{10}$/;
-    if (!mobilePattern.test(mobile)) {
-        return res.status(400).send('Invalid mobile number. It should be exactly 10 digits.');
-    }
-
-    // Email validation (using regex for basic email validation)
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailPattern.test(email)) {
-        return res.status(400).send('Invalid email address.');
-    }
-
-    // Name validation (non-empty)
-    if (!name || name.trim().length === 0) {
-        return res.status(400).send('Name is required.');
-    }
-
-    // Message validation (non-empty)
-    if (!message || message.trim().length === 0) {
-        return res.status(400).send('Message is required.');
-    }
-
-    
-  // Ensure company is not undefined or null
-  const companyValue = company || ''; // Default to empty string if company is undefined
-  
   // Sanitize Inputs
   const sanitizedInputs = {
     name: validator.escape(name),
     email: validator.escape(email),
     phone: validator.escape(contact),
     message: validator.escape(message),
+    company:validator.escape(company)
   };
 
   // Save data to MySQL
   const query = 'INSERT INTO quote_requests (form_type, name, company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)';
-  const values = [formType, sanitizedInputs.name, companyValue, sanitizedInputs.contact, sanitizedInputs.email, JSON.stringify(machines), sanitizedInputs.message];
-
-  pool.execute(query, values, (err, result) => {
-   
+  const values = [formType, sanitizedInputs.name, sanitizedInputs.company, sanitizedInputs.contact, sanitizedInputs.email, JSON.stringify(machines), sanitizedInputs.message];
+  pool.execute(
+    'INSERT INTO quote_requests (form_type, names, company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [formType, name, email, contact, company, machines, message],
+    (query, values, (err, result) => {
     if (err) {
       console.error('Database error:', err);
       return res.status(500).json({ error: 'Database error' });
     }
-    
     console.log('Data inserted into database:', result);
-  });
+    }
+  ));
     // Send email to user (confirmation)
     const userMail = {
       from: process.env.SENDGRID_SENDER_EMAIL,
@@ -288,7 +257,6 @@ app.post('/submit-quoteForm', [
       subject: 'Quote Request Received',
       text: `Hello ${name},\n\nThank you for requesting a quote. Here are the details we received:\n\nMachines/Parts: ${machines.join(', ')}\nMessage: ${message}\n\nWe will get back to you shortly.`,
     };
-
     // Send email to admin (quote details)
     const adminMail = {
       from: process.env.SENDGRID_SENDER_EMAIL,
@@ -296,35 +264,25 @@ app.post('/submit-quoteForm', [
       subject: 'New Quote Request',
       text: `New quote request received:\n\nName: ${name}\nCompany: ${companyValue}\nContact: ${contact}\nEmail: ${email}\nMachines/Parts: ${machines.join(', ')}\nMessage: ${message}`,
     };
-
     // Send emails
-    sgMail.send(userMail).then(() => {
-      console.log('Confirmation email sent to user');
-    }).catch((error) => {
-      console.error('Error sending email to user:', error);
-    });
-
-    sgMail.send(adminMail).then(() => {
-      console.log('Notification email sent to admin');
-    }).catch((error) => {
-      console.error('Error sending email to admin:', error);
-    });
-
-    // Send emails only if database insertion succeeds
-  Promise.all([
-    sgMail.send(userMail).then(() => {
-      console.log('Confirmation email sent to user');
-    }),
-    sgMail.send(adminMail).then(() => {
-      console.log('Notification email sent to admin');
-    })
-  ]).then(() => {
-    res.status(200).json({ message: 'Quote request submitted successfully' });
-  }).catch((error) => {
-    console.error('Error sending email:', error);
-    res.status(500).json({ error: 'Emails failed but data is stored' });
+    sgMail
+      .send(userMail)
+      .then(() => {
+        console.log('Confirmation email sent to user');
+      })
+      .catch((error) => {
+        console.error('Error sending email to user:', error);
+      });
+    sgMail
+      .send(adminMail)
+      .then(() => {
+        console.log('Notification email sent to admin');
+      })
+      .catch((error) => {
+        console.error('Error sending email to admin:', error);
+      });
+      res.status(200).send({ success: true, message: 'Quote Requested Submitted Successfully!' });
   });
-});
 
 // POST endpoint to handle form submission (Enquiry Form)
 app.post('/submit-Enquiryform', [
