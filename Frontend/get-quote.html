@@ -677,14 +677,14 @@
     <script>
         // Fetch CSRF token on page load and store it in localStorage
         $(document).ready(function () {
-            fetchCsrfToken();
+            fetchCsrfToken();  // Call function to fetch CSRF token on page load
         });
     
         function fetchCsrfToken() {
             fetch(
                 "https://balajielectricals-production.up.railway.app/csrf-token",
                 {
-                    credentials: "include",
+                    credentials: "include",  // Ensure cookies are sent along with the request
                 }
             )
             .then((res) => {
@@ -697,10 +697,10 @@
                 // Store token in localStorage
                 localStorage.setItem("csrfToken", data.csrfToken);
                 console.log("Session is active, CSRF token fetched:", data.csrfToken);
-                csrfRetryCount = 0;
+                csrfRetryCount = 0;  // Reset retry count after successful fetch
             })
             .catch((err) => {
-                console.error(err);
+                console.error("CSRF Token Fetch Error:", err);
                 alert("Error fetching CSRF token. Please try again later.");
             });
         }
@@ -709,15 +709,12 @@
         $("#Enquiryform").submit(function (e) {
             e.preventDefault();
     
-            const csrfToken = localStorage.getItem("csrfToken");
-            console.log('Sending CSRF Token:', csrfToken);  // Check before sendin
-            
-            // Debugging CSRF token
-            console.log("Stored CSRF Token (Before Submission):", csrfToken);
+            const csrfToken = localStorage.getItem("csrfToken");  // Retrieve CSRF token from localStorage
+            console.log("Sending CSRF Token:", csrfToken);  // Debugging CSRF token
     
             if (!csrfToken) {
                 alert("CSRF token not found. Refreshing...");
-                fetchCsrfToken();
+                fetchCsrfToken();  // Refresh CSRF token if not found
                 return;
             }
     
@@ -730,15 +727,15 @@
                 company: $('#company').val(),
                 machines: $('#machines').val(),
                 message: $('#message').val(),
-                csrfToken  // Include CSRF token
+                csrfToken  // Attach CSRF token
             };
     
-            if (!validateForm(formData)) return;
+            if (!validateForm(formData)) return;  // Validate form data
     
             // Debugging CSRF token before submission
             console.log("Submitting with CSRF Token:", csrfToken);
     
-            submitForm(formData, csrfToken);
+            submitForm(formData, csrfToken);  // Submit the form with CSRF token
         });
     
         // Form Validation
@@ -802,10 +799,10 @@
                 data: JSON.stringify(formData),
                 contentType: 'application/json',
                 headers: {
-                    "X-CSRF-TOKEN": csrfToken  // Attach CSRF token
+                    "X-CSRF-TOKEN": csrfToken  // Attach CSRF token in headers
                 },
                 xhrFields: {
-                    withCredentials: true
+                    withCredentials: true  // Ensure cookies are sent with the request
                 },
                 timeout: 10000,  // 10-second timeout
     
@@ -815,12 +812,12 @@
     
                 success: function (response) {
                     alert('Form submitted successfully!');
-                    $('#Enquiryform')[0].reset();
+                    $('#Enquiryform')[0].reset();  // Reset the form
     
                     // Refresh CSRF token after successful submission
                     fetchCsrfToken();
-                    $('#successMessage').fadeIn();  // Optionally show a success message
-                    $('#errorMessage').fadeOut();  // Clear any previous error messages
+                    $('#successMessage').fadeIn();  // Show success message
+                    $('#errorMessage').fadeOut();  // Hide any previous error messages
     
                     // Delay page reload by 1.5 seconds
                     setTimeout(function () {
@@ -834,7 +831,7 @@
     
                         if (csrfRetryCount < 2) {
                             csrfRetryCount++;
-                            fetchCsrfToken();
+                            fetchCsrfToken();  // Refresh CSRF token
     
                             // Retry form submission with new token
                             setTimeout(() => {
