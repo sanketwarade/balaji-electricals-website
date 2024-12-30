@@ -106,7 +106,6 @@ app.get('/csrf-token', (req, res) => {
   const csrfSecret = tokens.secretSync();
   const csrfToken = tokens.create(csrfSecret);
   req.session.csrfSecret = csrfSecret
-  
   res.json({ csrfToken, expiresIn: req.session.cookie.maxAge / 1000 });
 });
 
@@ -248,7 +247,7 @@ app.post('/submit-quoteForm', [
 
   // Save data to MySQL
   const query = 'INSERT INTO quote_requests (form_type, name, company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)';
-  const values = [sanitizedInputs.name, companyValue, sanitizedInputs.contact, sanitizedInputs.email, JSON.stringify(machines), sanitizedInputs.message];
+  const values = [formType, sanitizedInputs.name, companyValue, sanitizedInputs.contact, sanitizedInputs.email, JSON.stringify(machines), sanitizedInputs.message];
 
   pool.execute(query, values, (err, result) => {
    
@@ -256,7 +255,7 @@ app.post('/submit-quoteForm', [
       console.error('Database error:', err);
       return res.status(500).json({ error: 'Database error' });
     }
-    [formType, name, email, contact, company, machines, message]
+    
     console.log('Data inserted into database:', result);
   });
     // Send email to user (confirmation)
