@@ -787,6 +787,7 @@
     
              submitForm(formData, csrfToken);  // Submit the form with CSRF token
           });
+          const csrfToken = document.querySelector('input[name="csrfToken"]').value;
     
         // AJAX Form Submission Function
         function submitForm(formData, csrfToken) {
