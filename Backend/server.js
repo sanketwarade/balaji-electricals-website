@@ -11,6 +11,7 @@ const { body, validationResult } = require('express-validator');
 const helmet = require('helmet'); // New: Secure HTTP headers
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const app = express();
@@ -30,6 +31,7 @@ app.use(limiter);
 app.set('trust proxy', 1); // This allows Express to trust the X-Forwarded-For header
 
 app.use(bodyParser.json());
+app.use(cookieParser())
 
 app.use(express.static(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend')));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -101,6 +103,8 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   res.send('Welcome to Balaji Electricals!');
 });
+app.use(csrfProtection);
+
 
 
 // CSRF Token Generation Endpoint
@@ -110,6 +114,16 @@ app.get('/csrf-token', (req, res) => {
   req.session.csrfSecret = csrfSecret
   res.json({ csrfToken, expiresIn: req.session.cookie.maxAge / 1000 });
 });
+
+
+// View Engine Setup (EJS or Pug)
+app.set('view engine', 'ejs');
+
+// Render Form with CSRF Token
+app.get('/quote', (req, res) => {
+    res.render('quote', { csrfToken: req.csrfToken() });  // CSRF token passed to form
+});
+
 
 // Email Setup using environment variables
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -221,6 +235,10 @@ app.post('/submit-quoteForm', [
   body('message').trim().escape().isLength({ min: 10, max: 200 }),
 ], 
   (req, res) => {
+    console.log('CSRF Token from Request:', req.body.csrfToken);
+    console.log('CSRF Secret from Session:', req.session.csrfSecret);  // Ensure session is enabled
+    next();
+
     console.log('Received Data:', req.body);
     console.log('CSRF Token:', req.body.csrfToken);
 
@@ -245,6 +263,30 @@ app.post('/submit-quoteForm', [
     if (!name || !email || !contact || !company || !machines || !message) {
       return res.status(400).json({ error: 'All fields are required' });
   }
+
+    // Backend validation
+
+    // Mobile number validation (exactly 10 digits)
+    const mobilePattern = /^\d{10}$/;
+    if (!mobilePattern.test(mobile)) {
+        return res.status(400).send('Invalid mobile number. It should be exactly 10 digits.');
+    }
+
+    // Email validation (using regex for basic email validation)
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailPattern.test(email)) {
+        return res.status(400).send('Invalid email address.');
+    }
+
+    // Name validation (non-empty)
+    if (!name || name.trim().length === 0) {
+        return res.status(400).send('Name is required.');
+    }
+
+    // Message validation (non-empty)
+    if (!message || message.trim().length === 0) {
+        return res.status(400).send('Message is required.');
+    }
 
     
   // Ensure company is not undefined or null
