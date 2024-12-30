@@ -116,7 +116,7 @@ app.get('/csrf-token', (req, res) => {
   req.session.csrfSecret = csrfSecret
   res.json({ csrfToken, expiresIn: req.session.cookie.maxAge / 1000 });
 });
-app.use(csrfprotection())
+
 
 
 // View Engine Setup (EJS or Pug)
