@@ -71,11 +71,7 @@ pool.getConnection((err, connection) => {
 
 // Create the MySQL session store using the pool
 const sessionStore = new MySQLStore({}, pool);
-
 module.exports = pool;  // Export pool directly
-
-
-
 app.use(session({
   secret: process.env.SESSION_SECRET,  // Replace with a secure secret
   resave: false,
@@ -114,8 +110,8 @@ app.post('/submit-solutionform', [
   body('name').trim().escape(),
   body('email').isEmail().normalizeEmail(),
   body('phone').isLength({ min: 10, max: 10 }).isNumeric().trim(),
-  body('description').optional().escape(),
-  body('machine-type').optional().escape(),
+  body('description').isLength({min:10, max:100}).trim(),
+  body('machine-type').isLength({min:3, max:50}).trim(),
 ], (req, res) => {
   console.log('Form Data:', req.body);
   const csrfToken = req.headers['x-csrf-token'];
@@ -126,7 +122,6 @@ app.post('/submit-solutionform', [
 if (!csrfToken) {
   return res.status(400).json({ error: 'CSRF token missing' });
 }
-
 if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
   console.log('CSRF verification failed');
   return res.status(403).json({ error: 'Invalid CSRF token' });
@@ -136,7 +131,6 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
     console.log('Validation Errors:', errors.array());
     return res.status(400).json({ errors: errors.array() });
   }
-
   // Destructure only once to avoid redeclaration issues
   const { formType, name, email, phone,  'machine-type': machineType, description } = req.body;
   if (!name || !email || !phone || !machineType || !description) {
@@ -175,14 +169,12 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
       subject: 'Custom Solution Request Received',
       text: `Hello ${name},\n\nThank you for requesting a custom solution.\nWe will get back to you shortly.`
     };
-
     const adminMail = {
       from: process.env.SENDGRID_SENDER_EMAIL,
       to: process.env.ADMIN_EMAIL,  
       subject: 'New custom solution Request',
       text: `New Custom Solution request received:\n\nName: ${name}\nDescription: ${description}\nPhone: ${phone}\nEmail: ${email}\nMachine Type: ${machineType || 'N/A'}`
     };
-
     // Send emails
     sgMail
       .send(userMail)
@@ -192,7 +184,6 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
       .catch((error) => {
         console.error('Error sending email to user:', error);
       });
-
     sgMail
       .send(adminMail)
       .then(() => {
@@ -206,7 +197,7 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
 
 // POST endpoint to handle form submission (Quote Form)
 app.post('/submit-quoteForm', [
-  body('name').trim().escape().isLength({ min: 2, max: 50 }),
+  body('name').trim().escape().isLength({ min: 3, max: 50 }),
   body('email').isEmail().normalizeEmail(),
   body('contact').isMobilePhone('en-IN'),
   body('message').trim().escape().isLength({ min: 10, max: 200 }),
