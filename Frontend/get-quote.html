@@ -424,10 +424,7 @@
         action="https://balajielectricals-production.up.railway.app/submit-quoteForm"
         method="POST"
       >
-      <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
-
-      
-        <fieldset>
+          <fieldset>
           <label for="name">Name:</label>
           <input
             type="text"
@@ -677,11 +674,11 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
+      let csrfRetryCount = 0; // Track retry attempts
         // Fetch CSRF token on page load and store it in localStorage
         $(document).ready(function () {
             fetchCsrfToken();  // Call function to fetch CSRF token on page load
         });
-    
         function fetchCsrfToken() {
             fetch(
                 "https://balajielectricals-production.up.railway.app/csrf-token",
@@ -691,9 +688,10 @@
             )
             .then((res) => {
                 if (!res.ok) {
+                  // if response is not ok throw an error
                     throw new Error("Failed to fetch CSRF token: " + res.statusText);
                 }
-                return res.json();
+                return res.json(); // Attempt to parse the response as JSON
             })
             .then((data) => {
                 // Store token in localStorage
@@ -702,99 +700,84 @@
                 csrfRetryCount = 0;  // Reset retry count after successful fetch
             })
             .catch((err) => {
-                console.error("CSRF Token Fetch Error:", err);
-                alert("Error fetching CSRF token. Please try again later.");
+              // Handle any errors (network errors, failed JSON parsing, etc.)
+              console.error("CSRF Token Fetch Error:", err);
+              alert("Error fetching CSRF token. Please try again later.");
             });
         }
     
         // AJAX Form Submission with Custom Header
         $("#Enquiryform").submit(function (e) {
             e.preventDefault();
-    
-            const csrfToken = localStorage.getItem("csrfToken");
-              if (!csrfToken) {
-            alert("CSRF token missing. Fetching again...");
-            fetchCsrfToken();
-            return;
-            }
-    
-            // Prepare form data
+
+             // Prepare form data
             const formData = {
-                formType: "quote",
-                name: $('#name').val(),
-                email: $('#email').val(),
-                contact: $('#contact').val(),
-                company: $('#company').val(),
-                machines: $('#machines').val(),
-                message: $('#message').val(),
-                csrfToken  // Attach CSRF token
+              formType: "quote",
+              name: $('#name').val(),
+              email: $('#email').val(),
+              contact: $('#contact').val(),
+              company: $('#company').val(),
+              machines: $('#machines').val(),
+              message: $('#message').val(),
             };
-    
-            if (!validateForm(formData)) return;  // Validate form data
-    
-           
-    
+
+            if (!validateForm(formData)) return;
+            const csrfToken = localStorage.getItem("csrfToken");
+            console.log("Sending CSRF token:", csrfToken);
+            submitForm(formData, csrfToken);
+            });
+
             function validateForm({ name, email, contact, company, machines, message }) {
-    let isValid = true;
-    let errorMessage = '';
 
-    // Validate Name
-  if (name.value.trim().length < 2 || name.value.trim().length > 50) {
-    isValid = false;
-    alert('Name should be between 2 and 50 characters.');
-  }
+              let isValid = true;
+              let errorMessage = '';
 
-    if (!validateEmail(email)) {
-        errorMessage += "Invalid email format.\n";
-        isValid = false;
-    }
+              // Validate Name
+              if (name.value.trim().length < 3 || name.value.trim().length > 50) {
+                isValid = false;
+                alert('Name should be between 3 and 50 characters.');
+                }
 
-    if (!/^\d{10}$/.test(contact)) {
-        errorMessage += "Phone number must be exactly 10 digits.\n";
-        isValid = false;
-    }
+              if (!validateEmail(email)) {
+                errorMessage += "Invalid email format.\n";
+                isValid = false;
+              }
 
-    if (!company || company.length < 2 || company.value.trim().length > 50) {
-        errorMessage += "Company name must be between 2 to 50 characters.\n";
-        $('#company').addClass('error-highlight');
-        isValid = false;
-    } else {
-        $('#company').removeClass('error-highlight');
-    }
+              if (!/^\d{10}$/.test(contact)) {
+                errorMessage += "Phone number must be exactly 10 digits.\n";
+                isValid = false;
+              }
 
-    if (!message || message.length < 10 || message.value.trim().length > 100) {
-        errorMessage += "Message must be between 10 to 100 characters.\n";
-        isValid = false;
-    }
+              if (!company  || company.length < 3 || company.value.trim().length > 50) {
+                errorMessage += "Company name must be between 3 to 50 characters.\n";
+                $('#company').addClass('error-highlight');
+                isValid = false;
+              } else {
+                $('#company').removeClass('error-highlight');
+              }
 
-    if (!machines || machines.length === 0) {
-        errorMessage += "Select at least one machine.\n";
-        isValid = false;
-    }
+              if (!message || !/^[a-zA-Z0-9\s]+$/.test(message)|| message.length < 10 || message.value.trim().length > 100) {
+                errorMessage += "Message must be between 10 to 100 characters.\n";
+                isValid = false;
+              }
 
-    if (!isValid) {
-        alert(errorMessage);
-        return false;
-    }
-    return true;
-}
+              if (!machines || machines.length === 0) {
+                errorMessage += "Select at least one machine.\n";
+                isValid = false;
+              }
+
+              if (!isValid) {
+                alert(errorMessage); //display error message
+                return false;
+              }
+              return true;
+              }
         // Email Validation Helper
         function validateEmail(email) {
             const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
             return re.test(email);
         }
-        // Prevent form submission if validation fails
-  if (!isValid) {
-    event.preventDefault();
-  }
-});
-         // Debugging CSRF token before submission
-         console.log("Submitting with CSRF Token:", csrfToken);
-    
-             submitForm(formData, csrfToken);  // Submit the form with CSRF token
-          
-          const csrfToken = document.querySelector('input[name="csrfToken"]').value;
-    
+
         // AJAX Form Submission Function
         function submitForm(formData, csrfToken) {
             $.ajax({
@@ -809,19 +792,14 @@
                     withCredentials: true  // Ensure cookies are sent with the request
                 },
                 timeout: 10000,  // 10-second timeout
-    
-                beforeSend: function () {
-                    console.log("Form is being submitted with CSRF Token:", csrfToken);
-                },
-    
+
                 success: function (response) {
                     alert('Form submitted successfully!');
-                    $('#Enquiryform')[0].reset();  // Reset the form
-    
-                    // Refresh CSRF token after successful submission
-                    fetchCsrfToken();
+                    $('#quoteForm')[0].reset();  // Reset the form
                     $('#successMessage').fadeIn();  // Show success message
                     $('#errorMessage').fadeOut();  // Hide any previous error messages
+                    // Refresh CSRF token after successful submission
+                    fetchCsrfToken();
     
                     // Delay page reload by 1.5 seconds
                     setTimeout(function () {
@@ -840,9 +818,8 @@
                             // Retry form submission with new token
                             setTimeout(() => {
                                 const newCsrfToken = localStorage.getItem("csrfToken");
-                                console.log("Retrying with new CSRF Token:", newCsrfToken);
                                 submitForm(formData, newCsrfToken);
-                            }, 1500);
+                            }, 1000);
                         } else {
                             alert("Failed to submit form after multiple attempts. Please try again later.");
                             csrfRetryCount = 0;
@@ -851,24 +828,30 @@
                         console.error("Submission error:", xhr.responseText);
                         alert("Form submission failed. Please try again.");
                     }
-    
-                    if (status === 'timeout') {
-                        alert('Request timed out. Please check your internet connection.');
+                    // Handle timeout error
+                    if (status === "timeout") {
+                      alert("Request timed out. Please check your internet connection.");
                     } else {
-                        console.error('Error details:', error);
-                        console.log('Full Response:', xhr.responseText);
-                        $('#errorMessage').text(xhr.responseText || 'Error submitting form. Please try again.').fadeIn();
-                    }
-                }
-            });
-        }
-    
+                        // Log error details to console
+                        console.error("Error details:", error);
+                        console.log("Full Response:", xhr.responseText); // Log entire server response
+
+                        // Show detailed error message
+                        $("#errorMessage")
+                        .text(xhr.responseText ||"There was an error while submitting the form. Please try again later.")
+                        .fadeIn();
+                      } 
+                }      
+            },
+          )};
+
         // Mobile Menu Open
         function openMenu() {
             document.getElementById('navbar').classList.add('active');
             document.querySelector('.hamburger').style.display = 'none';
             document.querySelector('.close-btn').style.opacity = '1';
         }
+      
     
         // Mobile Menu Close
         function closeMenu() {
