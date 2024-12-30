@@ -103,7 +103,7 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   res.send('Welcome to Balaji Electricals!');
 });
-app.use(csrfProtection);
+
 
 
 
