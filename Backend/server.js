@@ -16,6 +16,7 @@ require('dotenv').config();
 
 const app = express();
 app.use(express.json());
+const csrfProtection = csrf({ cookie: true });
 
 
 // Define the rate limit rule
@@ -35,7 +36,10 @@ app.use(cookieParser())
 
 app.use(express.static(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend')));
 app.use(bodyParser.urlencoded({ extended: true }));
-
+// Serve the CSRF token to the client
+app.get('/csrf-token', csrfProtection, (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
 // Apply Helmet with CSP
 // Use Helmet to enforce CSP
 app.use(helmet())
@@ -114,6 +118,7 @@ app.get('/csrf-token', (req, res) => {
   req.session.csrfSecret = csrfSecret
   res.json({ csrfToken, expiresIn: req.session.cookie.maxAge / 1000 });
 });
+app.use(csrfprotection())
 
 
 // View Engine Setup (EJS or Pug)
@@ -228,7 +233,7 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
   });
 
 // POST endpoint to handle form submission (Quote Form)
-app.post('/submit-quoteForm', [
+app.post('/submit-quoteForm',csrfprotection(), [
   body('name').trim().escape().isLength({ min: 2, max: 50 }),
   body('email').isEmail().normalizeEmail(),
   body('contact').isMobilePhone('en-IN'),
