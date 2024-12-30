@@ -694,7 +694,7 @@
 
                 function fetchCsrfToken() {
                   fetch(
-                    "https://balaji-electricals-website-production.up.railway.app/csrf-token",
+                    "https://balajielectricals-production.up.railway.app/csrf-token",
                     {
                       credentials: "include",
                     }
@@ -788,7 +788,7 @@
       // AJAX Form Submission Function
       function submitForm(formData, csrfToken) {
         $.ajax({
-          url: 'https://balaji-electricals-website-production.up.railway.app/submit-Enquiryform', // Backend API URL
+          url: 'https://balajielectricals-production.up.railway.app/submit-Enquiryform', // Backend API URL
           type: 'POST',
           data: JSON.stringify(formData),
           contentType: 'application/json',
