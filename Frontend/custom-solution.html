@@ -705,19 +705,18 @@
           errorMessage += "Phone number must be exactly 10 digits.\n";
           isValid = false;
         }
-          // Machine Type Validation (Length)
-  if (!machineType || machineType.length < 3) {
-    errorMessage += "Machine type/name must be at least 3 characters long.\n";
+          // Machine Type Validation (Only alphabets, at least 3 characters)
+  if (!machineType || !/^[a-zA-Z\s]+$/.test(machineType) || machineType.length < 3) {
+    errorMessage += "Machine type/name must contain only alphabets and be at least 3 characters long.\n";
     isValid = false;
   }
 
 
-        // Subject Validation (Minimum 10 characters)
-        if (!description || description.length < 10) {
-          errorMessage += "description must be at least 10 characters long.\n";
-          isValid = false;
-        }
-
+        // Description Validation (Only alphanumeric, no special characters, at least 10 characters)
+  if (!description || !/^[a-zA-Z0-9\s]+$/.test(description) || description.length < 10) {
+    errorMessage += "Description must contain only alphabets and numbers and be at least 10 characters long.\n";
+    isValid = false;
+  }
         if (!isValid) {
           alert(errorMessage);  // Display error messages
           return false;
