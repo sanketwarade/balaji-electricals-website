@@ -685,30 +685,47 @@
         submitForm(formData, csrfToken);
       });
 
-      // Form Validation
-      function validateForm({
-        name,
-        email,
-        phone,
-        "machine-type": machineType,
-      }) {
-        if (!name || !email || !phone || !machineType) {
-          alert("Please fill in all required fields.");
-          return false;
+      function validateForm({ name, email, phone, description, ["machine-type"]: machineType }) {
+        let isValid = true;
+        let errorMessage = "";
+
+        // Name Validation (Non-empty, at least 3 characters)
+        if (!name || name.length < 3) {
+          errorMessage += "Name must be at least 3 characters long.\n";
+          isValid = false;
         }
 
+        // Email Validation (Format)
         if (!validateEmail(email)) {
-          alert("Invalid email format.");
-          return false;
+          errorMessage += "Please enter a valid email address.\n";
+          isValid = false;
         }
 
+        // Phone Validation (Exactly 10 digits)
         if (!/^\d{10}$/.test(phone)) {
-          alert("Phone number must be 10 digits.");
-          return false;
+          errorMessage += "Phone number must be exactly 10 digits.\n";
+          isValid = false;
+        }
+          // Machine Type Validation (Length)
+  if (!machineType || machineType.length < 3) {
+    errorMessage += "Machine type/name must be at least 3 characters long.\n";
+    isValid = false;
+  }
+
+
+        // Subject Validation (Minimum 10 characters)
+        if (!description || description.length < 10) {
+          errorMessage += "description must be at least 10 characters long.\n";
+          isValid = false;
         }
 
+        if (!isValid) {
+          alert(errorMessage);  // Display error messages
+          return false;
+        }
         return true;
       }
+
 
       // Email Validation Helper
       function validateEmail(email) {
