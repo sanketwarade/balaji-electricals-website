@@ -237,7 +237,7 @@ app.post('/submit-quoteForm', [
   (req, res) => {
     console.log('CSRF Token from Request:', req.body.csrfToken);
     console.log('CSRF Secret from Session:', req.session.csrfSecret);  // Ensure session is enabled
-    next();
+    
 
     console.log('Received Data:', req.body);
     console.log('CSRF Token:', req.body.csrfToken);
