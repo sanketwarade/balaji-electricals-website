@@ -738,10 +738,11 @@
     let isValid = true;
     let errorMessage = '';
 
-    if (!name || name.length < 3) {
-        errorMessage += "Name must be at least 3 characters long.\n";
-        isValid = false;
-    }
+    // Validate Name
+  if (name.value.trim().length < 2 || name.value.trim().length > 50) {
+    isValid = false;
+    alert('Name should be between 2 and 50 characters.');
+  }
 
     if (!validateEmail(email)) {
         errorMessage += "Invalid email format.\n";
@@ -753,16 +754,16 @@
         isValid = false;
     }
 
-    if (!company || company.length < 2) {
-        errorMessage += "Company name must be at least 2 characters long.\n";
+    if (!company || company.length < 2 || company.value.trim().length > 50) {
+        errorMessage += "Company name must be between 2 to 50 characters.\n";
         $('#company').addClass('error-highlight');
         isValid = false;
     } else {
         $('#company').removeClass('error-highlight');
     }
 
-    if (!message || message.length < 10) {
-        errorMessage += "Message must be at least 10 characters.\n";
+    if (!message || message.length < 10 || message.value.trim().length > 100) {
+        errorMessage += "Message must be between 10 to 100 characters.\n";
         isValid = false;
     }
 
@@ -782,11 +783,16 @@
             const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
             return re.test(email);
         }
+        // Prevent form submission if validation fails
+  if (!isValid) {
+    event.preventDefault();
+  }
+});
          // Debugging CSRF token before submission
          console.log("Submitting with CSRF Token:", csrfToken);
     
              submitForm(formData, csrfToken);  // Submit the form with CSRF token
-          });
+          
           const csrfToken = document.querySelector('input[name="csrfToken"]').value;
     
         // AJAX Form Submission Function
