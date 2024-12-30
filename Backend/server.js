@@ -96,6 +96,10 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-CSRF-TOKEN');
   next();
 });
+app.get('/', (req, res) => {
+  res.send('Welcome to Balaji Electricals!');
+});
+
 
 // CSRF Token Generation Endpoint
 app.get('/csrf-token', (req, res) => {
