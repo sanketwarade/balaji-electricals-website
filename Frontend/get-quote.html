@@ -424,6 +424,7 @@
         action="https://balajielectricals-production.up.railway.app/submit-quoteForm"
         method="POST"
       >
+      <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
       
         <fieldset>
           <label for="name">Name:</label>
@@ -709,13 +710,11 @@
         $("#Enquiryform").submit(function (e) {
             e.preventDefault();
     
-            const csrfToken = localStorage.getItem("csrfToken");  // Retrieve CSRF token from localStorage
-            console.log("Sending CSRF Token:", csrfToken);  // Debugging CSRF token
-    
-            if (!csrfToken) {
-                alert("CSRF token not found. Refreshing...");
-                fetchCsrfToken();  // Refresh CSRF token if not found
-                return;
+            const csrfToken = localStorage.getItem("csrfToken");
+              if (!csrfToken) {
+            alert("CSRF token missing. Fetching again...");
+            fetchCsrfToken();
+            return;
             }
     
             // Prepare form data
@@ -732,64 +731,61 @@
     
             if (!validateForm(formData)) return;  // Validate form data
     
-            // Debugging CSRF token before submission
-            console.log("Submitting with CSRF Token:", csrfToken);
+           
     
-            submitForm(formData, csrfToken);  // Submit the form with CSRF token
-        });
-    
-        // Form Validation
-        function validateForm({ name, email, contact, company, machines, message }) {
-            let isValid = true;
-            let errorMessage = '';
-    
-            if (!name || name.length < 3) {
-                errorMessage += "Name must be at least 3 characters long.\n";
-                isValid = false;
-            }
-    
-            if (!validateEmail(email)) {
-                errorMessage += "Please enter a valid email address.\n";
-                isValid = false;
-            }
-    
-            if (!/^\d{10}$/.test(contact)) {
-                errorMessage += "Phone number must be exactly 10 digits.\n";
-                isValid = false;
-            }
-    
-            if (!company || company.length < 2) {
-                errorMessage += "Company name must be at least 2 characters long.\n";
-                $('#company').addClass('error-highlight');
-                isValid = false;
-            } else {
-                $('#company').removeClass('error-highlight');
-            }
-    
-            if (!message || message.length < 10) {
-                errorMessage += "Message must be at least 10 characters long.\n";
-                isValid = false;
-            }
-    
-            if (!machines || machines.length === 0) {
-                errorMessage += "Please select at least one machine or part.\n";
-                $('#machines').addClass('error-highlight');
-                isValid = false;
-            } else {
-                $('#machines').removeClass('error-highlight');
-            }
-    
-            if (!isValid) {
-                alert(errorMessage);
-            }
-            return isValid;
-        }
-    
+            function validateForm({ name, email, contact, company, machines, message }) {
+    let isValid = true;
+    let errorMessage = '';
+
+    if (!name || name.length < 3) {
+        errorMessage += "Name must be at least 3 characters long.\n";
+        isValid = false;
+    }
+
+    if (!validateEmail(email)) {
+        errorMessage += "Invalid email format.\n";
+        isValid = false;
+    }
+
+    if (!/^\d{10}$/.test(contact)) {
+        errorMessage += "Phone number must be exactly 10 digits.\n";
+        isValid = false;
+    }
+
+    if (!company || company.length < 2) {
+        errorMessage += "Company name must be at least 2 characters long.\n";
+        $('#company').addClass('error-highlight');
+        isValid = false;
+    } else {
+        $('#company').removeClass('error-highlight');
+    }
+
+    if (!message || message.length < 10) {
+        errorMessage += "Message must be at least 10 characters.\n";
+        isValid = false;
+    }
+
+    if (!machines || machines.length === 0) {
+        errorMessage += "Select at least one machine.\n";
+        isValid = false;
+    }
+
+    if (!isValid) {
+        alert(errorMessage);
+        return false;
+    }
+    return true;
+}
         // Email Validation Helper
         function validateEmail(email) {
             const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
             return re.test(email);
         }
+         // Debugging CSRF token before submission
+         console.log("Submitting with CSRF Token:", csrfToken);
+    
+             submitForm(formData, csrfToken);  // Submit the form with CSRF token
+          });
     
         // AJAX Form Submission Function
         function submitForm(formData, csrfToken) {
