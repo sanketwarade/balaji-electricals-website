@@ -14,6 +14,8 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
+app.use(express.json());
+
 
 // Define the rate limit rule
 const limiter = rateLimit({
@@ -28,7 +30,7 @@ app.use(limiter);
 app.set('trust proxy', 1); // This allows Express to trust the X-Forwarded-For header
 
 app.use(bodyParser.json());
-app.use(express.json());
+
 app.use(express.static(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend')));
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -120,10 +122,11 @@ app.post('/submit-solutionform', [
   body('description').optional().escape(),
   body('machine-type').optional().escape(),
 ], (req, res) => {
+  console.log('Form Data:', req.body);
   const csrfToken = req.headers['x-csrf-token'];
-const csrfSecret = req.session.csrfSecret;
-console.log('Received CSRF token:', csrfToken);  // Log received token
-console.log('Stored CSRF secret:', csrfSecret);  // Log stored token
+  const csrfSecret = req.session.csrfSecret;
+  console.log('Received CSRF token:', csrfToken);  // Log received token
+  console.log('Stored CSRF secret:', csrfSecret);  // Log stored token
 
 if (!csrfToken) {
   return res.status(400).json({ error: 'CSRF token missing' });
@@ -133,8 +136,6 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
   console.log('CSRF verification failed');
   return res.status(403).json({ error: 'Invalid CSRF token' });
 }
-  console.log('Form Data:', req.body);
-
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log('Validation Errors:', errors.array());
@@ -143,6 +144,10 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
 
   // Destructure only once to avoid redeclaration issues
   const { formType, name, email, phone,  'machine-type': machineType, description } = req.body;
+  if (!name || !email || !phone || !machineType || !description) {
+    return res.status(400).json({ error: 'All fields are required' });
+}
+ 
 
   // Ensure that machineType is not undefined or null
   if (!machineType) {
@@ -216,6 +221,9 @@ app.post('/submit-quoteForm', [
   body('message').trim().escape().isLength({ min: 10, max: 200 }),
 ], 
   (req, res) => {
+    console.log('Received Data:', req.body);
+    console.log('CSRF Token:', req.body.csrfToken);
+
     const csrfSecret = req.session.csrfSecret;
     const tokenFromFrontend = req.headers['x-csrf-token'] || req.body.csrfToken;
   
@@ -233,6 +241,11 @@ app.post('/submit-quoteForm', [
     }
       
     const { formType, name, company, contact, email, machines, message } = req.body;
+    // Validate and process the data
+    if (!name || !email || !contact || !company || !machines || !message) {
+      return res.status(400).json({ error: 'All fields are required' });
+  }
+
     
   // Ensure company is not undefined or null
   const companyValue = company || ''; // Default to empty string if company is undefined
@@ -310,6 +323,7 @@ app.post('/submit-Enquiryform', [
   body('phone').isMobilePhone('en-IN'),
   body('subject').trim().escape().isLength({ min: 10, max: 200 }),
 ],  (req, res) => {
+  console.log('Received Data:', req.body);
   const csrfToken = req.headers['x-csrf-token'];
     const csrfSecret = req.session.csrfSecret;
     console.log('Received CSRF token:', csrfToken);  // Log received token
@@ -325,7 +339,7 @@ app.post('/submit-Enquiryform', [
       console.log('CSRF verification failed');
       return res.status(403).json({ error: 'Invalid CSRF token' });
     }
-    console.log('Received Data:', req.body);
+    
 
     const errors = validationResult(req);
   if (!errors.isEmpty()) {
