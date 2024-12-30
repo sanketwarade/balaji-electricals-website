@@ -35,9 +35,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Apply Helmet with CSP
 // Use Helmet to enforce CSP
 app.use(helmet())
-
 const tokens = new csrf();
-
 // Allow requests only from your frontend
 const corsOptions = {
   origin: 'https://balajielectricals.netlify.app',  // Allow your frontend
@@ -90,8 +88,6 @@ app.use(session({
   }
 }));
 
-
-
 // CORS Configuration
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'https://balajielectricals.netlify.app');
@@ -105,23 +101,10 @@ app.use((req, res, next) => {
 app.get('/csrf-token', (req, res) => {
   const csrfSecret = tokens.secretSync();
   const csrfToken = tokens.create(csrfSecret);
-  req.session.csrfSecret = csrfSecret;
-
-  console.log("Generated CSRF Secret:", csrfSecret);
-  console.log("Generated CSRF Token:", csrfToken);
+  req.session.csrfSecret = csrfSecret
   
   res.json({ csrfToken, expiresIn: req.session.cookie.maxAge / 1000 });
 });
-app.use((req, res, next) => {
-  if (!req.session.csrfSecret) {
-    req.session.csrfSecret = tokens.secretSync();
-    console.log("CSRF Secret Created for Session:", req.session.csrfSecret);
-  }
-  next();
-});
-
-
-
 
 // Email Setup using environment variables
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
