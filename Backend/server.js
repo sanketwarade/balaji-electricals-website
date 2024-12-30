@@ -37,9 +37,7 @@ app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend')));
 app.use(bodyParser.urlencoded({ extended: true }));
 // Serve the CSRF token to the client
-app.get('/csrf-token', csrfProtection, (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
+
 // Apply Helmet with CSP
 // Use Helmet to enforce CSP
 app.use(helmet())
