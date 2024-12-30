@@ -16,8 +16,6 @@ require('dotenv').config();
 
 const app = express();
 app.use(express.json());
-const csrfProtection = csrf({ cookie: true });
-
 
 // Define the rate limit rule
 const limiter = rateLimit({
@@ -36,10 +34,7 @@ app.use(cookieParser())
 
 app.use(express.static(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend')));
 app.use(bodyParser.urlencoded({ extended: true }));
-// Serve the CSRF token to the client
 
-// Apply Helmet with CSP
-// Use Helmet to enforce CSP
 app.use(helmet())
 const tokens = new csrf();
 // Allow requests only from your frontend
@@ -93,7 +88,6 @@ app.use(session({
     sameSite: 'None'    // Ensure CSRF cookie can work cross-origin
   }
 }));
-
 // CORS Configuration
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'https://balajielectricals.netlify.app');
@@ -105,10 +99,6 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   res.send('Welcome to Balaji Electricals!');
 });
-
-
-
-
 // CSRF Token Generation Endpoint
 app.get('/csrf-token', (req, res) => {
   const csrfSecret = tokens.secretSync();
@@ -116,22 +106,10 @@ app.get('/csrf-token', (req, res) => {
   req.session.csrfSecret = csrfSecret
   res.json({ csrfToken, expiresIn: req.session.cookie.maxAge / 1000 });
 });
-
-
-
-// View Engine Setup (EJS or Pug)
-app.set('view engine', 'ejs');
-
-// Render Form with CSRF Token
-app.get('/quote', (req, res) => {
-    res.render('quote', { csrfToken: req.csrfToken() });  // CSRF token passed to form
-});
-
-
 // Email Setup using environment variables
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-
+//post method  for custom-solution
 app.post('/submit-solutionform', [
   body('name').trim().escape(),
   body('email').isEmail().normalizeEmail(),
@@ -164,8 +142,6 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
   if (!name || !email || !phone || !machineType || !description) {
     return res.status(400).json({ error: 'All fields are required' });
 }
- 
-
   // Ensure that machineType is not undefined or null
   if (!machineType) {
     return res.status(400).send({ success: false, message: 'Machine Type is required' });
@@ -178,8 +154,6 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
     subject: validator.escape(machineType),
     description: validator.escape(description)
   };
-
-
   const query = `'INSERT INTO custom_solutions (form_type, name, email, phone, machine_type, description) VALUES (?, ?, ?, ?, ?, ?);''
   `
   const values = [sanitizedInputs.name, sanitizedInputs.email, sanitizedInputs.phone, sanitizedInputs.machineType,sanitizedInputs.description];
