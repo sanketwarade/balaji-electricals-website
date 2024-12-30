@@ -421,7 +421,7 @@
       <h2>Enter Your Details</h2>
       <form
         id="quoteForm"
-        action="https://balaji-electricals-website-production.up.railway.app/submit-quoteForm"
+        action="https://balajielectricals-production.up.railway.app/submit-quoteForm"
         method="POST"
       >
       
@@ -682,7 +682,7 @@
     
         function fetchCsrfToken() {
             fetch(
-                "https://balaji-electricals-website-production.up.railway.app/csrf-token",
+                "https://balajielectricals-production.up.railway.app/csrf-token",
                 {
                     credentials: "include",
                 }
@@ -797,7 +797,7 @@
         // AJAX Form Submission Function
         function submitForm(formData, csrfToken) {
             $.ajax({
-                url: 'https://balaji-electricals-website-production.up.railway.app/submit-quoteForm',
+                url: 'https://balajielectricals-production.up.railway.app/submit-quoteForm',
                 type: 'POST',
                 data: JSON.stringify(formData),
                 contentType: 'application/json',
