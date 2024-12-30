@@ -231,7 +231,7 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
   });
 
 // POST endpoint to handle form submission (Quote Form)
-app.post('/submit-quoteForm',csrfprotection(), [
+app.post('/submit-quoteForm', [
   body('name').trim().escape().isLength({ min: 2, max: 50 }),
   body('email').isEmail().normalizeEmail(),
   body('contact').isMobilePhone('en-IN'),
