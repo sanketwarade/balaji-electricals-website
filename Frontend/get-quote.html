@@ -806,10 +806,7 @@
                     // Refresh CSRF token after successful submission
                     fetchCsrfToken();
                     
-                    // Delay page reload by 1.5 seconds
-                    setTimeout(function () {
-                        location.reload();
-                    }, 1500);
+                    
                 },
     
                 error: function (xhr, status, error) {
