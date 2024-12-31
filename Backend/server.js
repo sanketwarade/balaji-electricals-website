@@ -37,6 +37,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(helmet())
 const tokens = new csrf();
+// CSRF middleware (initialize before routes)
+app.use(csrf({ cookie: true }));
 // Allow requests only from your frontend
 const corsOptions = {
   origin: 'https://balajielectricals.netlify.app',  // Allow your frontend
@@ -46,6 +48,11 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.get('/quoteForm', (req, res) => {
+  const csrfToken = req.csrfToken();  // Generate CSRF token
+  res.render('quoteForm', { csrfToken });  // Pass to EJS/Pug/HTML template
+});
+
 
 // MySQL Database Connection
 const pool = mysql.createPool({
@@ -199,7 +206,7 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
 app.post('/submit-quoteForm', [
   body('name').trim().escape().isLength({ min: 3, max: 50 }),
   body('email').isEmail().normalizeEmail(),
-  body('contact').isLength({min:10, max:100}).trim(),
+  body('contact').isLength({ min: 10, max: 10 }).isNumeric().trim(),
   body('message').trim().escape().isLength({ min: 10, max: 100 }),
   body('company').trim().escape().isLength({min: 3, max: 50}),
   body('machines').trim().escape().isIn(['Mig Welding Machine', 'Tig Welding Machine', 'SPM Welding Machine', 'Rotary Positioner','X-Y Linear Slides','Spare Parts','Control Panels']) .withMessage('Invalid machine selection.')
@@ -208,6 +215,11 @@ app.post('/submit-quoteForm', [
     console.log('Received Data:', req.body);
     const csrfToken = req.headers['x-csrf-token'];
     const csrfSecret = req.session.csrfSecret;
+    console.log('Generated CSRF Token:', req.csrfToken());
+    req.session.csrfSecret = tokens.secretSync();  // Regenerate secret
+    
+    res.render('quoteForm', { csrfToken });
+
     console.log('Received CSRF token:', csrfToken);  // Log received token
     console.log('Stored CSRF secret:', csrfSecret);  // Log stored token
     if (!csrfToken) {
@@ -240,7 +252,7 @@ app.post('/submit-quoteForm', [
   const query = 'INSERT INTO quote_requests (form_type, name, company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)';
   const values = [formType, sanitizedInputs.name, sanitizedInputs.company, sanitizedInputs.contact, sanitizedInputs.email, JSON.stringify(machines), sanitizedInputs.message];
   pool.execute(
-    'INSERT INTO quote_requests (form_type, names, company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO quote_requests (form_type, name, company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)',
     [formType, name, email, contact, company, machines, message],
     (query, values, (err, result) => {
     if (err) {
