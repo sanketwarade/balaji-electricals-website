@@ -3,7 +3,7 @@ const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
-const csrf = require('csrf');  // CSRF token library
+const csrf = require('csrf');  // CSRF token library for form 1 and 2
 const sgMail = require('@sendgrid/mail');  // Import SendGrid
 const cors = require('cors');
 const validator = require('validator');
@@ -12,6 +12,7 @@ const helmet = require('helmet'); // New: Secure HTTP headers
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -32,13 +33,15 @@ app.set('trust proxy', 1); // This allows Express to trust the X-Forwarded-For h
 app.use(bodyParser.json());
 app.use(cookieParser())
 
-app.use(express.static(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend')));
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+
+
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(helmet())
-const tokens = new csrf();
-// CSRF middleware (initialize before routes)
-app.use(csrf({ cookie: true }));
+const tokens = new csrf(); // CSRF Instance for forms 1 and 2
+// CSRF protection middleware
 // Allow requests only from your frontend
 const corsOptions = {
   origin: 'https://balajielectricals.netlify.app',  // Allow your frontend
@@ -46,12 +49,11 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'X-CSRF-TOKEN'],  // Allow headers
   credentials: true  // Allow cookies or sessions to be sent
 };
-
 app.use(cors(corsOptions));
-app.get('/quoteForm', (req, res) => {
-  const csrfToken = req.csrfToken();  // Generate CSRF token
-  res.render('quoteForm', { csrfToken });  // Pass to EJS/Pug/HTML template
-});
+//form 3 route 
+// CSRF Token Handling for 3rd Form
+
+
 
 
 // MySQL Database Connection
@@ -109,6 +111,26 @@ app.get('/csrf-token', (req, res) => {
   req.session.csrfSecret = csrfSecret
   res.json({ csrfToken, expiresIn: req.session.cookie.maxAge / 1000 });
 });
+// CSRF Token Handling for form
+app.get('/quoteForm', (req, res) => {
+  try {
+    const csrfSecret = tokens.secretSync(); // Generate a new secret
+    const csrfToken = tokens.create(csrfSecret); // Create a token using the secret
+    req.session.csrfSecret = csrfSecret; // Store the secret in the session for later use
+    
+    const htmlContent = fs.readFileSync(path.join(__dirname, 'Frontend/get-quote.html'), 'utf-8');
+    
+    res.json({
+      csrfToken: csrfToken, // Send the generated CSRF token
+      htmlContent: htmlContent
+    });
+  } catch (error) {
+    console.error("Error in /quoteForm route:", error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
 // Email Setup using environment variables
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -202,8 +224,8 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
       res.status(200).send({ success: true, message: 'Form submitted successfully!' });
   });
 
-// POST endpoint to handle form submission (Quote Form)
-app.post('/submit-quoteForm', [
+// POST endpoint to handle form submission (Quote Form) this is the form 3
+app.post('/submit-quoteForm', [ //form 3
   body('name').trim().escape().isLength({ min: 3, max: 50 }),
   body('email').isEmail().normalizeEmail(),
   body('contact').isLength({ min: 10, max: 10 }).isNumeric().trim(),
@@ -212,23 +234,26 @@ app.post('/submit-quoteForm', [
   body('machines').trim().escape().isIn(['Mig Welding Machine', 'Tig Welding Machine', 'SPM Welding Machine', 'Rotary Positioner','X-Y Linear Slides','Spare Parts','Control Panels']) .withMessage('Invalid machine selection.')
 ], 
   (req, res) => {
-    console.log('Received Data:', req.body);
-    const csrfToken = req.headers['x-csrf-token'];
-    const csrfSecret = req.session.csrfSecret;
-    console.log('Generated CSRF Token:', req.csrfToken());
-    req.session.csrfSecret = tokens.secretSync();  // Regenerate secret
-    
-    res.render('quoteForm', { csrfToken });
+    // CSRF Token Handling
+  const csrfToken = req.body._csrf;  // Fetch the CSRF token from the body
+  const csrfSecret = req.session.csrfSecret;  // Session CSRF Secret
+  
+  // Log received data for debugging
+  console.log('Received Data:', req.body);
+  console.log('Received CSRF Token:', csrfToken);
 
-    console.log('Received CSRF token:', csrfToken);  // Log received token
-    console.log('Stored CSRF secret:', csrfSecret);  // Log stored token
-    if (!csrfToken) {
-      return res.status(400).json({ error: 'CSRF token missing' });
-    }
-    if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
-      console.log('CSRF verification failed');
-      return res.status(403).json({ error: 'Invalid CSRF token' });
-    }
+  // Regenerate CSRF token on each request for extra security
+  req.session.csrfSecret = tokens.secretSync();
+
+  // CSRF Token Validation
+  if (!csrfToken) {
+    return res.status(400).json({ error: 'CSRF token missing' });
+  }
+  
+  // CSRF Secret Verification
+  if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
+    return res.status(403).json({ error: 'Invalid CSRF token' });
+  }
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
     console.log('Validation Errors:', errors.array());
