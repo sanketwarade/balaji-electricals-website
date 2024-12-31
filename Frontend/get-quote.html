@@ -424,6 +424,7 @@
         action="https://balajielectricals-production.up.railway.app/submit-quoteForm"
         method="POST"
       >
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">  
           <fieldset>
           <label for="name">Name:</label>
           <input
@@ -726,6 +727,7 @@
             console.log("Sending CSRF token:", csrfToken);
             submitForm(formData, csrfToken);
             });
+            console.log('CSRF Token:', '<%= csrfToken %>');
 
             function validateForm({ name, email, contact, company, machines, message }) {
 
