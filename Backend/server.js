@@ -21,7 +21,7 @@ app.use(express.json());
 // Define the rate limit rule
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per window
+  max: 80, // Limit each IP to 100 requests per window
   message: 'Too many requests from this IP, please try again after 15 minutes.',
 });
 
@@ -255,7 +255,7 @@ app.post('/submit-quoteForm', [ //form 3
 ], 
   (req, res) => {
     // CSRF Token Handling
-  const csrfToken = req.body._csrf;  // Fetch the CSRF token from the body
+  const csrfToken = req.body.csrf || req.headers['x-csrf-token'];  // Check both body and headers  // Fetch the CSRF token from the body
   const csrfSecret = req.session.csrfSecret;  // Session CSRF Secret
   
   // Log received data for debugging
@@ -338,7 +338,7 @@ app.post('/submit-quoteForm', [ //form 3
       .catch((error) => {
         console.error('Error sending email to admin:', error);
       });
-      res.status(200).send({ success: true, message: 'Quote Requested Submitted Successfully!' });
+      res.status(200).send({ success: true, message: 'Quote Request Submitted Successfully!' });
   });
 
 // POST endpoint to handle form submission (Enquiry Form)
