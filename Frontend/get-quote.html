@@ -424,7 +424,8 @@
         action="https://balajielectricals-production.up.railway.app/submit-quoteForm"
         method="POST"
       >
-      <input type="hidden" name="csrf" id="csrfToken">
+      <input type="hidden" name="csrf" id="csrfToken" value="{{csrfToken}}">
+     
           <fieldset>
           <label for="name">Name:</label>
           <input
@@ -779,7 +780,7 @@ function validateEmail(email) {
 
     // Retry CSRF token if expired
     function submitForm(formData) {
-        formData._csrf = localStorage.getItem("csrfToken") || formData._csrf;
+        formData.csrf = localStorage.getItem("csrfToken") || formData.csrf;
 
         $.ajax({
             url: 'https://balajielectricals-production.up.railway.app/submit-quoteForm',
