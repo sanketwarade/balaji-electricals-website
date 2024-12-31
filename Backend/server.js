@@ -105,37 +105,44 @@ app.get('/', (req, res) => {
   res.send('Welcome to Balaji Electricals!');
 });
 // CSRF Token Generation Endpoint
+// CSRF Token Generation Endpoint (Keep only this one)
+// CSRF Token Generation Endpoint (Generate token but keep secret consistent)
 app.get('/csrf-token', (req, res) => {
-  const csrfSecret = tokens.secretSync();
-  const csrfToken = tokens.create(csrfSecret);
-  req.session.csrfSecret = csrfSecret
+  if (!req.session.csrfSecret) {
+    req.session.csrfSecret = tokens.secretSync();  // Generate if missing
+  }
+  const csrfToken = tokens.create(req.session.csrfSecret);  // Create from existing secret
   res.json({ csrfToken, expiresIn: req.session.cookie.maxAge / 1000 });
 });
+
+// Error Handling for CSRF Mismatch
 app.use((err, req, res, next) => {
   if (err.code === 'EBADCSRFTOKEN') {
     console.warn("CSRF token mismatch, generating new token...");
-    req.session.csrfSecret = tokens.secretSync(); // Refresh secret
-    res.status(403).json({ message: 'CSRF token expired. Please try again.', csrfToken: tokens.create(req.session.csrfSecret) });
+    if (!req.session.csrfSecret) {
+      req.session.csrfSecret = tokens.secretSync();
+    }
+    const newCsrfToken = tokens.create(req.session.csrfSecret);
+    res.status(403).json({
+      message: 'CSRF token expired. Please try again.',
+      csrfToken: newCsrfToken
+    });
   } else {
     next(err);
   }
 });
-app.get('/csrf-token', (req, res) => {
-  res.json({ _csrf: req.csrfToken() });
-});
 
-// CSRF Token Handling for form
+// CSRF Token Handling for Forms
 app.get('/quoteForm', (req, res) => {
   try {
-    const csrfSecret = tokens.secretSync(); // Generate a new secret
-    const csrfToken = tokens.create(csrfSecret); // Create a token using the secret
-    req.session.csrfSecret = csrfSecret; // Store the secret in the session for later use
-    
+    if (!req.session.csrfSecret) {
+      req.session.csrfSecret = tokens.secretSync();
+    }
+    const csrfToken = tokens.create(req.session.csrfSecret);  // Generate token
     const htmlContent = fs.readFileSync(path.join(__dirname, 'Frontend/get-quote.html'), 'utf-8');
-    
     res.json({
-      csrfToken: csrfToken, // Send the generated CSRF token
-      htmlContent: htmlContent
+      csrfToken,
+      htmlContent
     });
   } catch (error) {
     console.error("Error in /quoteForm route:", error);
