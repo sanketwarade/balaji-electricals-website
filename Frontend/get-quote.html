@@ -675,37 +675,40 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
-      let csrfRetryCount = 0; // Track retry attempts
+      let csrfRetryCount = 0;  // Track retry attempts
 
-// Ensure fetchCsrfToken is globally accessible
-function fetchCsrfToken() {
-    $.get('https://balajielectricals-production.up.railway.app/csrf-token', function (data) {
-        // Inject the CSRF token into the hidden input field
-        $('#csrfToken').val(data.csrfToken);
-        localStorage.setItem("csrfToken", data.csrfToken);  // Store the token
-        console.log("Session is active, CSRF token fetched:", data.csrfToken);
-        csrfRetryCount = 0;  // Reset retry count after successful fetch
-    }).fail(function (err) {
-        console.error("CSRF Token Fetch Error:", err);
-        alert("Error fetching CSRF token. Please try again later.");
-    });
-}
-
-// Fetch CSRF token on page load
+// Fetch CSRF token on page load and store it in localStorage
 $(document).ready(function () {
     fetchCsrfToken();  // Call function to fetch CSRF token on page load
-});
 
-// AJAX Form Submission with Custom Header
-$("#quoteForm").submit(function (e) {
-    e.preventDefault();
-
-    // Ensure CSRF token is available before form submission
-    if (!$('#csrfToken').val()) {
-        fetchCsrfToken();  // Fetch token if missing
-        alert("Fetching CSRF token. Please wait a moment and try submitting again.");
-        return;  // Stop form submission until token is fetched
+    // Fetch CSRF token from the server and inject it into the form
+    function fetchCsrfToken() {
+        $.get('https://balajielectricals-production.up.railway.app/csrf-token', function (data) {
+            // Inject the CSRF token into the hidden input field
+            $('#csrfToken').val(data.csrfToken);
+            localStorage.setItem("csrfToken", data.csrfToken);  // Store the token
+            console.log("Session is active, CSRF token fetched:", data.csrfToken);
+            csrfRetryCount = 0;  // Reset retry count after successful fetch
+        }).fail(function (err) {
+            console.error("CSRF Token Fetch Error:", err);
+            alert("Error fetching CSRF token. Please try again later.");
+        });
     }
+  
+  
+
+    // Handle form submission with custom header
+    $("#quoteForm").submit(function (e) {
+        e.preventDefault();
+
+        // Ensure CSRF token is available before form submission
+        if (!$('#csrfToken').val()) {
+            fetchCsrfToken();  // Fetch token if missing
+            alert("Fetching CSRF token. Please wait a moment and try submitting again.");
+            return;  // Stop form submission until token is fetched
+        }
+      
+    
 
     // Prepare form data
     const formData = {
@@ -776,73 +779,79 @@ function validateEmail(email) {
     return re.test(email);
 }
 
-// AJAX Form Submission Function
-function submitForm(formData) {
-    formData._csrf = localStorage.getItem("csrfToken") || formData._csrf;
 
-    $.ajax({
-        url: 'https://balajielectricals-production.up.railway.app/submit-quoteForm',
-        type: 'POST',
-        data: JSON.stringify(formData),  // Send data as JSON
-        headers: {
-            "Content-Type": "application/json",  // Specify content type as JSON
-            "X-CSRF-TOKEN": formData._csrf,  // Attach CSRF token in headers
-        },
-        xhrFields: {
-            withCredentials: true  // Ensure cookies are sent with the request
-        },
-        timeout: 10000,  // Set 10-second timeout
+    // Retry CSRF token if expired
+    function submitForm(formData) {
+        formData._csrf = localStorage.getItem("csrfToken") || formData._csrf;
 
-        success: function (response) {
-            alert('Form submitted successfully!');
-            $('#quoteForm')[0].reset();  // Reset the form
-            $('#successMessage').fadeIn();  // Show success message
-            $('#errorMessage').fadeOut();  // Hide any previous error messages
+        $.ajax({
+            url: 'https://balajielectricals-production.up.railway.app/submit-quoteForm',
+            type: 'POST',
+            data: JSON.stringify(formData),  // Send data as JSON
+            headers: {
+                "Content-Type": "application/json", // Specify content type as JSON
+                "X-CSRF-TOKEN": formData._csrf,  // Attach CSRF token in headers
+            },
+            xhrFields: {
+                withCredentials: true  // Ensure cookies are sent with the request
+            },
+            timeout: 10000,  // Set 10-second timeout
 
-            // Refresh CSRF token after successful submission
-            fetchCsrfToken();
-        },
+            success: function (response) {
+                alert('Form submitted successfully!');
+                $('#quoteForm')[0].reset();  // Reset the form
+                $('#successMessage').fadeIn();  // Show success message
+                $('#errorMessage').fadeOut();  // Hide any previous error messages
 
-        error: function (xhr, status, error) {
-            if (xhr.status === 403) {
-                console.warn("CSRF token expired, fetching new token...");
+                // Refresh CSRF token after successful submission
+                fetchCsrfToken();
 
-                if (csrfRetryCount < 2) {
-                    csrfRetryCount++;
-                    fetchCsrfToken();  // Refresh CSRF token
+                // Delay page reload by 1.5 seconds
+                setTimeout(function () {
+                    location.reload();
+                }, 1500);
+            },
 
-                    // Retry form submission with new token
-                    setTimeout(() => {
-                        const newCsrfToken = localStorage.getItem("csrfToken");
-                        formData._csrf = newCsrfToken;  // Update CSRF token in formData
-                        submitForm(formData);
-                    }, 1000);
+            error: function (xhr, status, error) {
+                if (xhr.status === 403) {
+                    console.warn("CSRF token expired, fetching new token...");
+
+                    // Limit retries to only 1 attempt
+                    if (csrfRetryCount < 1) {
+                        csrfRetryCount++;
+                        fetchCsrfToken();  // Refresh CSRF token
+
+                        // Retry form submission with new token after waiting for the fetch to complete
+                        setTimeout(() => {
+                            const newCsrfToken = localStorage.getItem("csrfToken");
+                            submitForm(formData);  // Submit again with the new token
+                        }, 1000);
+                    } else {
+                        alert("Failed to submit form after retry. Please try again later.");
+                        csrfRetryCount = 0;
+                    }
                 } else {
-                    alert("Failed to submit form after multiple attempts. Please try again later.");
-                    csrfRetryCount = 0;
+                    console.error("Submission error:", xhr.responseText);
+                    alert("Form submission failed. Please try again.");
                 }
-            } else {
-                console.error("Submission error:", xhr.responseText);
-                alert("Form submission failed. Please try again.");
+
+                // Handle timeout error
+                if (status === "timeout") {
+                    alert("Request timed out. Please check your internet connection.");
+                } else {
+                    // Log error details to console
+                    console.error("Error details:", error);
+                    console.log("Full Response:", xhr.responseText);
+
+                    // Show detailed error message
+                    $("#errorMessage")
+                        .text(xhr.responseText || "There was an error while submitting the form. Please try again later.")
+                        .fadeIn();
+                }
             }
-
-            // Handle timeout error
-            if (status === "timeout") {
-                alert("Request timed out. Please check your internet connection.");
-            } else {
-                // Log error details to console
-                console.error("Error details:", error);
-                console.log("Full Response:", xhr.responseText);
-
-                // Show detailed error message
-                $("#errorMessage")
-                    .text(xhr.responseText || "There was an error while submitting the form. Please try again later.")
-                    .fadeIn();
-            }
-        }
-    });
-}
-
+        });
+    }
+});
   
 
         // Mobile Menu Open
