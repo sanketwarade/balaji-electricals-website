@@ -786,9 +786,10 @@
                 url: 'https://balajielectricals-production.up.railway.app/submit-quoteForm',
                 type: 'POST',
                 data: JSON.stringify(formData),
-                contentType: 'application/json',
+    
                 headers: {
-                    "X-CSRF-TOKEN": csrfToken  // Attach CSRF token in headers
+                    "X-CSRF-TOKEN": csrfToken ,
+                    "contentType": "application/json", // Attach CSRF token in headers
                 },
                 xhrFields: {
                     withCredentials: true  // Ensure cookies are sent with the request
