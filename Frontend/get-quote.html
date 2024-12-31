@@ -686,6 +686,7 @@
                 $.get('https://balajielectricals-production.up.railway.app/csrf-token', function (data) {
                     // Inject the CSRF token into the hidden input field
                     $('#csrfToken').val(data.csrfToken);
+                    localStorage.setItem("csrfToken", data.csrfToken);  // Store the token
                     console.log("Session is active, CSRF token fetched:", data.csrfToken);
                     csrfRetryCount = 0;  // Reset retry count after successful fetch
                 }).fail(function (err) {
@@ -694,10 +695,18 @@
                 });
             }
         });
+         
     
         // AJAX Form Submission with Custom Header
         $("#quoteForm").submit(function (e) {
             e.preventDefault();
+
+             // Ensure CSRF token is available before form submission
+    if (!$('#csrfToken').val()) {
+        fetchCsrfToken();  // Fetch token if missing
+        alert("Fetching CSRF token. Please wait a moment and try submitting again.");
+        return;  // Stop form submission until token is fetched
+    }
     
             // Prepare form data
             const formData = {
@@ -770,6 +779,8 @@
     
         // AJAX Form Submission Function
         function submitForm(formData) {
+          // Update the CSRF token in formData before resubmission
+    formData._csrf = localStorage.getItem("csrfToken") || formData._csrf;
             $.ajax({
                 url: 'https://balajielectricals-production.up.railway.app/submit-quoteForm',
                 type: 'POST',
