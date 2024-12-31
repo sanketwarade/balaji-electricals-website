@@ -424,7 +424,7 @@
         action="https://balajielectricals-production.up.railway.app/submit-quoteForm"
         method="POST"
       >
-      <input type="hidden" name="_csrf" id="csrfToken">
+      <input type="hidden" name="csrf" id="csrfToken">
           <fieldset>
           <label for="name">Name:</label>
           <input
@@ -675,7 +675,6 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
-      let csrfRetryCount = 0;  // Track retry attempts
 
 // Fetch CSRF token on page load and store it in localStorage
 $(document).ready(function () {
@@ -688,7 +687,7 @@ $(document).ready(function () {
             $('#csrfToken').val(data.csrfToken);
             localStorage.setItem("csrfToken", data.csrfToken);  // Store the token
             console.log("Session is active, CSRF token fetched:", data.csrfToken);
-            csrfRetryCount = 0;  // Reset retry count after successful fetch
+          
         }).fail(function (err) {
             console.error("CSRF Token Fetch Error:", err);
             alert("Error fetching CSRF token. Please try again later.");
@@ -701,14 +700,12 @@ $(document).ready(function () {
     $("#quoteForm").submit(function (e) {
         e.preventDefault();
 
-        // Ensure CSRF token is available before form submission
-        if (!$('#csrfToken').val()) {
-            fetchCsrfToken();  // Fetch token if missing
+         // Ensure CSRF token is available before form submission
+         if (!$('#csrfToken').val() || $('#csrfToken').val() !== localStorage.getItem("csrfToken")) {
+            fetchCsrfToken();  // Fetch token if missing or invalid
             alert("Fetching CSRF token. Please wait a moment and try submitting again.");
             return;  // Stop form submission until token is fetched
         }
-      
-    
 
     // Prepare form data
     const formData = {
@@ -719,7 +716,7 @@ $(document).ready(function () {
         company: $('#company').val(),
         machines: $('#machines').val(),
         message: $('#message').val(),
-        _csrf: $('#csrfToken').val(),  // Include CSRF token in the form data
+        csrf: $('#csrfToken').val(),  // Include CSRF token in the form data
     };
 
     if (!validateForm(formData)) return;
@@ -790,7 +787,7 @@ function validateEmail(email) {
             data: JSON.stringify(formData),  // Send data as JSON
             headers: {
                 "Content-Type": "application/json", // Specify content type as JSON
-                "X-CSRF-TOKEN": formData._csrf,  // Attach CSRF token in headers
+                "X-CSRF-TOKEN":  $('#csrfToken').val()  // Include CSRF token in the request header
             },
             xhrFields: {
                 withCredentials: true  // Ensure cookies are sent with the request
@@ -813,23 +810,8 @@ function validateEmail(email) {
             },
 
             error: function (xhr, status, error) {
-                if (xhr.status === 403) {
-                    console.warn("CSRF token expired, fetching new token...");
-
-                    // Limit retries to only 1 attempt
-                    if (csrfRetryCount < 1) {
-                        csrfRetryCount++;
-                        fetchCsrfToken();  // Refresh CSRF token
-
-                        // Retry form submission with new token after waiting for the fetch to complete
-                        setTimeout(() => {
-                            const newCsrfToken = localStorage.getItem("csrfToken");
-                            submitForm(formData);  // Submit again with the new token
-                        }, 1000);
-                    } else {
-                        alert("Failed to submit form after retry. Please try again later.");
-                        csrfRetryCount = 0;
-                    }
+              if (xhr.status === 403) {
+                    console.warn("CSRF token expired, please refresh the page and try again.");
                 } else {
                     console.error("Submission error:", xhr.responseText);
                     alert("Form submission failed. Please try again.");
