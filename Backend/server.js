@@ -111,6 +111,19 @@ app.get('/csrf-token', (req, res) => {
   req.session.csrfSecret = csrfSecret
   res.json({ csrfToken, expiresIn: req.session.cookie.maxAge / 1000 });
 });
+app.use((err, req, res, next) => {
+  if (err.code === 'EBADCSRFTOKEN') {
+    console.warn("CSRF token mismatch, generating new token...");
+    req.session.csrfSecret = tokens.secretSync(); // Refresh secret
+    res.status(403).json({ message: 'CSRF token expired. Please try again.', csrfToken: tokens.create(req.session.csrfSecret) });
+  } else {
+    next(err);
+  }
+});
+app.get('/csrf-token', (req, res) => {
+  res.json({ _csrf: req.csrfToken() });
+});
+
 // CSRF Token Handling for form
 app.get('/quoteForm', (req, res) => {
   try {
@@ -292,15 +305,15 @@ app.post('/submit-quoteForm', [ //form 3
       from: process.env.SENDGRID_SENDER_EMAIL,
       to: sanitizedInputs.email,
       subject: 'Quote Request Received',
-      text: `Hello ${name},\n\nThank you for requesting a quote. Here are the details we received:\n\nMachines/Parts: ${machines.join(', ')}\nMessage: ${message}\n\nWe will get back to you shortly.`,
-    };
+      text: `Hello ${sanitizedInputs.name},\n\nThank you for requesting a quote. Here are the details we received:\n\nMachines/Parts: ${machines.join(', ')}\nMessage: ${sanitizedInputs.message}\n\nWe will get back to you shortly.`,
+      };
     // Send email to admin (quote details)
     const adminMail = {
       from: process.env.SENDGRID_SENDER_EMAIL,
       to: process.env.ADMIN_EMAIL,
       subject: 'New Quote Request',
-      text: `New quote request received:\n\nName: ${name}\nCompany: ${companyValue}\nContact: ${contact}\nEmail: ${email}\nMachines/Parts: ${machines.join(', ')}\nMessage: ${message}`,
-    };
+      text: `New quote request received:\n\nName: ${sanitizedInputs.name}\nCompany: ${sanitizedInputs.company}\nContact: ${sanitizedInputs.contact}\nEmail: ${sanitizedInputs.email}\nMachines/Parts: ${machines.join(', ')}\nMessage: ${sanitizedInputs.message}`,
+      };
     // Send emails
     sgMail
       .send(userMail)
