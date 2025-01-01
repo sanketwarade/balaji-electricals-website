@@ -752,15 +752,40 @@
         return true;
       }
 
-      // Email Validation Helper (with stricter checks)
       function validateEmail(email) {
-        const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-        // Ensure email is not too long (max length 320 characters, standard email length max)
+        const allowedTLDs = [
+          "com",
+          "net",
+          "org",
+          "edu",
+          "gov",
+          "co",
+          "io",
+          "us",
+          "info",
+        ];
+
+        // Regex to validate email format, block consecutive dots, and allow only valid TLDs
+        const emailRegex =
+          /^[a-zA-Z0-9._-]+(?<!\.\.)@[a-zA-Z0-9.-]+\.(com|net|org|edu|gov|co|io|us|info)$/;
+
         if (email.length > 320) {
+          return false; // Email exceeds the max allowed length
+        }
+
+        // Check if email matches the regex
+        if (!emailRegex.test(email)) {
           return false;
         }
 
-        // Prevent certain patterns like "test@example.com"
+        // Extract TLD and check if it's allowed
+        const domainParts = email.split(".");
+        const tld = domainParts[domainParts.length - 1].toLowerCase();
+        if (!allowedTLDs.includes(tld)) {
+          return false;
+        }
+
+        // Block certain known test emails
         const testEmails = [
           "test@example.com",
           "user@example.com",
@@ -770,7 +795,7 @@
           return false;
         }
 
-        return re.test(email);
+        return true;
       }
 
       // Check if the phone number is a repetitive sequence (e.g., 1111111111, 2222222222)
@@ -779,23 +804,22 @@
         return /^(\d)\1{9}$/.test(phone);
       }
 
-     
       // Check for sequential phone numbers (e.g., 1234567890)
-function isSequentialNumber(phone) {
-  const sequentialNumbers = [
-    "0123456789",
-    "1234567890",
-    "2345678901",
-    "3456789012",
-    "4567890123",
-    "5678901234",
-    "6789012345",
-    "7890123456",
-    "8901234567",
-    "9012345678",
-  ];
-  return sequentialNumbers.includes(phone);
-}
+      function isSequentialNumber(phone) {
+        const sequentialNumbers = [
+          "0123456789",
+          "1234567890",
+          "2345678901",
+          "3456789012",
+          "4567890123",
+          "5678901234",
+          "6789012345",
+          "7890123456",
+          "8901234567",
+          "9012345678",
+        ];
+        return sequentialNumbers.includes(phone);
+      }
 
       // AJAX Form Submission Function
       function submitForm(formData, csrfToken) {
