@@ -479,7 +479,11 @@
 
       <div class="form-container">
         <h2>Enquiry Form</h2>
-        <form id="Enquiryform" action="https://balaji-electricals-website-production.up.railway.app/submit-Enquiryform" method="POST">
+        <form
+          id="Enquiryform"
+          action="https://balaji-electricals-website-production.up.railway.app/submit-Enquiryform"
+          method="POST"
+        >
           <label for="name">Full Name*</label>
           <input
             type="text"
@@ -684,74 +688,76 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <script>
-              let csrfRetryCount = 0; // Track retry attempts
-                // Fetch CSRF token on page load and store it in localStorage
-                $(document).ready(function () {
-                  fetchCsrfToken();
-                });
-                // Function to fetch CSRF token
-                // Function to fetch CSRF token
+      let csrfRetryCount = 0; // Track retry attempts
+      // Fetch CSRF token on page load and store it in localStorage
+      $(document).ready(function () {
+        fetchCsrfToken();
+      });
+      // Function to fetch CSRF token
+      // Function to fetch CSRF token
 
-                function fetchCsrfToken() {
-                  fetch(
-                    "https://balajielectricals-production.up.railway.app/csrf-token",
-                    {
-                      credentials: "include",
-                    }
-                  )
-                    .then((res) => {
-                      if (!res.ok) {
-                        // If response is not OK (status code outside of 2xx range), throw an error
-                        throw new Error("Failed to fetch CSRF token: " + res.statusText);
-                      }
-                      return res.json(); // Attempt to parse the response as JSON
-                    })
-                    .then((data) => {
-                      // Successfully received CSRF token
-                      localStorage.setItem("csrfToken", data.csrfToken);
-                      console.log(
-                        "Session is active, CSRF token fetched:",
-                        data.csrfToken
-                      );
-                      csrfRetryCount = 0; // Reset retry count after successful token fetch
-                    })
-                    .catch((err) => {
-                      // Handle any errors (network errors, failed JSON parsing, etc.)
-                      console.error(err);
-                      alert("Error fetching CSRF token. Please try again later.");
-                    });
-                }
+      function fetchCsrfToken() {
+        fetch(
+          "https://balajielectricals-production.up.railway.app/csrf-token",
+          {
+            credentials: "include",
+          }
+        )
+          .then((res) => {
+            if (!res.ok) {
+              // If response is not OK (status code outside of 2xx range), throw an error
+              throw new Error("Failed to fetch CSRF token: " + res.statusText);
+            }
+            return res.json(); // Attempt to parse the response as JSON
+          })
+          .then((data) => {
+            // Successfully received CSRF token
+            localStorage.setItem("csrfToken", data.csrfToken);
+            console.log(
+              "Session is active, CSRF token fetched:",
+              data.csrfToken
+            );
+            csrfRetryCount = 0; // Reset retry count after successful token fetch
+          })
+          .catch((err) => {
+            // Handle any errors (network errors, failed JSON parsing, etc.)
+            console.error(err);
+            alert("Error fetching CSRF token. Please try again later.");
+          });
+      }
 
+      // AJAX Form Submission with Custom Header
+      $("#Enquiryform").submit(function (e) {
+        e.preventDefault();
 
-                  // AJAX Form Submission with Custom Header
-                $("#Enquiryform").submit(function (e) {
-                  e.preventDefault();
+        // Collect and validate form data
+        const formData = {
+          formType: "enquiry",
+          name: $("#name").val(),
+          email: $("#email").val(),
+          phone: $("#phone").val(),
+          subject: $("#subject").val(),
+        };
 
+        if (!validateForm(formData)) return;
+        const csrfToken = localStorage.getItem("csrfToken");
+        console.log("Sending CSRF token:", csrfToken);
 
-                      // Collect and validate form data
-                      const formData = {
-                        formType: "enquiry",
-                       name: $('#name').val(),
-                        email: $('#email').val(),
-                        phone: $('#phone').val(),
-                       subject: $('#subject').val(),
-                      };
-
-                      if (!validateForm(formData)) return;
-                      const csrfToken = localStorage.getItem("csrfToken");
-                      console.log("Sending CSRF token:", csrfToken);
-
-                      submitForm(formData, csrfToken);
-                });
-                 
-                    // Form Validation
+        submitForm(formData, csrfToken);
+      });
+      // Form Validation
       function validateForm({ name, email, phone, subject }) {
         let isValid = true;
         let errorMessage = "";
 
-        // Name Validation (Non-empty, at least 3 characters)
-        if (!name || name.length < 3) {
-          errorMessage += "Name must be at least 3 characters long.\n";
+        // Name Validation (Only alphabets and spaces, between 3 and 50 characters)
+        if (
+          !/^[A-Za-z\s]+$/.test(name.trim()) ||
+          name.trim().length < 3 ||
+          name.trim().length > 50
+        ) {
+          errorMessage +=
+            "Name should contain only alphabets and spaces, and be between 3 and 50 characters.\n";
           isValid = false;
         }
 
@@ -761,61 +767,103 @@
           isValid = false;
         }
 
-        // Phone Validation (Exactly 10 digits)
-        if (!/^\d{10}$/.test(phone)) {
-          errorMessage += "Phone number must be exactly 10 digits.\n";
+        // Contact Validation (Only numeric values, exactly 10 digits, and not a repetitive or sequential number)
+        if (
+          !/^\d{10}$/.test(phone) ||
+          isRepetitiveNumber(phone) ||
+          isSequentialNumber(phone)
+        ) {
+          errorMessage +=
+            "Phone number must be exactly 10 digits, no spaces or special characters, and not a repetitive or sequential number.\n";
           isValid = false;
         }
 
-        // Subject Validation (Minimum 10 characters)
-        if (!subject || subject.length < 10) {
-          errorMessage += "Subject must be at least 10 characters long.\n";
+        // Subject Validation (Only alphabets, numbers, and spaces, at least 10 characters)
+
+        // subject Validation (Only alphabets, numbers, and spaces, between 10 and 100 characters)
+        if (
+          !/^[A-Za-z0-9\s]+$/.test(subject.trim()) ||
+          subject.trim().length < 10 ||
+          subject.trim().length > 60
+        ) {
+          errorMessage +=
+            "Message must contain only alphabets, numbers, and spaces, and be between 10 and 60 characters.\n";
           isValid = false;
         }
 
         if (!isValid) {
-          alert(errorMessage);  // Display error messages
+          alert(errorMessage); // Display error messages
           return false;
         }
         return true;
       }
 
-      // Email Validation Helper
+      // Email Validation Helper (with stricter checks)
       function validateEmail(email) {
         const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        // Ensure email is not too long (max length 320 characters, standard email length max)
+        if (email.length > 320) {
+          return false;
+        }
+
+        // Prevent certain patterns like "test@example.com"
+        const testEmails = [
+          "test@example.com",
+          "user@example.com",
+          "admin@example.com",
+        ];
+        if (testEmails.includes(email.toLowerCase())) {
+          return false;
+        }
+
         return re.test(email);
       }
+
+      // Check if the phone number is a repetitive sequence (e.g., 1111111111, 2222222222)
+      function isRepetitiveNumber(phone) {
+        // Matches a number with 10 digits where all digits are the same (e.g., 1111111111, 2222222222, etc.)
+        return /^(\d)\1{9}$/.test(phone);
+      }
+
+      // Check if the phone number is a sequential number (e.g., 1234567890, 2345678901)
+      function isSequentialNumber(phone) {
+        // Matches sequential numbers, e.g., 1234567890, 2345678901, etc.
+        return /^(0123456789|1234567890|2345678901|3456789012|4567890123|5678901234|6789012345|7890123456|8901234567|9012345678)$/.test(
+          contact
+        );
+      }
+
       // AJAX Form Submission Function
       function submitForm(formData, csrfToken) {
         $.ajax({
-          url: 'https://balajielectricals-production.up.railway.app/submit-Enquiryform', // Backend API URL
-          type: 'POST',
+          url: "https://balajielectricals-production.up.railway.app/submit-Enquiryform", // Backend API URL
+          type: "POST",
           data: JSON.stringify(formData),
-          contentType: 'application/json',
+          contentType: "application/json",
           headers: {
-              "X-CSRF-TOKEN": csrfToken, // Include CSRF token in headers
-              },
-              xhrFields: {
-                withCredentials: true, // Ensure session cookie is sent
-              },
-              timeout: 10000,  // 10-second timeout for the request
+            "X-CSRF-TOKEN": csrfToken, // Include CSRF token in headers
+          },
+          xhrFields: {
+            withCredentials: true, // Ensure session cookie is sent
+          },
+          timeout: 10000, // 10-second timeout for the request
 
-              success: function(response) {
-                  alert('Thank you for your enquiry! We will get back to you soon.');  // Show success message
-                  $('#Enquiryform')[0].reset();  // Reset the form fields
-                  $('#successMessage').fadeIn();  // Optionally show a success message
-                  $('#errorMessage').fadeOut();  // Clear any previous error messages
-                  // Refresh CSRF token after successful form submission
-                  fetchCsrfToken();
-                   // Reload the page after form submission
-                  // Delay page reload by 1.5 seconds
-                  setTimeout(function () {
-                  location.reload();
-                  }, 1500); // 1500 ms (1.5 seconds)
-              },
+          success: function (response) {
+            alert("Thank you for your enquiry! We will get back to you soon."); // Show success message
+            $("#Enquiryform")[0].reset(); // Reset the form fields
+            $("#successMessage").fadeIn(); // Optionally show a success message
+            $("#errorMessage").fadeOut(); // Clear any previous error messages
+            // Refresh CSRF token after successful form submission
+            fetchCsrfToken();
+            // Reload the page after form submission
+            // Delay page reload by 1.5 seconds
+            setTimeout(function () {
+              location.reload();
+            }, 1500); // 1500 ms (1.5 seconds)
+          },
 
-              error: function(xhr, status, error) {
-                if (xhr.status === 403) {
+          error: function (xhr, status, error) {
+            if (xhr.status === 403) {
               console.warn("CSRF token expired, fetching new token...");
 
               if (csrfRetryCount < 2) {
@@ -838,35 +886,39 @@
               alert("Form submission failed. Please try again.");
             }
 
-             // Handle timeout error
-                  if (status === 'timeout') {
-                      alert('Request timed out. Please check your internet connection.');
-                      } else {
-                          // Log error details to console
-                          console.error('Error details:', error);
-                          console.log('Full Response:', xhr.responseText);  // Log entire server response
+            // Handle timeout error
+            if (status === "timeout") {
+              alert(
+                "Request timed out. Please check your internet connection."
+              );
+            } else {
+              // Log error details to console
+              console.error("Error details:", error);
+              console.log("Full Response:", xhr.responseText); // Log entire server response
 
-                          // Show detailed error message
-                          $('#errorMessage').text(xhr.responseText || 'There was an error while submitting the form. Please try again later.').fadeIn();
-                          }
-                        
-                      }
-                      });
-            
-              function openMenu() {
-                  document.getElementById('navbar').classList.add('active');
-                  document.querySelector('.hamburger').style.display = 'none';  // Hide hamburger when menu opens
-                  document.querySelector('.close-btn').style.opacity = '1';  // Show close button
-              }
+              // Show detailed error message
+              $("#errorMessage")
+                .text(
+                  xhr.responseText ||
+                    "There was an error while submitting the form. Please try again later."
+                )
+                .fadeIn();
             }
+          },
+        });
 
-              function closeMenu() {
-                  document.getElementById('navbar').classList.remove('active');
-                  document.querySelector('.hamburger').style.display = 'block';  // Show hamburger when menu closes
-                  document.querySelector('.close-btn').style.opacity = '0';  // Hide close button
-              }
-            
-             
+        function openMenu() {
+          document.getElementById("navbar").classList.add("active");
+          document.querySelector(".hamburger").style.display = "none"; // Hide hamburger when menu opens
+          document.querySelector(".close-btn").style.opacity = "1"; // Show close button
+        }
+      }
+
+      function closeMenu() {
+        document.getElementById("navbar").classList.remove("active");
+        document.querySelector(".hamburger").style.display = "block"; // Show hamburger when menu closes
+        document.querySelector(".close-btn").style.opacity = "0"; // Hide close button
+      }
     </script>
   </body>
 </html>
