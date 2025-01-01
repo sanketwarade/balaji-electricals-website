@@ -424,7 +424,7 @@
         action="https://balajielectricals-production.up.railway.app/submit-quoteForm"
         method="POST"
       >
-      <input type="hidden" name="csrf" id="csrfToken" value="{{csrfToken}}">
+      
      
           <fieldset>
           <label for="name">Name:</label>
@@ -728,7 +728,7 @@
         company: $('#company').val(),
         machines: $('#machines').val(),
         message: $('#message').val(),
-        csrf: $('#csrfToken').val(),  // Include CSRF token in the form data
+       
     };
 
     if (!validateForm(formData)) return;
@@ -804,7 +804,7 @@ function validateEmail(email) {
             data: JSON.stringify(formData),  // Send data as JSON
             headers: {
                 "Content-Type": "application/json", // Specify content type as JSON
-                "X-CSRF-TOKEN":  $('#csrfToken').val()  // Include CSRF token in the request header
+                "X-CSRF-TOKEN": csrfToken, // Include CSRF token in headers
             },
             xhrFields: {
                 withCredentials: true  // Ensure cookies are sent with the request
