@@ -164,7 +164,7 @@ app.post('/submit-quoteForm',[ //form 3
   console.log('Values to be inserted:', values);
 
   pool.execute(
-    'INSERT INTO custom_solutions (form_type, name,  company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO quote_requests (form_type, name,  company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)',
     [formType, name, company, contact,  email,  machines, message],
     (query, values,(err, result) => {
       if (err) {
