@@ -129,27 +129,19 @@ app.post('/submit-quoteForm',[ //form 3
   body('machines').trim().escape().isIn(['Mig Welding Machine', 'Tig Welding Machine', 'SPM Welding Machine', 'Rotary Positioner','X-Y Linear Slides','Spare Parts','Control Panels']) .withMessage('Invalid machine selection.')
 ], 
   (req, res) => {
-    // CSRF Token Handling
-    const csrfToken = req.body.csrf || req.headers['x-csrf-token'];  // Fetch CSRF token from body or headers
-    const csrfSecret = req.session.csrfSecret;  // Fetch session CSRF Secret
-    
-    // Log received data for debugging
-    console.log('Received Data:', req.body);
-    console.log('Received CSRF Token:', csrfToken);
+    console.log('Form Data:', req.body);
+    const csrfToken = req.headers['x-csrf-token'];
+    const csrfSecret = req.session.csrfSecret;
+    console.log('Received CSRF token:', csrfToken);  // Log received token
     console.log('Stored CSRF secret:', csrfSecret);  // Log stored token
-    
-    // CSRF Token Validation
-    if (!csrfToken) {
-      return res.status(400).json({ error: 'CSRF token missing' });
-    }
-    
-    // CSRF Secret Verification
-    if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
-      return res.status(403).json({ error: 'Invalid CSRF token' });
-    }
-    
-    
- 
+  
+  if (!csrfToken) {
+    return res.status(400).json({ error: 'CSRF token missing' });
+  }
+  if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
+    console.log('CSRF verification failed');
+    return res.status(403).json({ error: 'Invalid CSRF token' });
+  }
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
     console.log('Validation Errors:', errors.array());
@@ -159,6 +151,10 @@ app.post('/submit-quoteForm',[ //form 3
     // Validate and process the data
     if (!name || !email || !contact || !company || !machines || !message) {
       return res.status(400).json({ error: 'All fields are required' });
+  }
+  // Ensure that machineType is not undefined or null
+  if (!contact) {
+    return res.status(400).send({ success: false, message: 'contact is required' });
   }
   // Sanitize Inputs
   const sanitizedInputs = {
@@ -175,14 +171,18 @@ app.post('/submit-quoteForm',[ //form 3
   console.log('Executing SQL Query:', query);
   console.log('Values to be inserted:', values);
 
-  pool.execute(query, values, (err, result) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ error: 'Failed to save data. Please try again.' });
+  pool.execute(
+    'INSERT INTO custom_solutions (form_type, name,  company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [formType, name, company, contact,  email,  machines, message],
+    (query, values,(err, result) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      console.log('Data inserted into database:', result);
     }
-    console.log('Data inserted into database:', result);
-    
-
+  )
+  );
     // Send email to user (confirmation)
     const userMail = {
       from: process.env.SENDGRID_SENDER_EMAIL,
@@ -227,22 +227,6 @@ app.post('/submit-quoteForm',[ //form 3
           req.session.csrfSecret = tokens.secretSync();
           console.log('CSRF Secret regenerated');
         });
-      });
-
-// ------------------- CSRF ERROR HANDLER --------------------
-app.use((err, req, res, next) => {
-  if (err.code === 'EBADCSRFTOKEN') {
-    console.warn("CSRF token mismatch, generating new token...");
-    req.session.csrfSecret = tokens.secretSync();
-    const newCsrfToken = tokens.create(req.session.csrfSecret);
-    return res.status(403).json({
-      message: 'CSRF token expired. Please try again.',
-      csrfToken: newCsrfToken
-    });
-  }
-  next(err);
-});
-
 // ------------------- GENERIC ERROR HANDLER --------------------
 app.use((err, req, res, next) => {
   console.error(err.stack);
