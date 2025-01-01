@@ -759,7 +759,7 @@
         // Email Validation (More strict format validation, including blocking test emails)
         if (!validateEmail(email)) {
           errorMessage +=
-            "Invalid email format. Email should not be a test or generic domain.\n";
+            "please enetr a valid email address.\n";
           isValid = false;
         }
 
@@ -770,7 +770,7 @@
           isSequentialNumber(contact)
         ) {
           errorMessage +=
-            "Phone number must be exactly 10 digits, no spaces or special characters, .\n";
+            "Please enetr a valid mobile number .\n";
           isValid = false;
         }
 
@@ -840,12 +840,23 @@
       }
 
       // Check if the phone number is a sequential number (e.g., 1234567890, 2345678901)
-      function isSequentialNumber(contact) {
-        // Matches sequential numbers, e.g., 1234567890, 2345678901, etc.
-        return /^(0123456789|1234567890|2345678901|3456789012|4567890123|5678901234|6789012345|7890123456|8901234567|9012345678)$/.test(
-          contact
-        );
-      }
+       // Check for sequential phone numbers (e.g., 1234567890)
+function isSequentialNumber(contact) {
+  const sequentialNumbers = [
+    "0123456789",
+    "1234567890",
+    "2345678901",
+    "3456789012",
+    "4567890123",
+    "5678901234",
+    "6789012345",
+    "7890123456",
+    "8901234567",
+    "9012345678",
+  ];
+  return sequentialNumbers.includes(contact);
+}
+       
 
       // Function to submit form data
       function submitForm(formData, csrfToken) {
