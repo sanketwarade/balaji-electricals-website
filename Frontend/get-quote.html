@@ -234,7 +234,7 @@
 
       .error-highlight {
         border: 2px solid red;
-        }  
+      }
 
       footer {
         background: #003366;
@@ -424,9 +424,7 @@
         action="https://balajielectricals-production.up.railway.app/submit-quoteForm"
         method="POST"
       >
-      
-     
-          <fieldset>
+        <fieldset>
           <label for="name">Name:</label>
           <input
             type="text"
@@ -676,214 +674,216 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
-       let csrfRetryCount = 0; // Track retry attempts
-      // Fetch CSRF token on page load and store it in localStorage
-      $(document).ready(function () {
-        // Fetch CSRF token on page load
-        fetchCsrfToken();
-      });
-      // Function to fetch CSRF token
+             let csrfRetryCount = 0; // Track retry attempts
+            // Fetch CSRF token on page load and store it in localStorage
+            $(document).ready(function () {
+              // Fetch CSRF token on page load
+              fetchCsrfToken();
+            });
+            // Function to fetch CSRF token
 
-      function fetchCsrfToken() {
-        fetch(
-          "https://balajielectricals-production.up.railway.app/csrf-token",
-          {
-            credentials: "include",
-          }
-        )
-          .then((res) => {
-            if (!res.ok) {
-              // If response is not OK (status code outside of 2xx range), throw an error
-              throw new Error("Failed to fetch CSRF token: " + res.statusText);
+            function fetchCsrfToken() {
+              fetch(
+                "https://balajielectricals-production.up.railway.app/csrf-token",
+                {
+                  credentials: "include",
+                }
+              )
+                .then((res) => {
+                  if (!res.ok) {
+                    // If response is not OK (status code outside of 2xx range), throw an error
+                    throw new Error("Failed to fetch CSRF token: " + res.statusText);
+                  }
+                  return res.json(); // Attempt to parse the response as JSON
+                })
+                .then((data) => {
+                  // Successfully received CSRF token
+                  localStorage.setItem("csrfToken", data.csrfToken);
+                  console.log(
+                    "Session is active, CSRF token fetched:",
+                    data.csrfToken
+                  );
+                  csrfRetryCount = 0; // Reset retry count after successful token fetch
+                })
+                .catch((err) => {
+                  // Handle any errors (network errors, failed JSON parsing, etc.)
+                  console.error(err);
+                  alert("Error fetching CSRF token. Please try again later.");
+                });
             }
-            return res.json(); // Attempt to parse the response as JSON
-          })
-          .then((data) => {
-            // Successfully received CSRF token
-            localStorage.setItem("csrfToken", data.csrfToken);
-            console.log(
-              "Session is active, CSRF token fetched:",
-              data.csrfToken
-            );
-            csrfRetryCount = 0; // Reset retry count after successful token fetch
-          })
-          .catch((err) => {
-            // Handle any errors (network errors, failed JSON parsing, etc.)
-            console.error(err);
-            alert("Error fetching CSRF token. Please try again later.");
-          });
+
+          // Handle form submission with custom header
+          $("#quoteForm").submit(function (e) {
+              e.preventDefault();
+
+
+          // Prepare form data
+          const formData = {
+              formType: "quote",
+              name: $('#name').val(),
+              email: $('#email').val(),
+              contact: $('#contact').val(),
+              company: $('#company').val(),
+              machines: $('#machines').val(),
+              message: $('#message').val(),
+
+          };
+
+          if (!validateForm(formData)) return;
+
+
+          const csrfToken = localStorage.getItem("csrfToken");
+              console.log("Sending CSRF token:", csrfToken);
+              submitForm(formData, csrfToken);
+
+          // Send the form data along with CSRF token via AJAX
+          submitForm(formData);
+      });
+
+      // Form validation
+      function validateForm({ name, email, contact, company, machines, message }) {
+          let isValid = true;
+          let errorMessage = '';
+
+          if (name.trim().length < 3 || name.trim().length > 50) {
+              isValid = false;
+              alert('Name should be between 3 and 50 characters.');
+          }
+
+          if (!validateEmail(email)) {
+              errorMessage += "Invalid email format.\n";
+              isValid = false;
+          }
+
+          if (!/^\d{10}$/.test(contact)) {
+              errorMessage += "Phone number must be exactly 10 digits.\n";
+              isValid = false;
+          }
+
+          if (!company || company.length < 3 || company.trim().length > 50) {
+              errorMessage += "Company name must be between 3 to 50 characters.\n";
+              $('#company').addClass('error-highlight');
+              isValid = false;
+          } else {
+              $('#company').removeClass('error-highlight');
+          }
+
+          if (!message || message.length < 10 || message.trim().length > 100) {
+              errorMessage += "Message must be between 10 to 100 characters.\n";
+              isValid = false;
+          }
+
+          if (!machines || machines.length === 0) {
+              errorMessage += "Select at least one machine.\n";
+              isValid = false;
+          }
+
+          if (!isValid) {
+              alert(errorMessage);
+              return false;
+          }
+          return true;
       }
 
-    // Handle form submission with custom header
-    $("#quoteForm").submit(function (e) {
-        e.preventDefault();
+      // Email Validation Helper
+      function validateEmail(email) {
+          const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+          return re.test(email);
+      }
+      const csrfToken = localStorage.getItem("csrfToken");
+      if (!csrfToken) {
+        alert("CSRF token is missing. Please reload the page.");
+        return;  // Prevent form submission if no token is available
+      }
 
-         
-    // Prepare form data
-    const formData = {
-        formType: "quote",
-        name: $('#name').val(),
-        email: $('#email').val(),
-        contact: $('#contact').val(),
-        company: $('#company').val(),
-        machines: $('#machines').val(),
-        message: $('#message').val(),
-       
-    };
-
-    if (!validateForm(formData)) return;
-
-      
-    const csrfToken = localStorage.getItem("csrfToken");
-        console.log("Sending CSRF token:", csrfToken);
-        submitForm(formData, csrfToken);
-      
-    // Send the form data along with CSRF token via AJAX
-    submitForm(formData);
-});
-
-// Form validation
-function validateForm({ name, email, contact, company, machines, message }) {
-    let isValid = true;
-    let errorMessage = '';
-
-    if (name.trim().length < 3 || name.trim().length > 50) {
-        isValid = false;
-        alert('Name should be between 3 and 50 characters.');
-    }
-
-    if (!validateEmail(email)) {
-        errorMessage += "Invalid email format.\n";
-        isValid = false;
-    }
-
-    if (!/^\d{10}$/.test(contact)) {
-        errorMessage += "Phone number must be exactly 10 digits.\n";
-        isValid = false;
-    }
-
-    if (!company || company.length < 3 || company.trim().length > 50) {
-        errorMessage += "Company name must be between 3 to 50 characters.\n";
-        $('#company').addClass('error-highlight');
-        isValid = false;
-    } else {
-        $('#company').removeClass('error-highlight');
-    }
-
-    if (!message || message.length < 10 || message.trim().length > 100) {
-        errorMessage += "Message must be between 10 to 100 characters.\n";
-        isValid = false;
-    }
-
-    if (!machines || machines.length === 0) {
-        errorMessage += "Select at least one machine.\n";
-        isValid = false;
-    }
-
-    if (!isValid) {
-        alert(errorMessage);
-        return false;
-    }
-    return true;
-}
-
-// Email Validation Helper
-function validateEmail(email) {
-    const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    return re.test(email);
-}
-
-
-function submitForm(formData, csrfToken) {
+      function submitForm(formData, csrfToken) {
     // Use csrfToken passed as parameter
     formData.csrf = csrfToken || formData.csrf;  // Ensure csrfToken is passed, otherwise fallback to formData.csrf
 
-        $.ajax({
-            url: 'https://balajielectricals-production.up.railway.app/submit-quoteForm',
-            type: 'POST',
-            data: JSON.stringify(formData),  // Send data as JSON
-            headers: {
-                "Content-Type": "application/json", // Specify content type as JSON
-                "X-CSRF-TOKEN": csrfToken, // Include CSRF token in headers
-            },
-            xhrFields: {
-                withCredentials: true  // Ensure cookies are sent with the request
-            },
-            timeout: 10000,  // Set 10-second timeout
+    $.ajax({
+        url: 'https://balajielectricals-production.up.railway.app/submit-quoteForm',
+        type: 'POST',
+        data: JSON.stringify(formData),  // Send data as JSON
+        headers: {
+            "Content-Type": "application/json", // Specify content type as JSON
+            "X-CSRF-TOKEN": csrfToken, // Include CSRF token in headers
+        },
+        xhrFields: {
+            withCredentials: true  // Ensure cookies are sent with the request
+        },
+        timeout: 10000,  // Set 10-second timeout
 
-            success: function (response) {
-                alert('Form submitted successfully!');
-                $('#quoteForm')[0].reset();  // Reset the form
-                $('#successMessage').fadeIn();  // Show success message
-                $('#errorMessage').fadeOut();  // Hide any previous error messages
+        success: function (response) {
+            alert('Form submitted successfully!');
+            $('#quoteForm')[0].reset();  // Reset the form
+            $('#successMessage').fadeIn();  // Show success message
+            $('#errorMessage').fadeOut();  // Hide any previous error messages
 
-                // Refresh CSRF token after successful submission
-                fetchCsrfToken();
+            // Refresh CSRF token after successful submission
+            fetchCsrfToken();
+        },
 
-                // Delay page reload by 1.5 seconds
-                setTimeout(function () {
-                    location.reload();
-                }, 1500);
-            },
+        error: function (xhr, status, error) {
+            if (xhr.status === 403) {
+                console.warn("CSRF token expired, fetching new token...");
 
-            error: function (xhr, status, error) {
-              if (xhr.status === 403) {
-              console.warn("CSRF token expired, fetching new token...");
+                if (csrfRetryCount < 2) {
+                    csrfRetryCount++;
+                    fetchCsrfToken();
 
-              if (csrfRetryCount < 2) {
-                csrfRetryCount++;
-                fetchCsrfToken();
-
-                // Retry form submission with new token
-                setTimeout(() => {
-                  const newCsrfToken = localStorage.getItem("csrfToken");
-                  submitForm(formData, newCsrfToken);
-                }, 1000);
+                    // Retry form submission with new token
+                    setTimeout(() => {
+                        const newCsrfToken = localStorage.getItem("csrfToken");
+                        submitForm(formData, newCsrfToken);
+                    }, 1000);
+                } else {
+                    alert("Failed to submit form after multiple attempts. Please try again later.");
+                    csrfRetryCount = 0;
+                }
               } else {
-                alert(
-                  "Failed to submit form after multiple attempts. Please try again later."
-                );
-                csrfRetryCount = 0;
-              }
-            } else {
               console.error("Submission error:", xhr.responseText);
               alert("Form submission failed. Please try again.");
             }
 
-                // Handle timeout error
-                if (status === "timeout") {
-                    alert("Request timed out. Please check your internet connection.");
-                } else {
-                    // Log error details to console
-                    console.error("Error details:", error);
-                    console.log("Full Response:", xhr.responseText);
+            // Handle timeout error
+            if (status === "timeout") {
+              alert(
+                "Request timed out. Please check your internet connection."
+              );
+            } else {
+              // Log error details to console
+              console.error("Error details:", error);
+              console.log("Full Response:", xhr.responseText); // Log entire server response
 
-                    // Show detailed error message
-                    $("#errorMessage")
-                        .text(xhr.responseText || "There was an error while submitting the form. Please try again later.")
-                        .fadeIn();
-                }
+              // Show detailed error message
+              $("#errorMessage")
+                .text(
+                  xhr.responseText ||
+                    "There was an error while submitting the form. Please try again later."
+                )
+                .fadeIn();
             }
+          
+          },
         });
-    }
+      };
+            
 
-  
+// Mobile Menu Open
+function openMenu() {
+    document.getElementById('navbar').classList.add('active');
+    document.querySelector('.hamburger').style.display = 'none';
+    document.querySelector('.close-btn').style.opacity = '1';
+}
 
-        // Mobile Menu Open
-        function openMenu() {
-            document.getElementById('navbar').classList.add('active');
-            document.querySelector('.hamburger').style.display = 'none';
-            document.querySelector('.close-btn').style.opacity = '1';
-        }
+// Mobile Menu Close
+function closeMenu() {
+    document.getElementById('navbar').classList.remove('active');
+    document.querySelector('.hamburger').style.display = 'block';
+    document.querySelector('.close-btn').style.opacity = '0';
+}
       
-    
-        // Mobile Menu Close
-        function closeMenu() {
-            document.getElementById('navbar').classList.remove('active');
-            document.querySelector('.hamburger').style.display = 'block';
-            document.querySelector('.close-btn').style.opacity = '0';
-        }
-    </script>
-    </body>
-    </html>
-    
+
+</script>
+</body>
+</html>
