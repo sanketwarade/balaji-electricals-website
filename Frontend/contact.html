@@ -745,102 +745,124 @@
 
         submitForm(formData, csrfToken);
       });
-     // Form Validation
-function validateForm({ name, email, phone, subject }) {
-  let isValid = true;
-  let errorMessage = "";
+      // Form Validation
+      function validateForm({ name, email, phone, subject }) {
+        let isValid = true;
+        let errorMessage = "";
 
-  // Name Validation (Only alphabets and spaces, between 3 and 50 characters)
-  if (
-    !/^[A-Za-z\s]+$/.test(name.trim()) ||
-    name.trim().length < 3 ||
-    name.trim().length > 50
-  ) {
-    errorMessage +=
-      "Name should contain only alphabets and spaces, and be between 3 and 50 characters.\n";
-    isValid = false;
-  }
+        // Name Validation (Only alphabets and spaces, between 3 and 50 characters)
+        if (
+          !/^[A-Za-z\s]+$/.test(name.trim()) ||
+          name.trim().length < 3 ||
+          name.trim().length > 50
+        ) {
+          errorMessage +=
+            "Name should contain only alphabets and spaces, and be between 3 and 50 characters.\n";
+          isValid = false;
+        }
 
-  // Email Validation (Format + Restrictions)
-  if (!validateEmail(email)) {
-    errorMessage += "Please enter a valid email address.\n";
-    isValid = false;
-  }
+        // Email Validation (Format + Restrictions)
+        if (!validateEmail(email)) {
+          errorMessage += "Please enter a valid email address.\n";
+          isValid = false;
+        }
 
-  // Phone Validation (Only numeric, exactly 10 digits, no repetitive/sequential numbers)
-  if (
-    !/^\d{10}$/.test(phone) ||
-    isRepetitiveNumber(phone) ||
-    isSequentialNumber(phone)
-  ) {
-    errorMessage +=
-      "Please enter a valid mobile number.\n";
-    isValid = false;
-  }
+        // Phone Validation (Only numeric, exactly 10 digits, no repetitive/sequential numbers)
+        if (
+          !/^\d{10}$/.test(phone) ||
+          isRepetitiveNumber(phone) ||
+          isSequentialNumber(phone)
+        ) {
+          errorMessage += "Please enter a valid mobile number.\n";
+          isValid = false;
+        }
 
-  // Subject Validation (Alphabets, numbers, spaces, 10-60 characters)
-  if (
-    !/^[A-Za-z0-9\s]+$/.test(subject.trim()) ||
-    subject.trim().length < 10 ||
-    subject.trim().length > 60
-  ) {
-    errorMessage +=
-      "Subject must contain only alphabets, numbers, and spaces, and be between 10 and 60 characters.\n";
-    isValid = false;
-  }
+        // Subject Validation (Alphabets, numbers, spaces, 10-60 characters)
+        if (
+          !/^[A-Za-z0-9\s]+$/.test(subject.trim()) ||
+          subject.trim().length < 10 ||
+          subject.trim().length > 60
+        ) {
+          errorMessage +=
+            "Subject must contain only alphabets, numbers, and spaces, and be between 10 and 60 characters.\n";
+          isValid = false;
+        }
 
-  // Show all accumulated errors at once
-  if (!isValid) {
-    alert(errorMessage);  
-    return false;
-  }
-  return true;
-}
+        // Show all accumulated errors at once
+        if (!isValid) {
+          alert(errorMessage);
+          return false;
+        }
+        return true;
+      }
 
-// Email Validation Helper (with stricter checks)
-function validateEmail(email) {
-  const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-  
-  // Ensure email is not too long (max 320 characters)
-  if (email.length > 320) {
-    return false;
-  }
+      function validateEmail(email) {
+        const allowedTLDs = [
+          "com",
+          "net",
+          "org",
+          "edu",
+          "gov",
+          "co",
+          "io",
+          "us",
+          "info",
+        ];
 
-  // Block common test emails
-  const testEmails = [
-    "test@example.com",
-    "user@example.com",
-    "admin@example.com",
-  ];
-  if (testEmails.includes(email.toLowerCase())) {
-    return false;
-  }
+        // Regex to validate email format, block consecutive dots, and allow only valid TLDs
+        const emailRegex =
+          /^[a-zA-Z0-9._-]+(?<!\.\.)@[a-zA-Z0-9.-]+\.(com|net|org|edu|gov|co|io|us|info)$/;
 
-  return re.test(email);
-}
+        if (email.length > 320) {
+          return false; // Email exceeds the max allowed length
+        }
 
-// Check for repetitive phone numbers (e.g., 1111111111)
-function isRepetitiveNumber(phone) {
-  return /^(\d)\1{9}$/.test(phone);
-}
+        // Check if email matches the regex
+        if (!emailRegex.test(email)) {
+          return false;
+        }
 
-// Check for sequential phone numbers (e.g., 1234567890)
-function isSequentialNumber(phone) {
-  const sequentialNumbers = [
-    "0123456789",
-    "1234567890",
-    "2345678901",
-    "3456789012",
-    "4567890123",
-    "5678901234",
-    "6789012345",
-    "7890123456",
-    "8901234567",
-    "9012345678",
-  ];
-  return sequentialNumbers.includes(phone);
-}
+        // Extract TLD and check if it's allowed
+        const domainParts = email.split(".");
+        const tld = domainParts[domainParts.length - 1].toLowerCase();
+        if (!allowedTLDs.includes(tld)) {
+          return false;
+        }
 
+        // Block certain known test emails
+        const testEmails = [
+          "test@example.com",
+          "user@example.com",
+          "admin@example.com",
+        ];
+        if (testEmails.includes(email.toLowerCase())) {
+          return false;
+        }
+
+        return true;
+      }
+
+      // Check for repetitive phone numbers (e.g., 1111111111)
+      function isRepetitiveNumber(phone) {
+        return /^(\d)\1{9}$/.test(phone);
+      }
+
+      // Check for sequential phone numbers (e.g., 1234567890)
+      function isSequentialNumber(phone) {
+        const sequentialNumbers = [
+          "0123456789",
+          "1234567890",
+          "2345678901",
+          "3456789012",
+          "4567890123",
+          "5678901234",
+          "6789012345",
+          "7890123456",
+          "8901234567",
+          "9012345678",
+        ];
+        return sequentialNumbers.includes(phone);
+      }
 
       // AJAX Form Submission Function
       function submitForm(formData, csrfToken) {
