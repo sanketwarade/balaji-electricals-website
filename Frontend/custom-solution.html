@@ -719,7 +719,7 @@
           isRepetitiveNumber(phone) ||
           isSequentialNumber(phone)
         ) {
-          errorMessage += "Phone number must be exactly 10 digits.\n";
+          errorMessage += "Please enter a valid mobile number.\n";
           isValid = false;
         }
 
@@ -779,13 +779,23 @@
         return /^(\d)\1{9}$/.test(phone);
       }
 
-      // Check if the phone number is a sequential number (e.g., 1234567890, 2345678901)
-      function isSequentialNumber(phone) {
-        // Matches sequential numbers, e.g., 1234567890, 2345678901, etc.
-        return /^(0123456789|1234567890|2345678901|3456789012|4567890123|5678901234|6789012345|7890123456|8901234567|9012345678)$/.test(
-          phone
-        );
-      }
+     
+      // Check for sequential phone numbers (e.g., 1234567890)
+function isSequentialNumber(phone) {
+  const sequentialNumbers = [
+    "0123456789",
+    "1234567890",
+    "2345678901",
+    "3456789012",
+    "4567890123",
+    "5678901234",
+    "6789012345",
+    "7890123456",
+    "8901234567",
+    "9012345678",
+  ];
+  return sequentialNumbers.includes(phone);
+}
 
       // AJAX Form Submission Function
       function submitForm(formData, csrfToken) {
