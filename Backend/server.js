@@ -118,7 +118,7 @@ app.post('/submit-quoteForm',[ //form 3
   body('contact').isLength({ min: 10, max: 10 }).isNumeric().trim(),
   body('message').trim().escape().isLength({ min: 10, max: 100 }),
   body('company').trim().escape().isLength({min: 3, max: 50}),
-  body('machines').trim().escape().isIn(['Mig Welding Machine', 'Tig Welding Machine', 'SPM Welding Machine', 'Rotary Positioner','X-Y Linear Slides','Spare Parts','Control Panels']) .withMessage('Invalid machine selection.')
+  body('machines').trim().escape().isIn(['MIG Welding Machine', 'TIG Welding Machine', 'SPM Welding Machine', 'Rotary Positioner','X-Y Linear Slides','Spare Parts','Control Panels']) .withMessage('Invalid machine selection.')
 ], 
   (req, res) => {
     console.log('Form Data:', req.body);
