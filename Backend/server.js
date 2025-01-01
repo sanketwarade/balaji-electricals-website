@@ -172,6 +172,12 @@ app.post('/submit-quoteForm',[ //form 3
         return res.status(500).json({ error: 'Database error' });
       }
       console.log('Data inserted into database:', result);
+
+      // Send success response after successful insertion
+    res.status(200).json({
+      success: true,
+      message: 'Quote Request Submitted Successfully!'
+    });
     }
   );
     // Send email to user (confirmation)
@@ -188,33 +194,16 @@ app.post('/submit-quoteForm',[ //form 3
       subject: 'New Quote Request',
       text: `New quote request received:\n\nName: ${sanitizedInputs.name}\nCompany: ${sanitizedInputs.company}\nContact: ${sanitizedInputs.contact}\nEmail: ${sanitizedInputs.email}\nMachines/Parts: ${machines.join(', ')}\nMessage: ${sanitizedInputs.message}`,
       };
-      // Step 3: Send emails to user and admin and handle responses
-      Promise.all([sgMail.send(userMail), sgMail.send(adminMail)])
-      .then(() => {
-          console.log('Emails sent to user and admin');
-
-          // Step 4: Send a valid JSON success response after both emails are sent
-          res.status(200).json({
-              success: true,
-              message: 'Quote Request Submitted Successfully!'
-          });
-      })
-      .catch((error) => {
-          console.error('Error sending emails:', error);
-
-
-        // Ensure no further responses are sent
-        if (!res.headersSent) {
-          return res.status(500).json({
-            success: false,
-            message: 'Quote Request Submitted, but failed to send confirmation emails.'
-          });
-        }
-      });
-  });
-
-
-         
+     // Send emails asynchronously
+    Promise.all([sgMail.send(userMail), sgMail.send(adminMail)])
+    .then(() => {
+      console.log('Emails sent to user and admin');
+    })
+    .catch((error) => {
+      console.error('Error sending emails:', error);
+    });
+}
+);       
 // ------------------- GENERIC ERROR HANDLER --------------------
   //post method  for custom-solution
 app.post('/submit-solutionform', [
