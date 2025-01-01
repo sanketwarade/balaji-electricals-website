@@ -815,21 +815,40 @@
             try {
               parsedResponse = JSON.parse(response);
             } catch (e) {
-              console.log(response);  // Check if it's a valid JSON object
               console.error("Error parsing JSON:", e);
-              console.error("Response:", response); // Log the actual response for debugging
-              if (
+              console.error("Response:", response);
+
+              // Improved error handling
+              if (response === "[object Object]") {
+                alert(
+                  "The server sent an invalid response (likely a JavaScript object instead of JSON). Please contact support."
+                );
+              } else if (
                 typeof response === "string" &&
-                response.startsWith("[object Object]")
+                response.startsWith("[object ")
               ) {
                 alert(
-                  "The server sent an invalid response.  Please contact support."
-                ); // More specific message
+                  "The server sent an invalid response (likely a string representation of an object). Please contact support."
+                );
+              } else if (typeof response === "object" && response !== null) {
+                //check for a non-null object
+                // Attempt to stringify the response. If it fails, then the object is not valid.
+                try {
+                  parsedResponse = JSON.parse(JSON.stringify(response));
+                } catch (stringifyError) {
+                  alert(
+                    "The server sent an invalid object.  Please contact support."
+                  );
+                  console.error("Error stringifying response:", stringifyError);
+                  return;
+                }
               } else {
                 alert("Unexpected server response. Please try again.");
               }
-              return;
+              return; // Important: Stop further processing if parsing failed
             }
+
+            // ... rest of your code that uses parsedResponse ...
 
             if (parsedResponse && parsedResponse.success) {
               alert(parsedResponse.message || "Form submitted successfully!");
