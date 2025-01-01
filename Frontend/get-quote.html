@@ -790,11 +790,7 @@
           const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
           return re.test(email);
       }
-      const csrfToken = localStorage.getItem("csrfToken");
-      if (!csrfToken) {
-        alert("CSRF token is missing. Please reload the page.");
-        return;  // Prevent form submission if no token is available
-      }
+     
 
       function submitForm(formData, csrfToken) {
     // Use csrfToken passed as parameter
