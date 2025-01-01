@@ -164,16 +164,15 @@ app.post('/submit-quoteForm',[ //form 3
   console.log('Values to be inserted:', values);
 
   pool.execute(
-    'INSERT INTO quote_requests (form_type, name,  company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [formType, name, company, contact,  email,  machines, message],
-    (query, values,(err, result) => {
+    'INSERT INTO quote_requests (form_type, name, company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [formType, name, company, contact, email, machines, message],
+    (err, result) => {
       if (err) {
         console.error('Database error:', err);
         return res.status(500).json({ error: 'Database error' });
       }
       console.log('Data inserted into database:', result);
     }
-  )
   );
     // Send email to user (confirmation)
     const userMail = {
@@ -189,28 +188,33 @@ app.post('/submit-quoteForm',[ //form 3
       subject: 'New Quote Request',
       text: `New quote request received:\n\nName: ${sanitizedInputs.name}\nCompany: ${sanitizedInputs.company}\nContact: ${sanitizedInputs.contact}\nEmail: ${sanitizedInputs.email}\nMachines/Parts: ${machines.join(', ')}\nMessage: ${sanitizedInputs.message}`,
       };
-    // Send emails
-    sgMail
-      .send(userMail)
+      // Step 3: Send emails to user and admin and handle responses
+      Promise.all([sgMail.send(userMail), sgMail.send(adminMail)])
       .then(() => {
-        console.log('Confirmation email sent to user');
-      })
-      .catch((error) => {
-        console.error('Error sending email to user:', error);
-      });
-    sgMail
-      .send(adminMail)
-      .then(() => {
-        console.log('Notification email sent to admin');
-      })
-      .catch((error) => {
-        console.error('Error sending email to admin:', error);
-      });
+          console.log('Emails sent to user and admin');
 
-      res.status(200).send({ success: true, message: 'Quote Request Submitted Successfully!' });
+          // Step 4: Send a valid JSON success response after both emails are sent
+          res.status(200).json({
+              success: true,
+              message: 'Quote Request Submitted Successfully!'
+          });
+      })
+      .catch((error) => {
+          console.error('Error sending emails:', error);
+
+
+        // Ensure no further responses are sent
+        if (!res.headersSent) {
+          return res.status(500).json({
+            success: false,
+            message: 'Quote Request Submitted, but failed to send confirmation emails.'
+          });
+        }
+      });
   });
 
-  
+
+         
 // ------------------- GENERIC ERROR HANDLER --------------------
   //post method  for custom-solution
 app.post('/submit-solutionform', [
