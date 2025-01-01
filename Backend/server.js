@@ -142,6 +142,17 @@ app.post('/submit-quoteForm',[ //form 3
     console.log('CSRF verification failed');
     return res.status(403).json({ error: 'Invalid CSRF token' });
   }
+
+  
+// Regenerate session and update CSRF token
+req.session.regenerate((err) => {
+  if (err) {
+    console.error('Session regeneration failed:', err);
+    return res.status(500).json({ error: 'Failed to regenerate session.' });
+  }
+  req.session.csrfSecret = tokens.secretSync();
+  console.log('CSRF Secret regenerated');
+});
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
     console.log('Validation Errors:', errors.array());
@@ -218,15 +229,7 @@ app.post('/submit-quoteForm',[ //form 3
       res.status(200).send({ success: true, message: 'Quote Request Submitted Successfully!' });
   });
 
-        // ------------------- CSRF TOKEN REGENERATION --------------------
-        req.session.regenerate((err) => {
-          if (err) {
-            console.error('Session regeneration failed:', err);
-            return res.status(500).json({ error: 'Failed to regenerate session.' });
-          }
-          req.session.csrfSecret = tokens.secretSync();
-          console.log('CSRF Secret regenerated');
-        });
+  
 // ------------------- GENERIC ERROR HANDLER --------------------
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -255,6 +258,8 @@ if (!csrfSecret || !tokens.verify(csrfSecret, csrfToken)) {
   console.log('CSRF verification failed');
   return res.status(403).json({ error: 'Invalid CSRF token' });
 }
+
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log('Validation Errors:', errors.array());
