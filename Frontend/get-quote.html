@@ -820,9 +820,6 @@
             $("#errorMessage").fadeOut();
 
             fetchCsrfToken();  // Refresh CSRF token for future submissions
-          } else {
-            console.error("Submission error:", response);
-            alert("Form submission failed. Please try again.");
           }
         }, // <-- Added missing comma here
         error: function (xhr, status, error) {
