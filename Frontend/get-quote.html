@@ -676,38 +676,49 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
+       let csrfRetryCount = 0; // Track retry attempts
+      // Fetch CSRF token on page load and store it in localStorage
+      $(document).ready(function () {
+        // Fetch CSRF token on page load
+        fetchCsrfToken();
+      });
+      // Function to fetch CSRF token
 
-// Fetch CSRF token on page load and store it in localStorage
-$(document).ready(function () {
-    fetchCsrfToken();  // Call function to fetch CSRF token on page load
-
-    // Fetch CSRF token from the server and inject it into the form
-    function fetchCsrfToken() {
-        $.get('https://balajielectricals-production.up.railway.app/csrf-token', function (data) {
-            // Inject the CSRF token into the hidden input field
-            $('#csrfToken').val(data.csrfToken);
-            localStorage.setItem("csrfToken", data.csrfToken);  // Store the token
-            console.log("Session is active, CSRF token fetched:", data.csrfToken);
-          
-        }).fail(function (err) {
-            console.error("CSRF Token Fetch Error:", err);
+      function fetchCsrfToken() {
+        fetch(
+          "https://balajielectricals-production.up.railway.app/csrf-token",
+          {
+            credentials: "include",
+          }
+        )
+          .then((res) => {
+            if (!res.ok) {
+              // If response is not OK (status code outside of 2xx range), throw an error
+              throw new Error("Failed to fetch CSRF token: " + res.statusText);
+            }
+            return res.json(); // Attempt to parse the response as JSON
+          })
+          .then((data) => {
+            // Successfully received CSRF token
+            localStorage.setItem("csrfToken", data.csrfToken);
+            console.log(
+              "Session is active, CSRF token fetched:",
+              data.csrfToken
+            );
+            csrfRetryCount = 0; // Reset retry count after successful token fetch
+          })
+          .catch((err) => {
+            // Handle any errors (network errors, failed JSON parsing, etc.)
+            console.error(err);
             alert("Error fetching CSRF token. Please try again later.");
-        });
-    }
-  
-  
+          });
+      }
 
     // Handle form submission with custom header
     $("#quoteForm").submit(function (e) {
         e.preventDefault();
 
-         // Ensure CSRF token is available before form submission
-         if (!$('#csrfToken').val() || $('#csrfToken').val() !== localStorage.getItem("csrfToken")) {
-            fetchCsrfToken();  // Fetch token if missing or invalid
-            alert("Fetching CSRF token. Please wait a moment and try submitting again.");
-            return;  // Stop form submission until token is fetched
-        }
-
+         
     // Prepare form data
     const formData = {
         formType: "quote",
@@ -722,6 +733,11 @@ $(document).ready(function () {
 
     if (!validateForm(formData)) return;
 
+      
+    const csrfToken = localStorage.getItem("csrfToken");
+        console.log("Sending CSRF token:", csrfToken);
+        submitForm(formData, csrfToken);
+      
     // Send the form data along with CSRF token via AJAX
     submitForm(formData);
 });
@@ -812,11 +828,27 @@ function validateEmail(email) {
 
             error: function (xhr, status, error) {
               if (xhr.status === 403) {
-                    console.warn("CSRF token expired, please refresh the page and try again.");
-                } else {
-                    console.error("Submission error:", xhr.responseText);
-                    alert("Form submission failed. Please try again.");
-                }
+              console.warn("CSRF token expired, fetching new token...");
+
+              if (csrfRetryCount < 2) {
+                csrfRetryCount++;
+                fetchCsrfToken();
+
+                // Retry form submission with new token
+                setTimeout(() => {
+                  const newCsrfToken = localStorage.getItem("csrfToken");
+                  submitForm(formData, newCsrfToken);
+                }, 1000);
+              } else {
+                alert(
+                  "Failed to submit form after multiple attempts. Please try again later."
+                );
+                csrfRetryCount = 0;
+              }
+            } else {
+              console.error("Submission error:", xhr.responseText);
+              alert("Form submission failed. Please try again.");
+            }
 
                 // Handle timeout error
                 if (status === "timeout") {
@@ -834,7 +866,7 @@ function validateEmail(email) {
             }
         });
     }
-});
+
   
 
         // Mobile Menu Open
