@@ -172,19 +172,15 @@ app.post('/submit-quoteForm',[ //form 3
   // Save data to MySQL
   const query = 'INSERT INTO quote_requests (form_type, name, company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)';
   const values = [formType, sanitizedInputs.name, sanitizedInputs.company, sanitizedInputs.contact, sanitizedInputs.email, JSON.stringify(machines), sanitizedInputs.message];
+  console.log('Executing SQL Query:', query);
+  console.log('Values to be inserted:', values);
+
   pool.execute(query, values, (err, result) => {
     if (err) {
       console.error('Database error:', err);
-      return res
-        .status(500)
-        .json({ error: 'Failed to save data. Please try again.' });
+      return res.status(500).json({ error: 'Failed to save data. Please try again.' });
     }
-  
     console.log('Data inserted into database:', result);
-    }
-  )
-    // Only regenerate CSRF secret AFTER successful validation
-    req.session.csrfSecret = tokens.secretSync();
     
 
     // Send email to user (confirmation)
@@ -223,10 +219,15 @@ app.post('/submit-quoteForm',[ //form 3
   });
 
         // ------------------- CSRF TOKEN REGENERATION --------------------
-app.get('/quoteForm', (req, res) => {
-  const csrfToken = tokens.create(req.session.csrfSecret);
-  res.render('quoteForm', { csrfToken });  // Render form with CSRF token
-});
+        req.session.regenerate((err) => {
+          if (err) {
+            console.error('Session regeneration failed:', err);
+            return res.status(500).json({ error: 'Failed to regenerate session.' });
+          }
+          req.session.csrfSecret = tokens.secretSync();
+          console.log('CSRF Secret regenerated');
+        });
+      });
 
 // ------------------- CSRF ERROR HANDLER --------------------
 app.use((err, req, res, next) => {
