@@ -101,21 +101,13 @@ app.get('/', (req, res) => {
 // ------------------- CSRF SETUP --------------------
 const tokens = new csrf(); 
 
-// Middleware to set CSRF token for each session (if not already set)
-app.use((req, res, next) => {
-  if (!req.session.csrfSecret) {
-    req.session.csrfSecret = tokens.secretSync();
-  }
-  res.locals.csrfToken = tokens.create(req.session.csrfSecret);  // Pass to views (optional)
-  next();
-});
-
-// ------------------- CSRF TOKEN ENDPOINT --------------------
+// CSRF Token Generation Endpoint
 app.get('/csrf-token', (req, res) => {
-  const csrfToken = tokens.create(req.session.csrfSecret);
+  const csrfSecret = tokens.secretSync();
+  const csrfToken = tokens.create(csrfSecret);
+  req.session.csrfSecret = csrfSecret
   res.json({ csrfToken, expiresIn: req.session.cookie.maxAge / 1000 });
 });
-
 // Email Setup using environment variables
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -142,17 +134,6 @@ app.post('/submit-quoteForm',[ //form 3
     console.log('CSRF verification failed');
     return res.status(403).json({ error: 'Invalid CSRF token' });
   }
-
-  
-// Regenerate session and update CSRF token
-req.session.regenerate((err) => {
-  if (err) {
-    console.error('Session regeneration failed:', err);
-    return res.status(500).json({ error: 'Failed to regenerate session.' });
-  }
-  req.session.csrfSecret = tokens.secretSync();
-  console.log('CSRF Secret regenerated');
-});
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
     console.log('Validation Errors:', errors.array());
@@ -231,12 +212,6 @@ req.session.regenerate((err) => {
 
   
 // ------------------- GENERIC ERROR HANDLER --------------------
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong. Please try again later.' });
-});
-
-
   //post method  for custom-solution
 app.post('/submit-solutionform', [
   body('name').trim().escape(),
