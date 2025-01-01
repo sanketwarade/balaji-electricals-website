@@ -774,7 +774,7 @@ function validateForm({ name, email, phone, subject }) {
     isSequentialNumber(phone)
   ) {
     errorMessage +=
-      "Phone number must be exactly 10 digits, and cannot be repetitive (e.g., 1111111111) or sequential (e.g., 1234567890).\n";
+      "Please enter a valid mobile number.\n";
     isValid = false;
   }
 
