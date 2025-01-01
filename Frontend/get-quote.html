@@ -794,9 +794,9 @@ function validateEmail(email) {
 }
 
 
-    // Retry CSRF token if expired
-    function submitForm(formData) {
-        formData.csrf = localStorage.getItem("csrfToken") || formData.csrf;
+function submitForm(formData, csrfToken) {
+    // Use csrfToken passed as parameter
+    formData.csrf = csrfToken || formData.csrf;  // Ensure csrfToken is passed, otherwise fallback to formData.csrf
 
         $.ajax({
             url: 'https://balajielectricals-production.up.railway.app/submit-quoteForm',
