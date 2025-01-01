@@ -778,8 +778,7 @@
                   "Failed to submit form after multiple attempts. Please try again later."
                 );
                 csrfRetryCount = 0;
-              }
-            } else {
+              }  } else {
               console.error("Submission error:", xhr.responseText);
               alert("Form submission failed. Please try again.");
             }
@@ -804,6 +803,7 @@
             }
           },
         });
+          
 
         // Menu toggle functions
         function openMenu() {
