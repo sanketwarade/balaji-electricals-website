@@ -160,8 +160,7 @@ app.post('/submit-quoteForm',[ //form 3
   // Save data to MySQL
   const query = 'INSERT INTO quote_requests (form_type, name, company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)';
   const values = [formType, sanitizedInputs.name, sanitizedInputs.company, sanitizedInputs.contact, sanitizedInputs.email, JSON.stringify(machines), sanitizedInputs.message];
-  console.log('Executing SQL Query:', query);
-  console.log('Values to be inserted:', values);
+ 
 
   pool.execute(
     'INSERT INTO quote_requests (form_type, name, company, contact, email, machines, message) VALUES (?, ?, ?, ?, ?, ?, ?)',
