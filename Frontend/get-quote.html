@@ -673,252 +673,213 @@
     </footer>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
-      let csrfRetryCount = 0; // Track retry attempts
+            let csrfRetryCount = 0; // Track retry attempts
 
-      // Fetch CSRF token on page load and store it in localStorage
-      $(document).ready(function () {
-        // Fetch CSRF token on page load
-        fetchCsrfToken();
-      });
-
-      // Function to fetch CSRF token
-      function fetchCsrfToken() {
-        fetch(
-          "https://balajielectricals-production.up.railway.app/csrf-token",
-          {
-            credentials: "include",
-          }
-        )
-          .then((res) => {
-            if (!res.ok) {
-              // If response is not OK (status code outside of 2xx range), throw an error
-              throw new Error("Failed to fetch CSRF token: " + res.statusText);
-            }
-            return res.json(); // Attempt to parse the response as JSON
-          })
-          .then((data) => {
-            // Successfully received CSRF token
-            localStorage.setItem("csrfToken", data.csrfToken);
-            console.log(
-              "Session is active, CSRF token fetched:",
-              data.csrfToken
-            );
-            csrfRetryCount = 0; // Reset retry count after successful token fetch
-          })
-          .catch((err) => {
-            // Handle any errors (network errors, failed JSON parsing, etc.)
-            console.error(err);
-            alert("Error fetching CSRF token. Please try again later.");
-          });
-      }
-
-      // Handle form submission with custom header
-      $("#quoteForm").submit(function (e) {
-        e.preventDefault();
-
-        // Prepare form data
-        const formData = {
-          formType: "quote",
-          name: $("#name").val(),
-          email: $("#email").val(),
-          contact: $("#contact").val(),
-          company: $("#company").val(),
-          machines: $("#machines").val(),
-          message: $("#message").val(),
-        };
-
-        if (!validateForm(formData)) return;
-
-        const csrfToken = localStorage.getItem("csrfToken");
-        console.log("Sending CSRF token:", csrfToken);
-        submitForm(formData, csrfToken);
-      });
-
-      // Form validation
-      function validateForm({
-        name,
-        email,
-        contact,
-        company,
-        machines,
-        message,
-      }) {
-        let isValid = true;
-        let errorMessage = "";
-
-        if (name.trim().length < 3 || name.trim().length > 50) {
-          isValid = false;
-          alert("Name should be between 3 and 50 characters.");
-        }
-
-        if (!validateEmail(email)) {
-          errorMessage += "Invalid email format.\n";
-          isValid = false;
-        }
-
-        if (!/^\d{10}$/.test(contact)) {
-          errorMessage += "Phone number must be exactly 10 digits.\n";
-          isValid = false;
-        }
-
-        if (!company || company.length < 3 || company.trim().length > 50) {
-          errorMessage += "Company name must be between 3 to 50 characters.\n";
-          $("#company").addClass("error-highlight");
-          isValid = false;
-        } else {
-          $("#company").removeClass("error-highlight");
-        }
-
-        if (!message || message.length < 10 || message.trim().length > 100) {
-          errorMessage += "Message must be between 10 to 100 characters.\n";
-          isValid = false;
-        }
-
-        if (!machines || machines.length === 0) {
-          errorMessage += "Select at least one machine.\n";
-          isValid = false;
-        }
-
-        if (!isValid) {
-          alert(errorMessage);
-          return false;
-        }
-        return true;
-      }
-
-      // Email Validation Helper
-      function validateEmail(email) {
-        const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-        return re.test(email);
-      }
-
-      // Function to submit form data
-      function submitForm(formData, csrfToken) {
-        // Ensure csrfToken is passed, otherwise fallback to formData.csrf
-        formData.csrf = csrfToken || formData.csrf;
-
-        $.ajax({
-          url: "https://balajielectricals-production.up.railway.app/submit-quoteForm",
-          type: "POST",
-          data: JSON.stringify(formData), // Send data as JSON
-          headers: {
-            "Content-Type": "application/json", // Specify content type as JSON
-            "X-CSRF-TOKEN": csrfToken, // Include CSRF token in headers
-          },
-          xhrFields: {
-            withCredentials: true, // Ensure cookies are sent with the request
-          },
-          timeout: 10000, // Set 10-second timeout
-
-          success: function (response) {
-            let parsedResponse;
-            try {
-              parsedResponse = JSON.parse(response);
-            } catch (e) {
-              console.error("Error parsing JSON:", e);
-              console.error("Response:", response);
-
-              // Improved error handling
-              if (response === "[object Object]") {
-                alert(
-                  "The server sent an invalid response (likely a JavaScript object instead of JSON). Please contact support."
-                );
-              } else if (
-                typeof response === "string" &&
-                response.startsWith("[object ")
-              ) {
-                alert(
-                  "The server sent an invalid response (likely a string representation of an object). Please contact support."
-                );
-              } else if (typeof response === "object" && response !== null) {
-                //check for a non-null object
-                // Attempt to stringify the response. If it fails, then the object is not valid.
-                try {
-                  parsedResponse = JSON.parse(JSON.stringify(response));
-                } catch (stringifyError) {
-                  alert(
-                    "The server sent an invalid object.  Please contact support."
-                  );
-                  console.error("Error stringifying response:", stringifyError);
-                  return;
-                }
-              } else {
-                alert("Unexpected server response. Please try again.");
-              }
-              return; // Important: Stop further processing if parsing failed
-            }
-
-            // ... rest of your code that uses parsedResponse ...
-
-            if (parsedResponse && parsedResponse.success) {
-              alert(parsedResponse.message || "Form submitted successfully!");
-              $("#quoteForm")[0].reset(); // Reset form
-              $("#successMessage").fadeIn();
-              $("#errorMessage").fadeOut();
-
-              // Refresh CSRF token for future submissions
+            // Fetch CSRF token on page load and store it in localStorage
+            $(document).ready(function () {
+              // Fetch CSRF token on page load
               fetchCsrfToken();
-            } else {
-              console.error("Submission error:", parsedResponse);
-              alert("Form submission failed. Please try again.");
-            }
-          },
+            });
 
-          error: function (xhr, status, error) {
-            if (xhr.status === 403) {
-              console.warn(
-                "CSRF token expired or missing. Fetching a new token..."
-              );
-
-              if (csrfRetryCount < 2) {
-                csrfRetryCount++;
-                fetchCsrfToken()
-                  .then((newToken) => {
-                    if (newToken) {
-                      const latestToken = localStorage.getItem("csrfToken");
-                      submitForm(formData, latestToken); // Retry with new token
-                    } else {
-                      alert(
-                        "Failed to refresh CSRF token. Please reload the page."
-                      );
-                      csrfRetryCount = 0;
-                    }
-                  })
-                  .catch(() => {
-                    alert("Error fetching CSRF token. Please reload the page.");
-                  });
-              } else {
-                alert(
-                  "Failed to submit form after multiple attempts. Please try again later."
-                );
-                csrfRetryCount = 0;
-              }
-            } else if (status === "timeout") {
-              alert(
-                "Request timed out. Please check your internet connection."
-              );
-            } else {
-              console.error("AJAX Error:", status, error);
-              console.error("Server Response:", xhr.responseText);
-
-              let errorMessage =
-                "An unexpected error occurred. Please try again later.";
-              try {
-                const response = JSON.parse(xhr.responseText);
-                if (response.error) {
-                  errorMessage = response.error;
-                } else if (response.message) {
-                  errorMessage = response.message;
+            // Function to fetch CSRF token
+            function fetchCsrfToken() {
+              fetch(
+                "https://balajielectricals-production.up.railway.app/csrf-token",
+                {
+                  credentials: "include",
                 }
-              } catch (e) {
-                console.warn("Failed to parse server response.");
+              )
+                .then((res) => {
+                  if (!res.ok) {
+                    // If response is not OK (status code outside of 2xx range), throw an error
+                    throw new Error("Failed to fetch CSRF token: " + res.statusText);
+                  }
+                  return res.json(); // Attempt to parse the response as JSON
+                })
+                .then((data) => {
+                  // Successfully received CSRF token
+                  localStorage.setItem("csrfToken", data.csrfToken);
+                  console.log(
+                    "Session is active, CSRF token fetched:",
+                    data.csrfToken
+                  );
+                  csrfRetryCount = 0; // Reset retry count after successful token fetch
+                })
+                .catch((err) => {
+                  // Handle any errors (network errors, failed JSON parsing, etc.)
+                  console.error(err);
+                  alert("Error fetching CSRF token. Please try again later.");
+                });
+            }
+
+            // Handle form submission with custom header
+            $("#quoteForm").submit(function (e) {
+              e.preventDefault();
+
+              // Prepare form data
+              const formData = {
+                formType: "quote",
+                name: $("#name").val(),
+                email: $("#email").val(),
+                contact: $("#contact").val(),
+                company: $("#company").val(),
+                machines: $("#machines").val(),
+                message: $("#message").val(),
+              };
+
+              if (!validateForm(formData)) return;
+
+              const csrfToken = localStorage.getItem("csrfToken");
+              console.log("Sending CSRF token:", csrfToken);
+              submitForm(formData, csrfToken);
+            });
+
+            // Form validation
+            function validateForm({
+              name,
+              email,
+              contact,
+              company,
+              machines,
+              message,
+            }) {
+              let isValid = true;
+              let errorMessage = "";
+
+              if (name.trim().length < 3 || name.trim().length > 50) {
+                isValid = false;
+                alert("Name should be between 3 and 50 characters.");
               }
 
-              alert(errorMessage);
+              if (!validateEmail(email)) {
+                errorMessage += "Invalid email format.\n";
+                isValid = false;
+              }
+
+              if (!/^\d{10}$/.test(contact)) {
+                errorMessage += "Phone number must be exactly 10 digits.\n";
+                isValid = false;
+              }
+
+              if (!company || company.length < 3 || company.trim().length > 50) {
+                errorMessage += "Company name must be between 3 to 50 characters.\n";
+                $("#company").addClass("error-highlight");
+                isValid = false;
+              } else {
+                $("#company").removeClass("error-highlight");
+              }
+
+              if (!message || message.length < 10 || message.trim().length > 100) {
+                errorMessage += "Message must be between 10 to 100 characters.\n";
+                isValid = false;
+              }
+
+              if (!machines || machines.length === 0) {
+                errorMessage += "Select at least one machine.\n";
+                isValid = false;
+              }
+
+              if (!isValid) {
+                alert(errorMessage);
+                return false;
+              }
+              return true;
             }
-          },
-        });
-      }
+
+            // Email Validation Helper
+            function validateEmail(email) {
+              const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+              return re.test(email);
+            }
+
+            // Function to submit form data
+            function submitForm(formData, csrfToken) {
+              // Ensure csrfToken is passed, otherwise fallback to formData.csrf
+              formData.csrf = csrfToken || formData.csrf;
+
+
+      $.ajax({
+        url: "https://balajielectricals-production.up.railway.app/submit-quoteForm",
+        type: "POST",
+        data: JSON.stringify(formData), // Send data as JSON
+        dataType: 'json',
+        headers: {
+          "Content-Type": "application/json", // Specify content type as JSON
+          "X-CSRF-TOKEN": csrfToken, // Include CSRF token in headers
+        },
+        xhrFields: {
+          withCredentials: true, // Ensure cookies are sent with the request
+        },
+        timeout: 10000, // Set 10-second timeout
+
+        success: function (response) {
+          if (response && response.success) {
+            alert(response.message || "Form submitted successfully!");
+            $("#quoteForm")[0].reset();  // Reset form after successful submission
+            $("#successMessage").fadeIn();
+            $("#errorMessage").fadeOut();
+
+            fetchCsrfToken();  // Refresh CSRF token for future submissions
+          } else {
+            console.error("Submission error:", response);
+            alert("Form submission failed. Please try again.");
+          }
+        }, // <-- Added missing comma here
+        error: function (xhr, status, error) {
+          if (xhr.status === 403) {
+            console.warn(
+              "CSRF token expired or missing. Fetching a new token..."
+            );
+
+            if (csrfRetryCount < 2) {
+              csrfRetryCount++;
+              fetchCsrfToken()
+                .then((newToken) => {
+                  if (newToken) {
+                    const latestToken = localStorage.getItem("csrfToken");
+                    submitForm(formData, latestToken); // Retry with new token
+                  } else {
+                    alert(
+                      "Failed to refresh CSRF token. Please reload the page."
+                    );
+                    csrfRetryCount = 0;
+                  }
+                })
+                .catch(() => {
+                  alert("Error fetching CSRF token. Please reload the page.");
+                });
+            } else {
+              alert(
+                "Failed to submit form after multiple attempts. Please try again later."
+              );
+              csrfRetryCount = 0;
+            }
+          } else if (status === "timeout") {
+            alert(
+              "Request timed out. Please check your internet connection."
+            );
+          } else {
+            console.error("AJAX Error:", status, error);
+            console.error("Server Response:", xhr.responseText);
+
+            let errorMessage =
+              "An unexpected error occurred. Please try again later.";
+            try {
+              const response = JSON.parse(xhr.responseText);
+              if (response.error) {
+                errorMessage = response.error;
+              } else if (response.message) {
+                errorMessage = response.message;
+              }
+            } catch (e) {
+              console.warn("Failed to parse server response.");
+            }
+
+            alert(errorMessage);
+          }
+        }
+      
+      }); // <-- Added missing closing parenthesis here
 
       // Mobile Menu Open
       function openMenu() {
@@ -933,6 +894,7 @@
         document.querySelector(".hamburger").style.display = "block";
         document.querySelector(".close-btn").style.opacity = "0";
       }
+    }
     </script>
   </body>
 </html>
