@@ -1,9 +1,0 @@
-[build]
-  functions = "netlify/functions"
-  publish = "Frontend"  # Adjust if necessary to point to your frontend folder
-
-[[redirects]]
-  from = "/*"
-  to = "/maintenance.html"
-  status = 503
-  force = true
