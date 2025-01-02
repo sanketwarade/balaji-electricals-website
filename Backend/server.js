@@ -11,6 +11,8 @@ const { body, validationResult } = require('express-validator');
 const helmet = require('helmet'); // New: Secure HTTP headers
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const cron = require('node-cron');
+const moment = require('moment'); // To handle date and time more easily
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
@@ -70,6 +72,18 @@ pool.getConnection((err, connection) => {
 // Create the MySQL session store using the pool
 const sessionStore = new MySQLStore({}, pool);
 module.exports = pool;  // Export pool directly
+
+// Middleware to check if the site is in maintenance mode
+app.use((req, res, next) => {
+  const maintenanceMode = process.env.MAINTENANCE_MODE === 'FALSE';
+  
+  if (maintenanceMode) {
+      // Redirect to maintenance page
+      res.sendFile(path.join(__dirname, 'Frontend', 'maintenance.html'));
+  } else {
+      next(); // Proceed to other routes if not in maintenance mode
+  }
+});
 
 
 app.use(session({
@@ -478,105 +492,103 @@ app.post('/submit-Enquiryform', [
     res.status(200).send('Enquiry submitted successfully');
   });
 
-
-
-// Maintenance Mode Check
-const isMaintenance = process.env.MAINTENANCE_MODE === 'false';
-
-app.use((req, res, next) => {
-  if (isMaintenance && req.path !== '/maintenance.html' && !req.path.startsWith('/api')) {
-    res.sendFile(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend', 'maintenance.html'));
-  } else {
-    next();
-  }
-});
-
-// HTML Page Routes
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend', 'maintenance.html'));
-});
-
-// 404 Page
-app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, 'BALAJI ELECTRICALS', 'Frontend', '404.html'));
-});
-
-// Handle Email Submissions (Async/Await for Pool)
+// Endpoint to handle Notify Me form submission
 app.post('/notify', async (req, res) => {
   const { email } = req.body;
 
-  if (email && validateEmail(email)) {
-    const query = `INSERT INTO notify_emails (email) VALUES (?) 
-                   ON DUPLICATE KEY UPDATE email=email`;
-
-    try {
-      const [result] = await pool.execute(query, [email]);
-      res.status(200).send({ message: 'You will be notified!' });
-    } catch (err) {
-      console.error('Failed to insert email:', err);
-      res.status(500).send({ error: 'Database error' });
+  // Save email in MySQL database
+  pool.execute('INSERT INTO emails (email) VALUES (?)', [email], async (err, result) => {
+      if (err) {
+          console.error('Database error: ', err);
+          return res.status(500).send('Failed to save email.');
+      }
+      console.log('Data inserted into database:', result);
     }
-  } else {
-    res.status(400).send({ error: 'Invalid email address' });
-  }
+  )
+      
+
+      // Send email notification via SendGrid
+      const msg = {
+          to: email,
+          from: process.env.ADMIN_EMAIL, // Replace with your email
+          subject: 'Website Maintenance Update',
+          text: 'The website is now back online! Thank you for your patience.',
+      };
+
+      try {
+          await sgMail.send(msg);
+          res.status(200).send('Email sent and email saved successfully.');
+      } catch (error) {
+          console.error('Error sending email: ', error);
+          res.status(500).send('Failed to send email.');
+      }
+  });
+
+
+// Calculate the date and time for the maintenance to end (3 days, 3 hours, 33 minutes, and 45 seconds from now)
+const endTime = moment().add({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+// Convert the end time to cron format (this will round to the nearest minute)
+const cronSchedule = `${endTime.minutes()} ${endTime.hours()} ${endTime.date()} ${endTime.month() + 1} *`; // cron expects months to be in 1-12 range
+
+// Task to send emails to all subscribers when maintenance ends
+cron.schedule(cronSchedule, async () => {
+  console.log(`Sending emails at ${endTime.format('YYYY-MM-DD HH:mm:ss')}`);
+
+  // Fetch all email addresses from the database
+  pool.execute('SELECT email FROM emails', async (err, results) => {
+      if (err) {
+          console.error('Error fetching emails from database:', err);
+          return;
+      }
+
+      // Loop through each email and send an email via SendGrid
+      for (let result of results) {
+          const email = result.email;
+
+          const msg = {
+              to: email,
+              from: process.ene.ADMIN_EMAIL, // Replace with your email
+              subject: 'Website Maintenance Update',
+              text: 'The website is now back online! Thank you for your patience.',
+          };
+
+          try {
+              await sgMail.send(msg);
+              console.log(`Email sent to ${email}`);
+          } catch (error) {
+              console.error(`Error sending email to ${email}:`, error);
+          }
+      }
+  });
+});
+// Endpoint to enable maintenance mode
+app.post('/maintenance/on', (req, res) => {
+  const envPath = path.join(__dirname, '../.env');
+  const envData = fs.readFileSync(envPath, 'utf-8');
+  const updatedEnv = envData.replace('MAINTENANCE_MODE=FALSE', 'MAINTENANCE_MODE=TRUE');
+  fs.writeFileSync(envPath, updatedEnv);
+  console.log('Maintenance mode enabled');
+  res.status(200).send('Maintenance mode enabled');
 });
 
-// Validate Email
-function validateEmail(email) {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return re.test(String(email).toLowerCase());
-}
+// Endpoint to disable maintenance mode
+app.post('/maintenance/off', (req, res) => {
+  const envPath = path.join(__dirname, '../.env');
+  const envData = fs.readFileSync(envPath, 'utf-8');
+  const updatedEnv = envData.replace('MAINTENANCE_MODE=TRUE', 'MAINTENANCE_MODE=FALSE');
+  fs.writeFileSync(envPath, updatedEnv);
+  console.log('Maintenance mode disabled');
+  res.status(200).send('Maintenance mode disabled');
+});
 
-// Send Notifications 
-async function sendNotifications() {
-  const selectQuery = 'SELECT email FROM notify_emails WHERE notified = false';
-
-  try {
-    const [results] = await pool.execute(selectQuery);
-
-    const message = {
-      from: process.env.ADMIN_EMAIL,
-      subject: 'We are Back Online!',
-      text: 'Hello! Balaji Electricals is back online. Thank you for your patience.',
-      html: `<p>Hello! <b>Balaji Electricals</b> is now back online. Thank you for waiting!</p>`,
-    };
-
-    for (const row of results) {
-      message.to = row.email;
-      try {
-        await sgMail.send(message);
-        console.log(`Email sent to ${row.email}`);
-        await markAsNotified(row.email);
-      } catch (error) {
-        console.error(`Failed to send email to ${row.email}:`, error.toString());
-      }
-    }
-  } catch (err) {
-    console.error('Failed to fetch emails:', err);
-  }
-}
-
-// Mark Emails as Notified (Async)
-async function markAsNotified(email) {
-  const updateQuery = 'UPDATE notify_emails SET notified = true WHERE email = ?';
-
-  try {
-    await pool.execute(updateQuery, [email]);
-  } catch (err) {
-    console.error(`Failed to update notified status for ${email}`, err);
-  }
-}
-
-// Countdown Timer for Sending Notifications
-const maintenanceEndDate = new Date("2024-12-29T01:03:59");
-const timeUntilEnd = maintenanceEndDate - new Date();
-
-if (timeUntilEnd > 0) {
-  setTimeout(() => {
-    sendNotifications();
-    console.log('Maintenance ended. Notifications sent.');
-  }, timeUntilEnd);
-}
+// Endpoint to check the current maintenance mode status
+app.get('/maintenance/status', (req, res) => {
+  const envPath = path.join(__dirname, '../.env');
+  const envData = fs.readFileSync(envPath, 'utf-8');
+  const isMaintenanceMode = envData.includes('MAINTENANCE_MODE=TRUE');
+  res.json({ status: isMaintenanceMode });
+});
 
 
 // Start server
