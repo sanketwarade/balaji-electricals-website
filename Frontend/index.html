@@ -9,6 +9,17 @@
     <meta name="keywords" content="BALAJI ELECTRICALS,balaji electricals,mig welding,welding machine supplier pune,welding machines, automation, control panels, SPM welding machines, rotary positioners">
     <meta name="robots" content="index, follow">
     <title>BALAJI ELECTRICALS - Home</title>
+    <!-- Maintenance Mode Check -->
+    <script>
+        fetch('/.netlify/functions/get-maintenance-mode')
+          .then(response => response.json())
+          .then(data => {
+            if (data.maintenanceMode === 'TRUE') {
+              window.location.href = "/maintenance.html";
+            }
+          })
+          .catch(error => console.error('Error fetching maintenance mode:', error));
+      </script>
     <script src="js/common.js"></script>
     
     <!-- Google Font -->
@@ -764,16 +775,7 @@ function closeMenu() {
 }, 500); // Delay to match the transition duration
 }
 
-fetch('/.netlify/functions/get-maintenance-mode')
-    .then(response => response.json())
-    .then(data => {
-      if (data.maintenanceMode === 'TRUE') {
-        window.location.href = "/maintenance.html";
-      }
-    })
-    .catch(error => console.error('Error fetching maintenance mode:', error));
 
-    
 
      
 </script>
