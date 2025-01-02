@@ -11,6 +11,7 @@ const { body, validationResult } = require('express-validator');
 const helmet = require('helmet'); // New: Secure HTTP headers
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const fs = require('fs');
 const cron = require('node-cron');
 const moment = require('moment'); // To handle date and time more easily
 const cookieParser = require('cookie-parser');
