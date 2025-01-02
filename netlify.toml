@@ -1,6 +1,6 @@
 [build]
   functions = "netlify/functions"
-  publish = "Frontend"  # Assuming your main site files (index.html) are in 'Frontend'
+  publish = "Frontend"  # Correct this path
 
 [[redirects]]
   from = "/*"
