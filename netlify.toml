@@ -1,0 +1,9 @@
+[build]
+  functions = "netlify/functions"
+  publish = "Frontend"  # Assuming your main site files (index.html) are in 'Frontend'
+
+[[redirects]]
+  from = "/*"
+  to = "/maintenance.html"
+  status = 503
+  force = true
