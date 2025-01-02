@@ -73,20 +73,6 @@ pool.getConnection((err, connection) => {
 // Create the MySQL session store using the pool
 const sessionStore = new MySQLStore({}, pool);
 module.exports = pool;  // Export pool directly
-
-// Middleware to check if the site is in maintenance mode
-app.use((req, res, next) => {
-  const maintenanceMode = process.env.MAINTENANCE_MODE === 'FALSE';
-  
-  if (maintenanceMode) {
-      // Redirect to maintenance page
-      res.sendFile(path.join(__dirname, 'Frontend', 'maintenance.html'));
-  } else {
-      next(); // Proceed to other routes if not in maintenance mode
-  }
-});
-
-
 app.use(session({
   secret: process.env.SESSION_SECRET,  // Replace with a secure secret
   resave: false,
@@ -114,14 +100,30 @@ app.get('/', (req, res) => {
 });
 
 // ------------------- CSRF SETUP --------------------
-const tokens = new csrf(); 
+const tokens = csrf(); // Initialize CSRF token generation correctly
 
 // CSRF Token Generation Endpoint
 app.get('/csrf-token', (req, res) => {
-  const csrfSecret = tokens.secretSync();
-  const csrfToken = tokens.create(csrfSecret);
-  req.session.csrfSecret = csrfSecret
+  const csrfSecret = tokens.secretSync(); // Generate a new CSRF secret
+  const csrfToken = tokens.create(csrfSecret); // Create the CSRF token
+
+  // Store the CSRF secret in the session so it can be validated later
+  req.session.csrfSecret = csrfSecret;
+
+  // Respond with the CSRF token and the expiration time of the session cookie
   res.json({ csrfToken, expiresIn: req.session.cookie.maxAge / 1000 });
+});
+
+// Middleware to check if the site is in maintenance mode
+app.use((req, res, next) => {
+  const maintenanceMode = process.env.MAINTENANCE_MODE === 'FALSE';
+  
+  if (maintenanceMode) {
+      // Redirect to maintenance page
+      res.sendFile(path.join(__dirname, 'Frontend', 'maintenance.html'));
+  } else {
+      next(); // Proceed to other routes if not in maintenance mode
+  }
 });
 // Email Setup using environment variables
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
