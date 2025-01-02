@@ -195,7 +195,7 @@
   <!-- Countdown Script -->
   <script>
     // Set the date we're counting down to
-    var countDownDate = new Date("2024-12-29T01:03:59").getTime();  // Adjust as needed
+    var countDownDate = new Date("2025-01-07T09:54:50").getTime();  // Adjust as needed
     var emailList = [];
 
     // Update the countdown every 1 second
@@ -221,11 +221,64 @@
       }
     }, 1000);
 
+    // Email Validator Function
+    function validateEmail(email) {
+      const allowedTLDs = [
+        "com",
+        "net",
+        "org",
+        "edu",
+        "gov",
+        "co",
+        "io",
+        "us",
+        "info",
+      ];
+
+      // Regex to validate email format, block consecutive dots, and allow only valid TLDs
+      const emailRegex =
+        /^[a-zA-Z0-9._-]+(?<!\.\.)@[a-zA-Z0-9.-]+\.(com|net|org|edu|gov|co|io|us|info)$/;
+
+      if (email.length > 320) {
+        return false; // Email exceeds the max allowed length
+      }
+
+      // Check if email matches the regex
+      if (!emailRegex.test(email)) {
+        return false;
+      }
+
+      // Extract TLD and check if it's allowed
+      const domainParts = email.split(".");
+      const tld = domainParts[domainParts.length - 1].toLowerCase();
+      if (!allowedTLDs.includes(tld)) {
+        return false;
+      }
+
+      // Block certain known test emails
+      const testEmails = [
+        "test@example.com",
+        "user@example.com",
+        "admin@example.com",
+      ];
+      if (testEmails.includes(email.toLowerCase())) {
+        return false;
+      }
+
+      return true;
+    }
+
+
     document.getElementById('notifyForm').onsubmit = async function (e) {
       e.preventDefault();
       const email = document.getElementById('email').value;
+        // Validate email format and restrictions
+        if (!validateEmail(email)) {
+        alert('Please enter a valid email address!');
+        return;
+      }
 
-      const response = await fetch('/notify', {
+      const response = await fetch('https://balajielectricals-production.up.railway.app/notify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
