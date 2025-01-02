@@ -548,7 +548,7 @@ cron.schedule(cronSchedule, async () => {
 
           const msg = {
               to: email,
-              from: process.ene.ADMIN_EMAIL, // Replace with your email
+              from: process.env.ADMIN_EMAIL, // Replace with your email
               subject: 'Website Maintenance Update',
               text: 'The website is now back online! Thank you for your patience.',
           };
