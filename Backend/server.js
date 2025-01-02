@@ -44,7 +44,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // ------------------- STATIC FILES --------------------
-app.use(express.static(path.join(__dirname, '../frontend')));
+// Serve static files from the Frontend directory
+app.use(express.static(path.join(__dirname, '../Frontend')));
 
 // ------------------- MYSQL CONNECTION --------------------
 // MySQL Database Connection
@@ -116,11 +117,19 @@ app.get('/csrf-token', (req, res) => {
 
 // Middleware to check if the site is in maintenance mode
 app.use((req, res, next) => {
-  const maintenanceMode = process.env.MAINTENANCE_MODE === 'FALSE';
+  const maintenanceMode = process.env.MAINTENANCE_MODE === 'TRUE';
   
   if (maintenanceMode) {
-      // Redirect to maintenance page
-      res.sendFile(path.join(__dirname, 'Frontend', 'maintenance.html'));
+      // Corrected path to maintenance.html
+      const maintenancePath = path.join(__dirname, '../Frontend', 'maintenance.html');
+      console.log('Serving maintenance page from:', maintenancePath);
+      
+      if (fs.existsSync(maintenancePath)) {
+          res.sendFile(maintenancePath);
+      } else {
+          console.error('Maintenance page not found at:', maintenancePath);
+          res.status(404).send('Maintenance page not found');
+      }
   } else {
       next(); // Proceed to other routes if not in maintenance mode
   }
