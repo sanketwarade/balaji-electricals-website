@@ -19,3 +19,6 @@ node_modules/
 Backend/generateKey.js
 
 
+
+# Local Netlify folder
+.netlify
