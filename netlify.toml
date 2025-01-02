@@ -1,6 +1,6 @@
 [build]
   functions = "netlify/functions"
-  publish = "Frontend"  # Adjust if your files are in a different directory
+  publish =  "BALAJI ELECTRICALS/Frontend"  # Adjust if your files are in a different directory
 
 [[redirects]]
   from = "/*"
