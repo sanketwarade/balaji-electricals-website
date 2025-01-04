@@ -1,7 +1,8 @@
 [build]
-  base = "BALAJI ELECTRICALS"
-  publish = "BALAJI ELECTRICALS/Frontend"
-  functions = "BALAJI ELECTRICALS/netlify/functions"
+  base = ""
+  publish = "Frontend"
+  functions = "netlify/functions"
+
 
 
 [[redirects]]
