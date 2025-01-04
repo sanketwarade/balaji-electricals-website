@@ -1,5 +1,4 @@
 [build]
-  [build]
   base = "BALAJI ELECTRICALS"
   publish = "BALAJI ELECTRICALS/Frontend"
   functions = "BALAJI ELECTRICALS/netlify/functions"
