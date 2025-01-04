@@ -510,25 +510,25 @@ app.post('/notify', async (req, res) => {
   const { email } = req.body;
 
   try {
-    // Check if the email already exists in the database
-    const [result, fields] = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
+    const queryResult = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
 
-    console.log('Query result:', result);  // Log the result array (which should contain rows)
-    console.log('Query fields:', fields);  // Log the field metadata (optional)
+    if (!queryResult || !Array.isArray(queryResult) || queryResult.length < 1) {
+      throw new Error('Query did not return an array.');
+    }
 
-    // Check if the result array contains any rows
+    const [result, fields] = queryResult;
+    console.log('Query result:', result);
+
     if (result.length > 0) {
       return res.status(400).send('This email is already subscribed.');
     }
 
-    // Save email in MySQL database
     const [insertResult] = await pool.execute('INSERT INTO emails (email) VALUES (?)', [email]);
     console.log('Data inserted into database:', insertResult);
 
-    // Send email notification via SendGrid
     const msg = {
       to: email,
-      from: process.env.ADMIN_EMAIL, // Replace with your email
+      from: process.env.ADMIN_EMAIL,
       subject: 'Website Maintenance Update',
       text: 'The website is now back online! Thank you for your patience.',
     };
@@ -540,6 +540,7 @@ app.post('/notify', async (req, res) => {
     res.status(500).send('Failed to save email or send notification.');
   }
 });
+
 
 // Calculate the date and time for the maintenance to end (3 days, 3 hours, 33 minutes, and 45 seconds from now)
 const endTime = moment().add({ days: 3, hours: 3, minutes: 33, seconds: 45 }); // Set maintenance end time
