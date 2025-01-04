@@ -511,13 +511,13 @@ app.post('/notify', async (req, res) => {
 
   try {
     // Check if the email already exists in the database
-    const result = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
+    const [result, fields] = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
 
-    console.log('Query result:', result);  // Add logging to inspect the result
+    console.log('Query result:', result);  // Log the result array (which should contain rows)
+    console.log('Query fields:', fields);  // Log the field metadata (optional)
 
-    const rows = result[0];  // Access the rows (data) from the result
-
-    if (rows.length > 0) {
+    // Check if the result array contains any rows
+    if (result.length > 0) {
       return res.status(400).send('This email is already subscribed.');
     }
 
