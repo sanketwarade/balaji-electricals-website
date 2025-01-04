@@ -510,14 +510,8 @@ app.post('/notify', async (req, res) => {
   const { email } = req.body;
 
   try {
-    const queryResult = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
-
-    if (!queryResult || !Array.isArray(queryResult) || queryResult.length < 1) {
-      throw new Error('Query did not return an array.');
-    }
-
-    const [result, fields] = queryResult;
-    console.log('Query result:', result);
+    const [result, fields] = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
+    console.log('Query result:', result);  // Logs rows, should be an empty array if no match
 
     if (result.length > 0) {
       return res.status(400).send('This email is already subscribed.');
