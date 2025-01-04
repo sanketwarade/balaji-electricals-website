@@ -1,9 +1,0 @@
-[build]
-  functions = "netlify/functions"
-  publish =  "BALAJI ELECTRICALS/Frontend"  # Adjust if your files are in a different directory
-
-[[redirects]]
-  from = "/*"
-  to = "/maintenance.html"
-  status = 503
-  force = true
