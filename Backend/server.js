@@ -505,21 +505,27 @@ app.post('/submit-Enquiryform', [
   });
 
 // Handle email subscription and notifications
-// Handle email subscription and notifications
 app.post('/notify', async (req, res) => {
   const { email } = req.body;
 
   try {
-    const [result, fields] = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
-    console.log('Query result:', result);  // Logs rows, should be an empty array if no match
+    // Check if the email already exists
+    const [result] = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
+    console.log('Query result:', result);
+  } catch (error) {
+    console.error('Database query failed:', error);
+    return res.status(500).send('Database query error.');
+  }
 
     if (result.length > 0) {
       return res.status(400).send('This email is already subscribed.');
     }
 
+    // Insert email into the database
     const [insertResult] = await pool.execute('INSERT INTO emails (email) VALUES (?)', [email]);
     console.log('Data inserted into database:', insertResult);
 
+    // Prepare and send email using SendGrid
     const msg = {
       to: email,
       from: process.env.ADMIN_EMAIL,
@@ -527,13 +533,20 @@ app.post('/notify', async (req, res) => {
       text: 'The website is now back online! Thank you for your patience.',
     };
 
+    // Send email
     await sgMail.send(msg);
+    console.log(`Email sent to ${email}`);
+
+    // Respond to client
     res.status(200).send('Email sent and email saved successfully.');
+try{
   } catch (err) {
+    // Handle errors
     console.error('Error:', err);
     res.status(500).send('Failed to save email or send notification.');
   }
 });
+
 
 
 // Calculate the date and time for the maintenance to end (3 days, 3 hours, 33 minutes, and 45 seconds from now)
