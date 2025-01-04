@@ -117,7 +117,7 @@ app.get('/csrf-token', (req, res) => {
 
 // Middleware to check if the site is in maintenance mode
 app.use((req, res, next) => {
-  const maintenanceMode = process.env.MAINTENANCE_MODE === 'TRUE';
+  const maintenanceMode = process.env.MAINTENANCE_MODE === 'FALSE';
   
   if (maintenanceMode) {
       // Corrected path to maintenance.html
