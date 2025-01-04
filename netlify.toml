@@ -1,6 +1,9 @@
 [build]
-  functions = "netlify/functions"
-  publish =  "Frontend"  # Adjust if your files are in a different directory
+  [build]
+  base = "BALAJI ELECTRICALS"
+  publish = "BALAJI ELECTRICALS/Frontend"
+  functions = "BALAJI ELECTRICALS/netlify/functions"
+
 
 [[redirects]]
   from = "/*"
