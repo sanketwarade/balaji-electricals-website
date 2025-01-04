@@ -541,7 +541,6 @@ app.post('/notify', async (req, res) => {
   }
 });
 
-
 // Calculate the date and time for the maintenance to end (3 days, 3 hours, 33 minutes, and 45 seconds from now)
 const endTime = moment().add({ days: 3, hours: 3, minutes: 33, seconds: 45 }); // Set maintenance end time
 
