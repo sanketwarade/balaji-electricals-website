@@ -510,14 +510,14 @@ app.post('/notify', async (req, res) => {
 
   try {
     // Check if the email already exists in the database
-    const [rows] = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
+    const [rows, fields] = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
     
     if (rows.length > 0) {
       return res.status(400).send('This email is already subscribed.');
     }
 
     // Save email in MySQL database
-    const [result] = await pool.execute('INSERT INTO emails (email) VALUES (?)', [email]);
+    const [result, fields2] = await pool.execute('INSERT INTO emails (email) VALUES (?)', [email]);
     console.log('Data inserted into database:', result);
 
     // Send email notification via SendGrid
@@ -536,7 +536,6 @@ app.post('/notify', async (req, res) => {
   }
 });
 
-
 // Calculate the date and time for the maintenance to end (3 days, 3 hours, 33 minutes, and 45 seconds from now)
 const endTime = moment().add({ days: 3, hours: 3, minutes: 33, seconds: 45 }); // Set maintenance end time
 
@@ -547,33 +546,37 @@ const cronSchedule = `${endTime.minutes()} ${endTime.hours()} ${endTime.date()} 
 cron.schedule(cronSchedule, async () => {
   console.log(`Sending emails at ${endTime.format('YYYY-MM-DD HH:mm:ss')}`);
 
-  try {
-    // Fetch all email addresses from the database
-    const [results] = await pool.execute('SELECT email FROM emails');
-    
-    // Loop through each email and send an email via SendGrid
-    for (let result of results) {
-      const email = result.email;
-
+  app.post('/notify', async (req, res) => {
+    const { email } = req.body;
+  
+    try {
+      // Check if the email already exists in the database
+      const [rows, fields] = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
+      
+      if (rows.length > 0) {
+        return res.status(400).send('This email is already subscribed.');
+      }
+  
+      // Save email in MySQL database
+      const [result, fields2] = await pool.execute('INSERT INTO emails (email) VALUES (?)', [email]);
+      console.log('Data inserted into database:', result);
+  
+      // Send email notification via SendGrid
       const msg = {
         to: email,
         from: process.env.ADMIN_EMAIL, // Replace with your email
         subject: 'Website Maintenance Update',
         text: 'The website is now back online! Thank you for your patience.',
       };
-
-      try {
-        await sgMail.send(msg);
-        console.log(`Email sent to ${email}`);
-      } catch (error) {
-        console.error(`Error sending email to ${email}:`, error);
-      }
+  
+      await sgMail.send(msg);
+      res.status(200).send('Email sent and email saved successfully.');
+    } catch (err) {
+      console.error('Error:', err);
+      res.status(500).send('Failed to save email or send notification.');
     }
-  } catch (err) {
-    console.error('Error fetching emails from database:', err);
-  }
+  });
 });
-
 // Endpoint to enable maintenance mode
 app.post('/maintenance/on', (req, res) => {
   const envPath = path.join(__dirname, '../.env');
