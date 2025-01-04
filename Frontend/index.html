@@ -14,7 +14,7 @@
         fetch('/.netlify/functions/get-maintenance-mode')
           .then(response => response.json())
           .then(data => {
-            if (data.maintenanceMode === 'TRUE') {
+            if (data.maintenanceMode === 'FALSE') {
               window.location.href = "/maintenance.html";
             }
           })
