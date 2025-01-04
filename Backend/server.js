@@ -510,7 +510,7 @@ app.post('/notify', async (req, res) => {
 
   try {
     // Check if the email already exists
-    const [rows] = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
+    const [rows, fields] = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
 
     if (!Array.isArray(rows)) {
       throw new Error('Unexpected query result format.');
@@ -548,6 +548,7 @@ app.post('/notify', async (req, res) => {
     res.status(500).send('Failed to save email or send notification.');
   }
 });
+
 
 // Calculate the date and time for the maintenance to end (3 days, 3 hours, 33 minutes, and 45 seconds from now)
 const endTime = moment().add({ days: 3, hours: 3, minutes: 33, seconds: 45 }); // Set maintenance end time
