@@ -510,9 +510,9 @@ app.post('/notify', async (req, res) => {
 
   try {
     // Check if the email already exists in the database
-    const [existingEmail] = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
+    const [rows] = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
     
-    if (existingEmail.length > 0) {
+    if (rows.length > 0) {
       return res.status(400).send('This email is already subscribed.');
     }
 
@@ -535,6 +535,7 @@ app.post('/notify', async (req, res) => {
     res.status(500).send('Failed to save email or send notification.');
   }
 });
+
 
 // Calculate the date and time for the maintenance to end (3 days, 3 hours, 33 minutes, and 45 seconds from now)
 const endTime = moment().add({ days: 3, hours: 3, minutes: 33, seconds: 45 }); // Set maintenance end time
