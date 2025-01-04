@@ -507,20 +507,25 @@ app.post('/submit-Enquiryform', [
 // Handle email subscription and notifications
 app.post('/notify', async (req, res) => {
   const { email } = req.body;
-
   try {
     // Check if the email already exists
-    const [result] = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
-    console.log('Query result:', result);
-  } catch (error) {
-    console.error('Database query failed:', error);
-    return res.status(500).send('Database query error.');
-  }
+    const queryResult = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
+    
+    // Destructure properly and handle the case if queryResult is undefined or not as expected
+    const [rows] = queryResult;
 
-    if (result.length > 0) {
+    if (!Array.isArray(rows)) {
+      throw new Error('Unexpected query result format.');
+    }
+
+    console.log('Query result:', rows);
+
+    if (rows.length > 0) {
       return res.status(400).send('This email is already subscribed.');
     }
 
+}
+catch{
     // Insert email into the database
     const [insertResult] = await pool.execute('INSERT INTO emails (email) VALUES (?)', [email]);
     console.log('Data inserted into database:', insertResult);
@@ -545,10 +550,9 @@ try{
     console.error('Error:', err);
     res.status(500).send('Failed to save email or send notification.');
   }
+}
+
 });
-
-
-
 // Calculate the date and time for the maintenance to end (3 days, 3 hours, 33 minutes, and 45 seconds from now)
 const endTime = moment().add({ days: 3, hours: 3, minutes: 33, seconds: 45 }); // Set maintenance end time
 
