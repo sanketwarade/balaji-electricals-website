@@ -503,23 +503,23 @@ app.post('/submit-Enquiryform', [
     // Send success response
     res.status(200).send('Enquiry submitted successfully');
   });
-
-// Handle email subscription and notifications
+// Handle email subscription and notifications for maintenance
 app.post('/notify', (req, res) => {
   const { email } = req.body;
 
-  // Check if email exists
+  // Check if email exists in database
   pool.query('SELECT * FROM emails WHERE email = ?', [email], (err, rows) => {
     if (err) {
       console.error('Database Error:', err);
       return res.status(500).send('Database query failed.');
     }
 
+    // If email already exists, return response
     if (rows.length > 0) {
       return res.status(400).send('This email is already subscribed.');
     }
 
-    // Insert new email if not found
+    // Insert new email into the database
     pool.query('INSERT INTO emails (email) VALUES (?)', [email], (insertErr, result) => {
       if (insertErr) {
         console.error('Insert Error:', insertErr);
@@ -528,30 +528,26 @@ app.post('/notify', (req, res) => {
 
       console.log('Email inserted successfully:', result);
 
-      // Send email via SendGrid
-      const msg = {
+      // Send maintenance notification email via SendGrid
+      const maintenanceMsg = {
         to: email,
         from: process.env.ADMIN_EMAIL,
-        subject: 'Website Maintenance Update',
-        text: 'The website is now back online! Thank you for your patience.',
+        subject: 'Website Under Maintenance',
+        text: 'Our website is currently under maintenance. We will notify you once we are back online. Thank you for your patience.',
       };
 
-      sgMail.send(msg, (mailErr) => {
+      sgMail.send(maintenanceMsg, (mailErr) => {
         if (mailErr) {
           console.error('Email Error:', mailErr);
-          return res.status(500).send('Failed to send email.');
+          return res.status(500).send('Failed to send maintenance notification email.');
         }
 
-        console.log(`Notification sent to ${email}`);
-        res.status(200).send('Email saved and notification sent.');
+        console.log(`Maintenance notification sent to ${email}`);
+        res.status(200).send('Email saved and maintenance notification sent.');
       });
     });
   });
 });
-
-
-
-
 
 // Calculate the date and time for the maintenance to end (3 days, 3 hours, 33 minutes, and 45 seconds from now)
 const endTime = moment().add({ days: 3, hours: 3, minutes: 33, seconds: 45 }); // Set maintenance end time
@@ -559,34 +555,41 @@ const endTime = moment().add({ days: 3, hours: 3, minutes: 33, seconds: 45 }); /
 // Convert the end time to cron format (rounded to the nearest minute)
 const cronSchedule = `${endTime.minutes()} ${endTime.hours()} ${endTime.date()} ${endTime.month() + 1} *`; // cron expects months to be in 1-12 range
 
-// Task to send emails to all subscribers when maintenance ends
+// Task to send emails to all subscribers when maintenance ends and website is back online
 cron.schedule(cronSchedule, async () => {
   console.log(`Sending emails at ${endTime.format('YYYY-MM-DD HH:mm:ss')}`);
 
   try {
     // Fetch all email addresses from the database
-    const [results] = await pool.execute('SELECT email FROM emails');
-    
-    // Loop through each email and send an email via SendGrid
-    for (let result of results) {
-      const email = result.email;
-
-      const msg = {
-        to: email,
-        from: process.env.ADMIN_EMAIL, // Replace with your email
-        subject: 'Website Maintenance Update',
-        text: 'The website is now back online! Thank you for your patience.',
-      };
-
-      try {
-        await sgMail.send(msg);
-        console.log(`Email sent to ${email}`);
-      } catch (error) {
-        console.error(`Error sending email to ${email}:`, error);
+    pool.query('SELECT email FROM emails', (err, results) => {
+      if (err) {
+        console.error('Error fetching emails from database:', err);
+        return;
       }
-    }
+
+      // Loop through each email and send an email via SendGrid
+      results.forEach((result) => {
+        const email = result.email;
+
+        const backOnlineMsg = {
+          to: email,
+          from: process.env.ADMIN_EMAIL, // Replace with your email
+          subject: 'Website Maintenance Update',
+          text: 'The website is now back online! Thank you for your patience.',
+        };
+
+        // Send the email
+        sgMail.send(backOnlineMsg, (mailErr) => {
+          if (mailErr) {
+            console.error(`Error sending email to ${email}:`, mailErr);
+          } else {
+            console.log(`Email sent to ${email}`);
+          }
+        });
+      });
+    });
   } catch (err) {
-    console.error('Error fetching emails from database:', err);
+    console.error('Error during cron job execution:', err);
   }
 });
 
