@@ -509,16 +509,22 @@ app.post('/notify', async (req, res) => {
   const { email } = req.body;
 
   try {
-    // Execute the query and handle the response directly
+    // Execute the query and log the raw result
     const result = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
+    console.log('Query Result:', result);
 
-    if (!Array.isArray(result) || result.length < 1) {
+    // Check if the result is structured as expected
+    if (!Array.isArray(result) || result.length !== 2) {
       throw new Error('Unexpected query result format.');
     }
 
-    const [rows] = result;  // Destructure rows safely
+    const [rows] = result;
 
-    console.log('Query result:', rows);
+    if (!Array.isArray(rows)) {
+      throw new Error('Unexpected rows format.');
+    }
+
+    console.log('Query rows:', rows);
 
     // If email already exists, return a response
     if (rows.length > 0) {
@@ -527,14 +533,16 @@ app.post('/notify', async (req, res) => {
 
     // Insert email into the database
     const insertResult = await pool.execute('INSERT INTO emails (email) VALUES (?)', [email]);
+    console.log('Insert Result:', insertResult);
 
-    if (!Array.isArray(insertResult) || insertResult.length < 1) {
+    // Validate insert result
+    if (!Array.isArray(insertResult) || insertResult.length !== 2) {
       throw new Error('Failed to insert email.');
     }
 
-    console.log('Data inserted into database:', insertResult[0]);
+    console.log('Email inserted successfully.');
 
-    // Prepare and send email using SendGrid
+    // Send notification email
     const msg = {
       to: email,
       from: process.env.ADMIN_EMAIL,
@@ -542,19 +550,17 @@ app.post('/notify', async (req, res) => {
       text: 'The website is now back online! Thank you for your patience.',
     };
 
-    // Send email
     await sgMail.send(msg);
     console.log(`Email sent to ${email}`);
 
-    // Respond to client
     res.status(200).send('Email sent and email saved successfully.');
 
   } catch (err) {
-    // Handle errors
     console.error('Error:', err.message);
-    res.status(500).send('Failed to save email or send notification.');
+    res.status(500).send(err.message || 'Failed to save email or send notification.');
   }
 });
+
 
 
 
