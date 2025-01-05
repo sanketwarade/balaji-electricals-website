@@ -509,28 +509,21 @@ app.post('/notify', async (req, res) => {
   const { email } = req.body;
 
   try {
-    // Run query and check for existing email
-    const result = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
-    
-    // Log full result for debugging
-    console.log('Raw Query Result:', result);
+    // Query to check if the email already exists
+    const [rows, fields] = await pool.query('SELECT * FROM emails WHERE email = ?', [email]);
 
-    // Check if result is undefined or unexpected
-    if (!result || result.length !== 2) {
-      throw new Error('Unexpected query result format.');
-    }
+    console.log('Query Result:', rows);  // Log rows to confirm structure
 
-    const [rows] = result;
-
+    // If the email exists, return an error
     if (rows.length > 0) {
       return res.status(400).send('This email is already subscribed.');
     }
 
-    // Insert new email
-    const [insertResult] = await pool.execute('INSERT INTO emails (email) VALUES (?)', [email]);
-    console.log('Email inserted:', insertResult);
+    // Insert email if not already in the database
+    const [insertResult] = await pool.query('INSERT INTO emails (email) VALUES (?)', [email]);
+    console.log('Insert Result:', insertResult);
 
-    // Send notification email
+    // Prepare email message
     const msg = {
       to: email,
       from: process.env.ADMIN_EMAIL,
@@ -538,7 +531,11 @@ app.post('/notify', async (req, res) => {
       text: 'The website is now back online! Thank you for your patience.',
     };
 
+    // Send the email
     await sgMail.send(msg);
+    console.log(`Email sent to ${email}`);
+
+    // Respond to client
     res.status(200).send('Email sent and email saved successfully.');
   } catch (err) {
     console.error('Error:', err.message);
