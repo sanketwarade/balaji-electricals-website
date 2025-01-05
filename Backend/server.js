@@ -509,38 +509,26 @@ app.post('/notify', async (req, res) => {
   const { email } = req.body;
 
   try {
-    // Execute the query and log the raw result
+    // Run query and check for existing email
     const result = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
-    console.log('Query Result:', result);
+    
+    // Log full result for debugging
+    console.log('Raw Query Result:', result);
 
-    // Check if the result is structured as expected
-    if (!Array.isArray(result) || result.length !== 2) {
+    // Check if result is undefined or unexpected
+    if (!result || result.length !== 2) {
       throw new Error('Unexpected query result format.');
     }
 
     const [rows] = result;
 
-    if (!Array.isArray(rows)) {
-      throw new Error('Unexpected rows format.');
-    }
-
-    console.log('Query rows:', rows);
-
-    // If email already exists, return a response
     if (rows.length > 0) {
       return res.status(400).send('This email is already subscribed.');
     }
 
-    // Insert email into the database
-    const insertResult = await pool.execute('INSERT INTO emails (email) VALUES (?)', [email]);
-    console.log('Insert Result:', insertResult);
-
-    // Validate insert result
-    if (!Array.isArray(insertResult) || insertResult.length !== 2) {
-      throw new Error('Failed to insert email.');
-    }
-
-    console.log('Email inserted successfully.');
+    // Insert new email
+    const [insertResult] = await pool.execute('INSERT INTO emails (email) VALUES (?)', [email]);
+    console.log('Email inserted:', insertResult);
 
     // Send notification email
     const msg = {
@@ -551,15 +539,13 @@ app.post('/notify', async (req, res) => {
     };
 
     await sgMail.send(msg);
-    console.log(`Email sent to ${email}`);
-
     res.status(200).send('Email sent and email saved successfully.');
-
   } catch (err) {
     console.error('Error:', err.message);
-    res.status(500).send(err.message || 'Failed to save email or send notification.');
+    res.status(500).send('Failed to save email or send notification.');
   }
 });
+
 
 
 
