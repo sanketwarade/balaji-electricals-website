@@ -12,6 +12,7 @@ const helmet = require('helmet'); // New: Secure HTTP headers
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs');
+const axios = require('axios');
 const cron = require('node-cron');
 const moment = require('moment'); // To handle date and time more easily
 const cookieParser = require('cookie-parser');
@@ -550,15 +551,17 @@ app.post('/notify', (req, res) => {
 });
 
 // Calculate the date and time for the maintenance to end (3 days, 3 hours, 33 minutes, and 45 seconds from now)
-const endTime = moment().add({ days: 0, hours: 0, minutes: 14, seconds: 45 }); // Set maintenance end time
+// Set the end time for the maintenance countdown (adjust as necessary)
+const endTime = moment().add({ days: 0, hours: 0, minutes: 6, seconds: 45 }); // Countdown ends in 14 minutes
 
 // Convert the end time to cron format (rounded to the nearest minute)
 const cronSchedule = `${endTime.minutes()} ${endTime.hours()} ${endTime.date()} ${endTime.month() + 1} *`; // cron expects months to be in 1-12 range
 
-// Task to send emails to all subscribers when maintenance ends and website is back online
+// Task to send emails and exit maintenance mode (serve index.html)
 cron.schedule(cronSchedule, async () => {
-  console.log(`Sending emails at ${endTime.format('YYYY-MM-DD HH:mm:ss')}`);
+  console.log(`Sending emails and exiting maintenance mode at ${endTime.format('YYYY-MM-DD HH:mm:ss')}`);
 
+  // 1. Send maintenance end email to all subscribers
   try {
     // Fetch all email addresses from the database
     pool.query('SELECT email FROM emails', (err, results) => {
@@ -589,7 +592,16 @@ cron.schedule(cronSchedule, async () => {
       });
     });
   } catch (err) {
-    console.error('Error during cron job execution:', err);
+    console.error('Error during email sending:', err);
+  }
+
+  // 2. Trigger the exit from maintenance mode and serve index.html (Home page)
+  try {
+    // Use Netlify's API to trigger a redeploy (replace with your actual build hook URL)
+    const response = await axios.post('https://api.netlify.com/build_hooks/https://api.netlify.com/build_hooks/677a880e74af9674dad5abff');
+    console.log('Netlify Build Triggered:', response.status);
+  } catch (error) {
+    console.error('Error triggering build on Netlify:', error);
   }
 });
 
