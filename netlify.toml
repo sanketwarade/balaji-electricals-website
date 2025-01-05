@@ -3,8 +3,14 @@
   publish = "Frontend"
   functions = "netlify/functions"
 
+# Allow images and assets to load during maintenance
+[[redirects]]
+  from = "/images/*"
+  to = "/images/:splat"
+  status = 200
+  force = false
 
-
+# Catch-all for maintenance (everything except images)
 [[redirects]]
   from = "/*"
   to = "/maintenance.html"
@@ -12,8 +18,9 @@
   force = true
   conditions = {Language = ["en"]}
 
+# Bypass for favicon
 [[redirects]]
-  from = "/images/*"
-  to = "/images/:splat"
+  from = "/favicon.ico"
+  to = "/favicon.ico"
   status = 200
-  force = true
+  force = false
