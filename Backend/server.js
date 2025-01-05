@@ -550,7 +550,7 @@ app.post('/notify', (req, res) => {
 });
 
 // Calculate the date and time for the maintenance to end (3 days, 3 hours, 33 minutes, and 45 seconds from now)
-const endTime = moment().add({ days: 3, hours: 3, minutes: 33, seconds: 45 }); // Set maintenance end time
+const endTime = moment().add({ days: 0, hours: 0, minutes: 14, seconds: 45 }); // Set maintenance end time
 
 // Convert the end time to cron format (rounded to the nearest minute)
 const cronSchedule = `${endTime.minutes()} ${endTime.hours()} ${endTime.date()} ${endTime.month() + 1} *`; // cron expects months to be in 1-12 range
