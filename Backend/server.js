@@ -509,12 +509,14 @@ app.post('/notify', async (req, res) => {
   const { email } = req.body;
 
   try {
-    // Check if the email already exists
-    const [rows, fields] = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
+    // Execute the query and handle the response directly
+    const result = await pool.execute('SELECT * FROM emails WHERE email = ?', [email]);
 
-    if (!Array.isArray(rows)) {
+    if (!Array.isArray(result) || result.length < 1) {
       throw new Error('Unexpected query result format.');
     }
+
+    const [rows] = result;  // Destructure rows safely
 
     console.log('Query result:', rows);
 
@@ -524,8 +526,13 @@ app.post('/notify', async (req, res) => {
     }
 
     // Insert email into the database
-    const [insertResult] = await pool.execute('INSERT INTO emails (email) VALUES (?)', [email]);
-    console.log('Data inserted into database:', insertResult);
+    const insertResult = await pool.execute('INSERT INTO emails (email) VALUES (?)', [email]);
+
+    if (!Array.isArray(insertResult) || insertResult.length < 1) {
+      throw new Error('Failed to insert email.');
+    }
+
+    console.log('Data inserted into database:', insertResult[0]);
 
     // Prepare and send email using SendGrid
     const msg = {
@@ -544,10 +551,11 @@ app.post('/notify', async (req, res) => {
 
   } catch (err) {
     // Handle errors
-    console.error('Error:', err);
+    console.error('Error:', err.message);
     res.status(500).send('Failed to save email or send notification.');
   }
 });
+
 
 
 // Calculate the date and time for the maintenance to end (3 days, 3 hours, 33 minutes, and 45 seconds from now)
