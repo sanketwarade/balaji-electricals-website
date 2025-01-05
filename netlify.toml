@@ -5,15 +5,15 @@
 
 
 
-#[[redirects]]
- # from = "/*"
-  #to = "/maintenance.html"
-  #status = 503
-  #force = true
-  #conditions = {Language = ["en"]}
+[[redirects]]
+  from = "/*"
+  to = "/maintenance.html"
+  status = 503
+  force = true
+  conditions = {Language = ["en"]}
 
 [[redirects]]
   from = "/images/*"
   to = "/images/:splat"
   status = 200
-  force = false
+  force = true
