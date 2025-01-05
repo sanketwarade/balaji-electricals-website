@@ -552,7 +552,7 @@ app.post('/notify', (req, res) => {
 
 // Calculate the date and time for the maintenance to end (3 days, 3 hours, 33 minutes, and 45 seconds from now)
 // Set the end time for the maintenance countdown (adjust as necessary)
-const endTime = moment().add({ days: 0, hours: 0, minutes: 7, seconds: 50 }); // Countdown ends in 14 minutes
+const endTime = moment().add({ days: 0, hours: 0, minutes: 10, seconds: 50 }); // Countdown ends in 14 minutes
 
 // Convert the end time to cron format (rounded to the nearest minute)
 const cronSchedule = `${endTime.minutes()} ${endTime.hours()} ${endTime.date()} ${endTime.month() + 1} *`; // cron expects months to be in 1-12 range
@@ -598,7 +598,7 @@ cron.schedule(cronSchedule, async () => {
   // 2. Trigger the exit from maintenance mode and serve index.html (Home page)
   try {
     // Use Netlify's API to trigger a redeploy (replace with your actual build hook URL)
-    const response = await axios.post('https://api.netlify.com/build_hooks/https://api.netlify.com/build_hooks/677a880e74af9674dad5abff');
+    const response = await axios.post('https://api.netlify.com/build_hooks/677a880e74af9674dad5abff');
     console.log('Netlify Build Triggered:', response.status);
   } catch (error) {
     console.error('Error triggering build on Netlify:', error);
