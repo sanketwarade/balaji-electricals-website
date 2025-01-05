@@ -505,42 +505,48 @@ app.post('/submit-Enquiryform', [
   });
 
 // Handle email subscription and notifications
-app.post('/notify', async (req, res) => {
+app.post('/notify', (req, res) => {
   const { email } = req.body;
 
-  try {
-    // Query to check if the email already exists
-    const [rows, fields] = await pool.query('SELECT * FROM emails WHERE email = ?', [email]);
+  // Check if email exists
+  pool.query('SELECT * FROM emails WHERE email = ?', [email], (err, rows) => {
+    if (err) {
+      console.error('Database Error:', err);
+      return res.status(500).send('Database query failed.');
+    }
 
-    console.log('Query Result:', rows);  // Log rows to confirm structure
-
-    // If the email exists, return an error
     if (rows.length > 0) {
       return res.status(400).send('This email is already subscribed.');
     }
 
-    // Insert email if not already in the database
-    const [insertResult] = await pool.query('INSERT INTO emails (email) VALUES (?)', [email]);
-    console.log('Insert Result:', insertResult);
+    // Insert new email if not found
+    pool.query('INSERT INTO emails (email) VALUES (?)', [email], (insertErr, result) => {
+      if (insertErr) {
+        console.error('Insert Error:', insertErr);
+        return res.status(500).send('Failed to insert email.');
+      }
 
-    // Prepare email message
-    const msg = {
-      to: email,
-      from: process.env.ADMIN_EMAIL,
-      subject: 'Website Maintenance Update',
-      text: 'The website is now back online! Thank you for your patience.',
-    };
+      console.log('Email inserted successfully:', result);
 
-    // Send the email
-    await sgMail.send(msg);
-    console.log(`Email sent to ${email}`);
+      // Send email via SendGrid
+      const msg = {
+        to: email,
+        from: process.env.ADMIN_EMAIL,
+        subject: 'Website Maintenance Update',
+        text: 'The website is now back online! Thank you for your patience.',
+      };
 
-    // Respond to client
-    res.status(200).send('Email sent and email saved successfully.');
-  } catch (err) {
-    console.error('Error:', err.message);
-    res.status(500).send('Failed to save email or send notification.');
-  }
+      sgMail.send(msg, (mailErr) => {
+        if (mailErr) {
+          console.error('Email Error:', mailErr);
+          return res.status(500).send('Failed to send email.');
+        }
+
+        console.log(`Notification sent to ${email}`);
+        res.status(200).send('Email saved and notification sent.');
+      });
+    });
+  });
 });
 
 
