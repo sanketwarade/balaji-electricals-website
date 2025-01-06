@@ -285,8 +285,14 @@
       if (distance < 0) {
         clearInterval(x);
         document.getElementById("countdown").innerHTML = "We're Back Online!";
-      }
-    }, 1000);
+          // Redirect after countdown ends
+      setTimeout(() => {
+        document.cookie = "maintenance=false"; // Set cookie to bypass redirect
+        window.location.href = "/";
+      }, 3000);
+    }
+  }, 1000);
+    
 
     // Email Validator Function
     function validateEmail(email) {
