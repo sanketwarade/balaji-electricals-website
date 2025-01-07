@@ -18,10 +18,3 @@
   force = true
   conditions = {Language = ["en"]}
 
-# Redirect back to the main site after maintenance
-[[redirects]]
-  from = "/maintenance.html"
-  to = "/"
-  status = 302
-  force = true
-  conditions = {Cookie = ["maintenance=false"]} # Use cookie to control redirection
