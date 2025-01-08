@@ -1,5 +1,5 @@
 exports.handler = async () => {
-    const maintenanceMode = process.env.MAINTENANCE_MODE || 'TRUE';
+    const maintenanceMode = process.env.MAINTENANCE_MODE || 'FALSE';
   
     return {
       statusCode: 200,
