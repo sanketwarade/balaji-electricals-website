@@ -10,7 +10,10 @@
   status = 200
   force = false
 
+
+
 # Serve maintenance page during maintenance
+# if you want to enable maintenance mode then remove comment
 #[[redirects]]
 #  from = "/*"
 #  to = "/maintenance.html"
