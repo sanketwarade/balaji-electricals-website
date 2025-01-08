@@ -11,16 +11,7 @@
     <link rel="icon" href="images/favicon.ico" type="image/x-icon">
     <title>BALAJI ELECTRICALS - Home</title>
     <!-- Maintenance Mode Check -->
-    <script>
-        fetch('/.netlify/functions/get-maintenance-mode')
-          .then(response => response.json())
-          .then(data => {
-            if (data.maintenanceMode === 'FALSE') {
-              window.location.href = "/maintenance.html";
-            }
-          })
-          .catch(error => console.error('Error fetching maintenance mode:', error));
-      </script>
+    
     <script src="js/common.js"></script>
     
     <!-- Google Font -->
