@@ -11,10 +11,10 @@
   force = false
 
 # Serve maintenance page during maintenance
-[[redirects]]
-  from = "/*"
-  to = "/maintenance.html"
-  status = 503
-  force = true
-  conditions = {Language = ["en"]}
+#[[redirects]]
+#  from = "/*"
+#  to = "/maintenance.html"
+#  status = 503
+#  force = true
+#  conditions = {Language = ["en"]}
 
